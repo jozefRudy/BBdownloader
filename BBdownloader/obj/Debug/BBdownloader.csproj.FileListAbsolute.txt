@@ -1,0 +1,9 @@
+G:\projects\BBdownloader\BBdownloader\BBdownloader\bin\Debug\BBdownloader.exe.config
+G:\projects\BBdownloader\BBdownloader\BBdownloader\bin\Debug\BBdownloader.exe
+G:\projects\BBdownloader\BBdownloader\BBdownloader\bin\Debug\BBdownloader.pdb
+G:\projects\BBdownloader\BBdownloader\BBdownloader\obj\Debug\BBdownloader.csprojResolveAssemblyReference.cache
+G:\projects\BBdownloader\BBdownloader\BBdownloader\obj\Debug\BBdownloader.Form1.resources
+G:\projects\BBdownloader\BBdownloader\BBdownloader\obj\Debug\BBdownloader.Properties.Resources.resources
+G:\projects\BBdownloader\BBdownloader\BBdownloader\obj\Debug\BBdownloader.csproj.GenerateResource.Cache
+G:\projects\BBdownloader\BBdownloader\BBdownloader\obj\Debug\BBdownloader.exe
+G:\projects\BBdownloader\BBdownloader\BBdownloader\obj\Debug\BBdownloader.pdb
