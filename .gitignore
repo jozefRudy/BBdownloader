@@ -48,3 +48,5 @@ x64/
 build/
 [Oo]bj/
 [Bb]in/
+*.sln
+*.suo
