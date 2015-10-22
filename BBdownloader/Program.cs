@@ -16,7 +16,7 @@ namespace BBdownloader
         static void Main()
         {
             List<string> shareNames = new List<string>();
-            IEnumerable<Field> fields = new List<Field>();
+            IEnumerable<IField> fields = new List<Field>();
 
             Sheet sheet = new Sheet();
             sheet.Download(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "0" });
