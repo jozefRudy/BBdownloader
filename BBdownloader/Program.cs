@@ -1,6 +1,7 @@
 ﻿using System;
 using BBdownloader.GoogleDocs;
 using System.Collections.Generic;
+using BBdownloader.Shares;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,22 +15,30 @@ namespace BBdownloader
         [STAThread]
         static void Main()
         {
-            Sheets sheet = new Sheets();
-            sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "0" }); //shares
+            List<string> shareNames = new List<string>();
+            IEnumerable<Field> fields = new List<Field>();
+
+            Sheet sheet = new Sheet();
+            sheet.Download(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "0" });
+            shareNames = sheet.toShares();
+
+            sheet.Download(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "794076055" });
+            var daco = sheet.toFields(fields);
+
+            foreach (var shareName in shareNames)
+            {
+                //Share share = new Share(name: shareName);
+            }
+
+
+
+            /*
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "1607987342" }); //indices
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "794076055" }); //fields
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "485268174" }); //shares reload
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "485268174" }); //shares reload
-            sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "1767144829" }); //shares delete
-           
-            sheet.Download();
-
-            string url = @"https://spreadsheets.google.com/feeds/download/spreadsheets/Export?key=19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw&exportFormat=csv&gid=1607987342";
-
-            WebClientEx wc = new WebClientEx();
-
-            var outputCSVdata = wc.DownloadString(url);
-            Console.Write(outputCSVdata);
+            sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "1767144829" }); //shares delete*/
+          
 
 
             {
