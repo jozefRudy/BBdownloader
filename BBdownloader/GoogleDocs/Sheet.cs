@@ -45,23 +45,46 @@ namespace BBdownloader.GoogleDocs
             return listShares;
         }
 
-        public IEnumerable<IField> toFields(IEnumerable<IField> fields)
+        public void toFields<T>(List<Field> fields) where T: Field, new()
         {
-            var listFields = new List<string>();
+            var rows = new List<string>();
 
             this.output = this.output.Replace("\r", "");
-            listFields = this.output.Split('\n' ).ToList();
+            rows = this.output.Split('\n' ).ToList();
 
+            var headings = rows[0].Split(',').ToList();
 
+            rows.RemoveAt(0);
 
-            /*
-            foreach (var field in fields)
+            foreach (var r in rows)
             {
-                
+                var columns = r.Split(',');
 
-            }*/
-
-            return null;
+                int i = -1;
+                T field = new T();
+                foreach (var col in columns)
+                {
+                    i++;
+                    
+                    switch (headings.ElementAtOrDefault(i).ToLower())
+                    {
+                        case "override":
+                            if (col.Length>0)
+                                field.Overrides.Add(col);
+                            break;
+                        case "fieldnickname":
+                            field.FieldNickName = col;
+                            break;
+                        case "field":
+                            field.FieldName = col;
+                            break;
+                        default:
+                            break;
+                    }
+                    
+                }
+                fields.Add(field);
+            }            
         }
 
     }

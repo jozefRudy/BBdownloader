@@ -11,6 +11,24 @@ namespace BBdownloader.Shares
         public string FieldNickName { get; set; }
         public string FieldName { get; set; }
         public List<string> Overrides { get; set; }
+     
         
+        public Field()
+        {
+            Overrides = new List<string>();
+        }
+
+        public string ToString()
+        {
+            string overrides = String.Empty;
+            
+            foreach (var item in Overrides)
+	        {
+		        overrides += item + ", ";
+	        }
+            if (Overrides.Count>0)
+                overrides = overrides.Remove(overrides.Length - 2);
+            return FieldNickName + ", " + overrides;
+        }
     }
 }

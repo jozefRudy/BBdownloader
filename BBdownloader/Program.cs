@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using BBdownloader.Shares;
 using System.Linq;
 using System.Threading.Tasks;
+using BBdownloader.DataSource;
+using BBdownloader.FileSystem;
 
 namespace BBdownloader
 {
@@ -16,21 +18,36 @@ namespace BBdownloader
         static void Main()
         {
             List<string> shareNames = new List<string>();
-            IEnumerable<IField> fields = new List<Field>();
+            var fields = new List<Field>();
 
             Sheet sheet = new Sheet();
             sheet.Download(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "0" });
             shareNames = sheet.toShares();
 
             sheet.Download(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "794076055" });
-            var daco = sheet.toFields(fields);
+            sheet.toFields<Field>(fields);
+
+            IDataSource dataSource = new FakeData();
+            if (dataSource.Connect(""))
+                Console.WriteLine("Connection to Bloomberg Established Succesfully");
+            else
+            { 
+                Console.WriteLine("Connection Failed");
+                Console.ReadKey();
+                Environment.Exit(0);
+            }
+
+            Disk disk = new Disk();
+            disk.SetPath("data");
 
             foreach (var shareName in shareNames)
             {
-                //Share share = new Share(name: shareName);
+                Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk);
+                share.LoadFields();
+                share.DownloadFields();
+                share.CombineLoadedDownladedAll();
+                share.WriteFields();
             }
-
-
 
             /*
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "1607987342" }); //indices
@@ -39,34 +56,6 @@ namespace BBdownloader
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "485268174" }); //shares reload
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "1767144829" }); //shares delete*/
           
-
-
-            {
-                Stock stock = new Stock("AAPL");
-                stock.CreateDirectory();
-                stock.WriteDates("PUBLICATION DATE", 10);
-                stock.WriteFloats("EARN", 10);
-                stock.WriteField("INDUSTRY", DateTime.Today.AddDays(-20), "Consumer discretionary");
-                stock.WriteField("LONG NAME", DateTime.Today.AddDays(-20), "Apple corporation");
-            }
-
-            {
-                Stock stock = new Stock("MSFT");
-                stock.CreateDirectory();
-                stock.WriteDates("PUBLICATION DATE", 10);
-                stock.WriteFloats("EARN", 10);
-                stock.WriteField("INDUSTRY", DateTime.Today.AddDays(-20), "IT");
-                stock.WriteField("LONG NAME", DateTime.Today.AddDays(-20), "Microsoft");
-            }
-
-            {
-                Stock stock = new Stock("TSL");
-                stock.CreateDirectory();
-                stock.WriteDates("PUBLICATION DATE", 10);
-                stock.WriteFloats("EARN", 10);
-                stock.WriteField("INDUSTRY", DateTime.Today.AddDays(-20), "Automotive");
-                stock.WriteField("LONG NAME", DateTime.Today.AddDays(-20), "Tesla");
-            }
         }
     }
 }

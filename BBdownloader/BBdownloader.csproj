@@ -35,6 +35,9 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BEmu_csh">
+      <HintPath>C:\Program Files (x86)\Robinson664\BEmuInstaller\BEmu_csh.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -46,6 +49,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataSource\Bloomberg.cs" />
+    <Compile Include="DataSource\FakeData.cs" />
+    <Compile Include="DataSource\IDataSource.cs" />
+    <Compile Include="FileSystem\Disk.cs" />
+    <Compile Include="FileSystem\IFileSystem.cs" />
     <Compile Include="GoogleDocs\Sheet.cs" />
     <Compile Include="GoogleDocs\WebClientEx.cs">
       <SubType>Component</SubType>
@@ -55,8 +63,7 @@
     <Compile Include="Shares\Field.cs" />
     <Compile Include="Shares\IField.cs" />
     <Compile Include="Shares\Share.cs" />
-    <Compile Include="Stock.cs" />
-    <Compile Include="Writer.cs" />
+    <Compile Include="DataSource\FileParser.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
