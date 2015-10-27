@@ -47,9 +47,9 @@ namespace BBdownloader.Shares
             DateTime startDate = new DateTime(1990, 1, 1);
             DateTime endDate = DateTime.Today.AddDays(-1);
 
-            if (loadedValues.ContainsKey(field.FieldName))
+            if (loadedValues.ContainsKey(field.FieldNickName) && loadedValues[field.FieldNickName].Count>0)
             {
-                var kvp = loadedValues[field.FieldName].Last();
+                var kvp = loadedValues[field.FieldNickName].Last();
                 startDate = kvp.Key;
             }
 
