@@ -33,7 +33,7 @@ namespace BBdownloader
             sheet.Download(new string[] { gdocsSheet, config.GetValue("fields") });
             sheet.toFields<Field>(fields);
             
-            IDataSource dataSource = new FakeData();
+            IDataSource dataSource = new Bloomberg();
             if (dataSource.Connect(""))
                 Console.WriteLine("Connection to Bloomberg Established Succesfully");
             else

@@ -80,7 +80,8 @@ namespace BBdownloader.DataSource {
 
             foreach (var item in overrides)
             {
-                listOverrides.SetElement(item[0],item[1]);
+                if (item[0].Length>0 && item[1].Length>0)
+                    listOverrides.SetElement(item[0],item[1]);
             }
 
             request.Set("periodicityAdjustment", "ACTUAL");
