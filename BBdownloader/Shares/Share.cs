@@ -59,7 +59,19 @@ namespace BBdownloader.Shares
             }
                 
             var output = new SortedList<DateTime, dynamic>();
-            dataSource.DownloadData(securityName: this.name, inputField: field.FieldName, overrides: field.Overrides, startDate: startDate, endDate: endDate, outList: out output);
+            dataSource.DownloadData(securityName: this.name, field: field, startDate: startDate, endDate: endDate, outList: out output);
+
+
+            /*
+            SortedList<DateTime, dynamic> hovno = new SortedList<DateTime, dynamic>();
+
+            
+            foreach (var item in output)
+            {
+                if (!hovno.ContainsKey(item.Value))
+                    hovno.Add(item.Value, null);
+            }*/
+            
 
             if (!downloadedValues.ContainsKey(field.FieldNickName))
             {

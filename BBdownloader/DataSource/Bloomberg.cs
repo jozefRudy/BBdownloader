@@ -99,7 +99,7 @@ namespace BBdownloader.DataSource {
             //request.Set("returnEids", true);
 
             //Console.WriteLine("Sending Request: " + request);
-            Console.WriteLine("Downloading: " + securityName + ", Field: " + inputField);
+            Console.WriteLine("Downloading: " + securityName + ", Field: " + field.FieldName);
             session.SendRequest(request, null);
 
             bool done = false;
