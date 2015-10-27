@@ -76,13 +76,14 @@ namespace BBdownloader.DataSource {
 
             fields.AppendValue(inputField);
 
+            /*
             Element listOverrides = request.GetElement("overrides");
 
             foreach (var item in overrides)
             {
                 if (item[0].Length>0 && item[1].Length>0)
                     listOverrides.SetElement(item[0],item[1]);
-            }
+            }*/
 
             request.Set("periodicityAdjustment", "ACTUAL");
             request.Set("periodicitySelection", "DAILY");
@@ -135,28 +136,25 @@ namespace BBdownloader.DataSource {
 
                                 string dataType = point.Datatype.ToString();
                                 if (point.Name.ToString() == "ECO_RELEASE_DT")
-                                { dataType = "STRINGDATE"; }
+                                { dataType = "DATE"; }
 
                                 switch (dataType)
 	                            {
                                     case "DATE":
                                         {
-                                        DateTime _elementValue;
-                                        ok = DateTime.TryParse(point.GetValue().ToString(), out _elementValue);
-                                        elementValue = _elementValue;        
+                                            DateTime _elementValue;
+                                            if (DateTime.TryParse(point.GetValue().ToString(), out _elementValue) || 
+                                                DateTime.TryParseExact(point.GetValue().ToString(), "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None,out _elementValue))
+                                            {
+                                                ok = true;
+                                                elementValue = _elementValue;
+                                            }                                            
                                         break;
                                         }
                                     case "FLOAT64":
                                         {
                                         float _elementValue;
                                         ok = float.TryParse(point.GetValue().ToString(), out _elementValue);
-                                        elementValue = _elementValue;
-                                        break;
-                                        }
-                                    case "STRINGDATE":
-                                        { 
-                                        DateTime _elementValue;
-                                        ok = DateTime.TryParseExact(point.GetValue().ToString(), "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None,out _elementValue);
                                         elementValue = _elementValue;
                                         break;
                                         }
