@@ -52,7 +52,9 @@
     <Compile Include="DataSource\Bloomberg.cs" />
     <Compile Include="DataSource\FakeData.cs" />
     <Compile Include="DataSource\IDataSource.cs" />
-    <Compile Include="FileSystem\Disk.cs" />
+    <Compile Include="Extension Methods\ExtensionMethods.cs" />
+    <Compile Include="FileSystem\Ftp.cs" />
+    <Compile Include="FileSystem\LocalDisk.cs" />
     <Compile Include="FileSystem\IFileSystem.cs" />
     <Compile Include="GoogleDocs\Sheet.cs" />
     <Compile Include="GoogleDocs\WebClientEx.cs">
@@ -86,6 +88,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

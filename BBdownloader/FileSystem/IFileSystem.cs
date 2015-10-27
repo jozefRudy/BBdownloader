@@ -16,6 +16,7 @@ namespace BBdownloader.FileSystem
         bool WriteFile(string path, string contents);
 
         bool DeleteFile(string path);
+        string[] ListFiles(string path);
 
     }
 }

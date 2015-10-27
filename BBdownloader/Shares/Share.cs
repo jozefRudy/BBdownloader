@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 using BBdownloader.DataSource;
 using BBdownloader.FileSystem;
 using System.IO;
-
+using BBdownloader.Extension_Methods;
+using System.Diagnostics;
 
 namespace BBdownloader.Shares
 {
@@ -33,7 +34,7 @@ namespace BBdownloader.Shares
             combinedValues = new Dictionary<string, SortedList<DateTime, dynamic>>();
         }
 
-        public bool DownloadFields()
+        private bool DownloadFields()
         {
             foreach (var field in this.fields)
 	        {
@@ -44,7 +45,7 @@ namespace BBdownloader.Shares
 
         private bool DownloadField(IField field)
         {
-            DateTime startDate = new DateTime(2000, 10, 1);
+            DateTime startDate = new DateTime(1990, 1, 1);
             DateTime endDate = DateTime.Today.AddDays(-1);
 
             if (loadedValues.ContainsKey(field.FieldName))
@@ -52,7 +53,12 @@ namespace BBdownloader.Shares
                 var kvp = loadedValues[field.FieldName].Last();
                 startDate = kvp.Key;
             }
-            
+
+            if (startDate >= endDate)
+            {
+                return false;                
+            }
+                
             var output = new SortedList<DateTime, dynamic>();
             dataSource.DownloadData(securityName: this.name, inputField: field.FieldName, startDate: startDate, endDate: endDate, outList: out output);
 
@@ -63,7 +69,7 @@ namespace BBdownloader.Shares
             return true;
         }
         
-        public bool LoadFields()
+        private bool LoadFields()
         {
             foreach (var field in this.fields)
             {
@@ -72,7 +78,7 @@ namespace BBdownloader.Shares
             return true;
         }
 
-        public bool LoadField(IField field)
+        private bool LoadField(IField field)
         {
             var content = fileAccess.ReadFile(Path.Combine(this.name,field.FieldNickName + ".csv"));
             FileParser parser = new FileParser();
@@ -82,7 +88,7 @@ namespace BBdownloader.Shares
             return true;
         }
 
-        public bool WriteFields()
+        private bool WriteFields()
         {
             foreach (var field in this.fields)
             {
@@ -91,19 +97,23 @@ namespace BBdownloader.Shares
             return true;
         }
 
-        public bool WriteField(IField field)
+        private bool WriteField(IField field)
         {
             if (combinedValues.ContainsKey(field.FieldNickName))
             {
                 FileParser parser = new FileParser();
                 string content = parser.Write(combinedValues[field.FieldNickName],",");
+
+                if (!downloadedValues.ContainsKey(field.FieldNickName) || downloadedValues[field.FieldNickName].Count == 0)
+                    return false;
+
                 fileAccess.WriteFile(Path.Combine(this.name, field.FieldNickName + ".csv"), content);
                 return true;
             }
             return false;
         }
 
-        public bool CombineLoadedDownladedAll()
+        private bool CombineLoadedDownladedAll()
         {
             foreach (var field in this.fields)
             {
@@ -112,8 +122,74 @@ namespace BBdownloader.Shares
             return true;
         }
 
-        public bool CombineLoadedDownloaded(IField field)
+        private bool CombineLoadedDownloaded(IField field)
+        {            
+            if (!loadedValues.ContainsKey(field.FieldNickName) || 
+                !downloadedValues.ContainsKey(field.FieldNickName))
+            {
+                SortedList<DateTime, dynamic> outValue;
+                if (!loadedValues.TryGetValue(field.FieldNickName, out outValue))
+                    downloadedValues.TryGetValue(field.FieldNickName, out outValue);
+                combinedValues[field.FieldNickName] = outValue;
+                return true;
+            }
+
+            switch (field.FieldNickName)
+            {
+                case "adjusted_price":
+                    { 
+                        var loaded = loadedValues[field.FieldNickName].price2ret();
+                        var downloaded = downloadedValues[field.FieldNickName].price2ret();
+                        float lastPrice = downloadedValues[field.FieldNickName].Last().Value;
+
+                        if (downloadedValues[field.FieldNickName].Count > 1)
+                            combinedValues[field.FieldNickName] = loaded.merge(downloaded, 1).ret2price(lastPrice);
+                        else
+                            combinedValues[field.FieldNickName] = downloadedValues[field.FieldNickName];
+                    }
+                    break;                    
+                default:
+                    {
+                        combinedValues[field.FieldNickName] =
+                            loadedValues[field.FieldNickName].merge(downloadedValues[field.FieldNickName], 1);                        
+                    }
+                    break;
+            }
+
+            return true;
+        }
+
+        private bool DeleteFields()
         {
+            var files = fileAccess.ListFiles(name);
+            List<string> fields = new List<string>();
+
+            var fieldNickNames = from f in this.fields
+                                 select f.FieldNickName;
+                                 
+            foreach (var file in files)
+            {
+                var field = file.Split('.')[0];
+                if (!fieldNickNames.Contains(field))
+                    DeleteField(field);                
+            }
+
+            return true;
+        }
+
+        private bool DeleteField(string field)
+        {
+            fileAccess.DeleteFile(Path.Combine(name, field + ".csv"));
+            return true;
+        }
+
+        public bool PerformOperations()
+        {
+            LoadFields();
+            DownloadFields();
+            CombineLoadedDownladedAll();
+            WriteFields();
+            DeleteFields();
             return true;
         }
     }

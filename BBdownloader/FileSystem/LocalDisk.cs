@@ -8,7 +8,7 @@ using System.IO;
 
 namespace BBdownloader.FileSystem
 {
-    public class Disk: IFileSystem
+    public class LocalDisk: IFileSystem
     {
         private string _path;
 
@@ -46,7 +46,15 @@ namespace BBdownloader.FileSystem
 
         public bool DeleteFile(string path)
         {
-            throw new NotImplementedException();
+            string currentPath = Path.Combine(this._path, path);
+            File.Delete(currentPath);
+            return true;
+        }
+
+        public string[] ListFiles(string path)
+        {
+            string currentPath = Path.Combine(this._path, path);
+            return Directory.GetFiles(currentPath);
         }
 
         public void SetPath(string path)

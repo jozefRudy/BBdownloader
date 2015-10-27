@@ -37,16 +37,13 @@ namespace BBdownloader
                 Environment.Exit(0);
             }
 
-            Disk disk = new Disk();
+            LocalDisk disk = new LocalDisk();
             disk.SetPath("data");
 
             foreach (var shareName in shareNames)
             {
                 Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk);
-                share.LoadFields();
-                share.DownloadFields();
-                share.CombineLoadedDownladedAll();
-                share.WriteFields();
+                share.PerformOperations();                
             }
 
             /*

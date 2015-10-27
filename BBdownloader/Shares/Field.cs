@@ -10,15 +10,14 @@ namespace BBdownloader.Shares
     {
         public string FieldNickName { get; set; }
         public string FieldName { get; set; }
-        public List<string> Overrides { get; set; }
-     
+        public List<string> Overrides { get; set; }     
         
         public Field()
         {
             Overrides = new List<string>();
         }
 
-        public string ToString()
+        public override string ToString()
         {
             string overrides = String.Empty;
             
