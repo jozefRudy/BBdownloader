@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-using System;
+
 using System.Globalization;
-using System.Collections.Generic;
 
 using Event = Bloomberglp.Blpapi.Event;
 using Message = Bloomberglp.Blpapi.Message;
@@ -70,7 +66,7 @@ namespace BBdownloader.DataSource {
             return connected;
         }
 
-        public void DownloadData(string securityName, string inputField, DateTime startDate, DateTime endDate, out SortedList<DateTime, dynamic> outList)
+        public void DownloadData(string securityName, string inputField, List<string[]> overrides, DateTime startDate, DateTime endDate, out SortedList<DateTime, dynamic> outList)
         {
             Request request = refDataService.CreateRequest("HistoricalDataRequest");
             Element securities = request.GetElement("securities");
@@ -80,8 +76,12 @@ namespace BBdownloader.DataSource {
 
             fields.AppendValue(inputField);
 
-            
+            Element listOverrides = request.GetElement("overrides");
 
+            foreach (var item in overrides)
+            {
+                listOverrides.SetElement(item[0],item[1]);
+            }
 
             request.Set("periodicityAdjustment", "ACTUAL");
             request.Set("periodicitySelection", "DAILY");

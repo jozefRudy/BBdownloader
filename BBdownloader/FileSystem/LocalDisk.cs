@@ -61,5 +61,12 @@ namespace BBdownloader.FileSystem
         {
             _path = path;
         }
+
+        public bool CreateDirectory(string path)
+        {
+            string currentPath = Path.Combine(this._path, path);
+            Directory.CreateDirectory(currentPath);
+            return true;
+        }
     }
 }

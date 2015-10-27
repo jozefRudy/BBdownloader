@@ -10,11 +10,11 @@ namespace BBdownloader.Shares
     {
         public string FieldNickName { get; set; }
         public string FieldName { get; set; }
-        public List<string> Overrides { get; set; }     
+        public List<string[]> Overrides { get; set; }     
         
         public Field()
         {
-            Overrides = new List<string>();
+            Overrides = new List<string[]>();
         }
 
         public override string ToString()
@@ -23,7 +23,7 @@ namespace BBdownloader.Shares
             
             foreach (var item in Overrides)
 	        {
-		        overrides += item + ", ";
+		        overrides += item[0] + ":" + item[1] + ", ";
 	        }
             if (Overrides.Count>0)
                 overrides = overrides.Remove(overrides.Length - 2);

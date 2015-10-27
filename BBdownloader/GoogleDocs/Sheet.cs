@@ -67,8 +67,8 @@ namespace BBdownloader.GoogleDocs
                     switch (headings.ElementAtOrDefault(i).ToLower())
                     {
                         case "override":
-                            if (col.Length>0)
-                                field.Overrides.Add(col);
+                            if (col.Length > 0)
+                                field.Overrides.Add(col.Split(':'));
                             break;
                         case "fieldnickname":
                             field.FieldNickName = col;

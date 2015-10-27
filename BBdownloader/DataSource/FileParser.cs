@@ -41,7 +41,8 @@ namespace BBdownloader.DataSource
                             default:
                                 break;
                         }
-                        outList.Add(date, parsedValue);
+                        if (!outList.ContainsKey(date))
+                            outList.Add(date, parsedValue);
                     }
                 }
             }

@@ -21,7 +21,6 @@ namespace BBdownloader.Shares
         string name;
         IDataSource dataSource { get; set; }
         IFileSystem fileAccess { get; set; }
-        private SortedList<DateTime, dynamic> _currentField;
 
         public Share(string name, IEnumerable<IField> fields, IDataSource dataSource, IFileSystem fileAccess)
         {
@@ -60,7 +59,7 @@ namespace BBdownloader.Shares
             }
                 
             var output = new SortedList<DateTime, dynamic>();
-            dataSource.DownloadData(securityName: this.name, inputField: field.FieldName, startDate: startDate, endDate: endDate, outList: out output);
+            dataSource.DownloadData(securityName: this.name, inputField: field.FieldName, overrides: field.Overrides, startDate: startDate, endDate: endDate, outList: out output);
 
             if (!downloadedValues.ContainsKey(field.FieldNickName))
             {
@@ -106,6 +105,9 @@ namespace BBdownloader.Shares
 
                 if (!downloadedValues.ContainsKey(field.FieldNickName) || downloadedValues[field.FieldNickName].Count == 0)
                     return false;
+
+                if (!fileAccess.DirectoryExists(this.name))
+                    fileAccess.CreateDirectory(this.name);
 
                 fileAccess.WriteFile(Path.Combine(this.name, field.FieldNickName + ".csv"), content);
                 return true;

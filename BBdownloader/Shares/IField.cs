@@ -10,6 +10,7 @@ namespace BBdownloader.Shares
     {
         string FieldName { get; set; }
         string FieldNickName { get; set; }
-        List<string> Overrides { get; set; }
+        List<string[]> Overrides { get; set; }
     }
+
 }

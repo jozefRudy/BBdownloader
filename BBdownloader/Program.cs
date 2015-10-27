@@ -17,16 +17,22 @@ namespace BBdownloader
         [STAThread]
         static void Main()
         {
+            ConfigBase config = new ConfigBase();
+            config.Load("settings.cfg");
+
+            string gdocsSheet = config.GetValue("sheetCode");
+
+
             List<string> shareNames = new List<string>();
             var fields = new List<Field>();
 
             Sheet sheet = new Sheet();
-            sheet.Download(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "0" });
+            sheet.Download(new string[] { gdocsSheet, config.GetValue("shareNames") });
             shareNames = sheet.toShares();
 
-            sheet.Download(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "794076055" });
+            sheet.Download(new string[] { gdocsSheet, config.GetValue("fields") });
             sheet.toFields<Field>(fields);
-
+            
             IDataSource dataSource = new FakeData();
             if (dataSource.Connect(""))
                 Console.WriteLine("Connection to Bloomberg Established Succesfully");
@@ -37,8 +43,12 @@ namespace BBdownloader
                 Environment.Exit(0);
             }
 
-            LocalDisk disk = new LocalDisk();
-            disk.SetPath("data");
+            //LocalDisk disk = new LocalDisk();
+
+            Ftp disk = new Ftp(config.GetValue("ftpIP"), config.GetValue("ftpLogin"), config.GetValue("ftpPass"));
+
+            disk.SetPath("BBdownloader");
+            var files = disk.ListFiles("AAPL");
 
             foreach (var shareName in shareNames)
             {

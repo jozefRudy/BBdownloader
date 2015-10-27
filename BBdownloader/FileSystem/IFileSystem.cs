@@ -12,6 +12,9 @@ namespace BBdownloader.FileSystem
         bool DirectoryExists(string path);
         bool FileExists(string path);
 
+        bool CreateDirectory(string path);
+
+
         string[] ReadFile(string path);
         bool WriteFile(string path, string contents);
 
