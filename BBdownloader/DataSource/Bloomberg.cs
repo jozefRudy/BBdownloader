@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using BBdownloader.Shares;
 
 using System.Globalization;
 
@@ -66,7 +66,7 @@ namespace BBdownloader.DataSource {
             return connected;
         }
 
-        public void DownloadData(string securityName, string inputField, List<string[]> overrides, DateTime startDate, DateTime endDate, out SortedList<DateTime, dynamic> outList)
+        public void DownloadData(string securityName, IField field, DateTime startDate, DateTime endDate, out SortedList<DateTime, dynamic> outList)
         {
             Request request = refDataService.CreateRequest("HistoricalDataRequest");
             Element securities = request.GetElement("securities");
@@ -74,16 +74,16 @@ namespace BBdownloader.DataSource {
 
             Element fields = request.GetElement("fields");
 
-            fields.AppendValue(inputField);
+            fields.AppendValue(field.FieldName);
 
-            /*
+            
             Element listOverrides = request.GetElement("overrides");
 
-            foreach (var item in overrides)
+            foreach (var item in field.Overrides)
             {
                 if (item[0].Length>0 && item[1].Length>0)
                     listOverrides.SetElement(item[0],item[1]);
-            }*/
+            }
 
             request.Set("periodicityAdjustment", "ACTUAL");
             request.Set("periodicitySelection", "DAILY");
@@ -134,9 +134,12 @@ namespace BBdownloader.DataSource {
                                 dynamic elementValue = null;                            
                                 bool ok = false;
 
-                                string dataType = point.Datatype.ToString();
-                                if (point.Name.ToString() == "ECO_RELEASE_DT")
-                                { dataType = "DATE"; }
+                                string dataType = "";
+
+                                if (field.Type.Length > 0)
+                                    dataType = field.Type;
+                                else
+                                    dataType = point.Datatype.ToString();                                
 
                                 switch (dataType)
 	                            {

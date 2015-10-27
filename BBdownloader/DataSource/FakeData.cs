@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using BBdownloader.Shares;
 
 namespace BBdownloader.DataSource
 {
@@ -16,7 +14,7 @@ namespace BBdownloader.DataSource
             return true;
         }
 
-        public void DownloadData(string securityName, string inputField, List<string[]> overrides, DateTime startDate, DateTime endDate, out SortedList<DateTime, dynamic> outList)
+        public void DownloadData(string securityName, IField field, DateTime startDate, DateTime endDate, out SortedList<DateTime, dynamic> outList)
         {
             outList = new SortedList<DateTime, dynamic>();
             for (int i = 0; i < 20; i++)
