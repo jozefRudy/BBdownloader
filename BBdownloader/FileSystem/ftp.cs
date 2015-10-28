@@ -338,7 +338,7 @@ namespace BBdownloader.FileSystem
                 try { string[] directoryList = directoryRaw.Split("|".ToCharArray()); return directoryList; }
                 catch (Exception ex) { Console.WriteLine(ex.ToString()); }
             }
-            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+            catch (Exception ex) { Console.WriteLine("Directory " + directory + " does not exist"); }
             /* Return an Empty string Array if an Exception Occurs */
             return new string[] { "" };
         }
