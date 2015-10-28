@@ -88,7 +88,10 @@ namespace BBdownloader.DataSource
             {
                 var kvp = inList.ElementAt(0);
 
-                string fieldValue = kvp.Value.ToString();
+                string fieldValue = "";
+                if (kvp.Value!=null)
+                    fieldValue = kvp.Value.ToString();
+
 
                 if (float.TryParse(fieldValue, out value))
                     type = "~FLOAT";
@@ -105,7 +108,12 @@ namespace BBdownloader.DataSource
             {
                 outputString.Append(kvp.Key.ToString(format: "yyyy/MM/dd"));
                 outputString.Append(separator);
-                outputString.Append(kvp.Value);
+
+                string fieldValue = "";
+                if (kvp.Value != null)
+                    fieldValue = kvp.Value.ToString();
+                outputString.Append(fieldValue);
+
                 outputString.AppendLine(type);                
             }
 

@@ -118,7 +118,7 @@ namespace BBdownloader.Shares
                 FileParser parser = new FileParser();
                 string content = parser.Write(combinedValues[field.FieldNickName],",");
 
-                if (!downloadedValues.ContainsKey(field.FieldNickName) || downloadedValues[field.FieldNickName].Count == 0)
+                if (!downloadedValues.ContainsKey(field.FieldNickName) || downloadedValues[field.FieldNickName]==null || downloadedValues[field.FieldNickName].Count == 0)
                     return false;
 
                 if (!fileAccess.DirectoryExists(this.name))

@@ -32,10 +32,11 @@ namespace BBdownloader.Extension_Methods
             i = -1;
             foreach (var kvp in inList)
             {
+                i++;
                 outList.Add(kvp.Key, returns[i]);
             }
 
-            return null;
+            return outList;
         }
 
         public static SortedList<DateTime, dynamic> ret2price(this SortedList<DateTime, dynamic> inList, dynamic lastPrice)
@@ -48,13 +49,13 @@ namespace BBdownloader.Extension_Methods
 
             var prices = new float[inList.Count];
 
-            prices[prices.Length] = lastPrice;
+            prices[prices.Length - 1] = lastPrice;
 
             int i;
 
-            for (i = prices.Length - 1; i > 0; i--)
+            for (i = prices.Length - 2; i > 0; i--)
             {
-                prices[i] = (returns[i+1]+1) * prices[i + 1];
+                prices[i] = prices[i + 1] / (1 + returns[i + 1]);
             }
 
             var outList = new SortedList<DateTime, dynamic>();
@@ -62,10 +63,11 @@ namespace BBdownloader.Extension_Methods
             i = -1;
             foreach (var kvp in inList)
             {
+                i++;
                 outList.Add(kvp.Key, prices[i]);
             }
 
-            return null;
+            return outList;
         }
         /// <summary>
         /// merge 2 series 
@@ -76,6 +78,7 @@ namespace BBdownloader.Extension_Methods
         {
             SortedList<DateTime, dynamic> primary;
             SortedList<DateTime, dynamic> secondary;
+            SortedList<DateTime, dynamic> outList;
 
             if (prefer == 1)
             {
@@ -88,7 +91,10 @@ namespace BBdownloader.Extension_Methods
                 secondary = second;
             }
 
-            var outList = new SortedList<DateTime, dynamic>(primary);
+            if (primary!=null)
+                outList = new SortedList<DateTime, dynamic>(primary);
+            else
+                outList = new SortedList<DateTime, dynamic>();
 
             foreach (var kvp in secondary)
             {

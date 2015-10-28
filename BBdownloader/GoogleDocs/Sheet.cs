@@ -63,13 +63,16 @@ namespace BBdownloader.GoogleDocs
                 foreach (var col in columns)
                 {
                     i++;
-                    
-                    switch (headings.ElementAtOrDefault(i).ToLower())
+                    string heading = headings.ElementAtOrDefault(i);
+                    if (heading != null && heading.Length > 0) 
+                        heading = heading.ToLower();
+
+                    switch (heading)
                     {
                         case "transform":
                             if (col.Length > 0)
                             {
-                                var cols = col.Split(',');
+                                var cols = col.Split(';');
                                 foreach (var c in cols)
                                 {
                                     var transform = c.Trim();

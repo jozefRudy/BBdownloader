@@ -136,7 +136,7 @@ namespace BBdownloader.DataSource {
 
                                 string dataType = "";
 
-                                if (field.Type.Length > 0)
+                                if (field.Type!= null && field.Type.Length > 0)
                                     dataType = field.Type;
                                 else
                                     dataType = point.Datatype.ToString();                                
