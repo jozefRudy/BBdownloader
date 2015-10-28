@@ -13,7 +13,7 @@ namespace BBdownloader.Shares
 {
     public class Share
     {
-        Dictionary<string, SortedList<DateTime,dynamic>> loadedValues { get; set; }
+        Dictionary<string, SortedList<DateTime, dynamic>> loadedValues { get; set; }
         Dictionary<string, SortedList<DateTime, dynamic>> downloadedValues { get; set; }
         Dictionary<string, SortedList<DateTime, dynamic>> combinedValues { get; set; }
 
@@ -21,6 +21,8 @@ namespace BBdownloader.Shares
         string name;
         IDataSource dataSource { get; set; }
         IFileSystem fileAccess { get; set; }
+
+        private float lastPrice { get; set; }
 
         public Share(string name, IEnumerable<IField> fields, IDataSource dataSource, IFileSystem fileAccess)
         {
@@ -62,23 +64,24 @@ namespace BBdownloader.Shares
             dataSource.DownloadData(securityName: this.name, field: field, startDate: startDate, endDate: endDate, outList: out output);
 
 
-            /*
-            SortedList<DateTime, dynamic> hovno = new SortedList<DateTime, dynamic>();
-
-            
-            foreach (var item in output)
-            {
-                if (!hovno.ContainsKey(item.Value))
-                    hovno.Add(item.Value, null);
-            }*/
-            
-
             if (!downloadedValues.ContainsKey(field.FieldNickName))
             {
                 downloadedValues.Add(field.FieldNickName, output);
             }
             return true;
         }
+
+
+        private bool TransformFields()
+        {
+            foreach (var field in this.fields)
+            {
+                TransformField(field);
+            }
+
+            return true;
+        }
+
         
         private bool LoadFields()
         {
@@ -136,43 +139,6 @@ namespace BBdownloader.Shares
             return true;
         }
 
-        private bool CombineLoadedDownloaded(IField field)
-        {            
-            if (!loadedValues.ContainsKey(field.FieldNickName) || 
-                !downloadedValues.ContainsKey(field.FieldNickName))
-            {
-                SortedList<DateTime, dynamic> outValue;
-                if (!loadedValues.TryGetValue(field.FieldNickName, out outValue))
-                    downloadedValues.TryGetValue(field.FieldNickName, out outValue);
-                combinedValues[field.FieldNickName] = outValue;
-                return true;
-            }
-
-            switch (field.FieldNickName)
-            {
-                case "adjusted_price":
-                    { 
-                        var loaded = loadedValues[field.FieldNickName].price2ret();
-                        var downloaded = downloadedValues[field.FieldNickName].price2ret();
-                        float lastPrice = downloadedValues[field.FieldNickName].Last().Value;
-
-                        if (downloadedValues[field.FieldNickName].Count > 1)
-                            combinedValues[field.FieldNickName] = loaded.merge(downloaded, 1).ret2price(lastPrice);
-                        else
-                            combinedValues[field.FieldNickName] = downloadedValues[field.FieldNickName];
-                    }
-                    break;                    
-                default:
-                    {
-                        combinedValues[field.FieldNickName] =
-                            loadedValues[field.FieldNickName].merge(downloadedValues[field.FieldNickName], 1);                        
-                    }
-                    break;
-            }
-
-            return true;
-        }
-
         private bool DeleteFields()
         {
             var files = fileAccess.ListFiles(name);
@@ -197,13 +163,118 @@ namespace BBdownloader.Shares
             return true;
         }
 
+        private bool UnTransformFields()
+        {
+            foreach (var field in this.fields)
+            {
+                UnTransformField(field);
+            }
+            return true;
+        }
+
         public bool PerformOperations()
         {
             LoadFields();
             DownloadFields();
+            TransformFields();
             CombineLoadedDownladedAll();
+            UnTransformFields();
             WriteFields();
             DeleteFields();
+            return true;
+        }
+
+        private bool CombineLoadedDownloaded(IField field)
+        {
+            if (field.Transform.Contains("MERGE") || (!field.Transform.Contains("ONLYNEW") && !field.Transform.Contains("ONLYOLD")))
+            {
+                if (!loadedValues.ContainsKey(field.FieldNickName) ||
+                    !downloadedValues.ContainsKey(field.FieldNickName))
+                {
+                    SortedList<DateTime, dynamic> outValue;
+                    if (!loadedValues.TryGetValue(field.FieldNickName, out outValue))
+                        downloadedValues.TryGetValue(field.FieldNickName, out outValue);
+                    combinedValues[field.FieldNickName] = outValue;
+                    return true;
+                }
+
+                combinedValues[field.FieldNickName] =
+                                loadedValues[field.FieldNickName].merge(downloadedValues[field.FieldNickName], 1);
+            }
+            else if (field.Transform.Contains("ONLYNEW"))
+            {
+                SortedList<DateTime, dynamic> outValue = new SortedList<DateTime, dynamic>();
+                downloadedValues.TryGetValue(field.FieldNickName, out outValue);
+                combinedValues[field.FieldNickName] = outValue;
+            }
+            else if (field.Transform.Contains("ONLYOLD"))
+            {
+                SortedList<DateTime, dynamic> outValue = new SortedList<DateTime, dynamic>();
+                loadedValues.TryGetValue(field.FieldNickName, out outValue);
+                combinedValues[field.FieldNickName] = outValue;
+            }
+
+            return true;
+        }
+
+        private bool TransformField(IField field)
+        {
+            foreach (var f in field.Transform)
+            {
+                switch (f)
+                {
+                    case "TORETURNS":
+                        if (loadedValues.ContainsKey(field.FieldNickName))
+                            loadedValues[field.FieldNickName] = loadedValues[field.FieldNickName].price2ret();
+
+                        if (downloadedValues.ContainsKey(field.FieldNickName))
+                        {
+                            lastPrice = downloadedValues[field.FieldNickName].Last().Value;
+                            downloadedValues[field.FieldNickName] = downloadedValues[field.FieldNickName].price2ret();
+                        }
+                        break;
+                    case "ONLYRIGHT":
+                        
+                        if (downloadedValues.ContainsKey(field.FieldNickName))
+                        {                            
+                            if (downloadedValues[field.FieldNickName] != null && downloadedValues[field.FieldNickName].Count > 0)
+                            {
+                                SortedList<DateTime, dynamic> newOutput = new SortedList<DateTime, dynamic>();
+
+                                foreach (var item in downloadedValues[field.FieldNickName])
+                                {
+                                    if (!newOutput.ContainsKey(item.Value))
+                                        newOutput.Add(item.Value, null);
+                                }
+
+                                downloadedValues[field.FieldNickName] = new SortedList<DateTime, dynamic>(newOutput);
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            return true;
+        }
+
+        private bool UnTransformField(IField field)
+        {
+            foreach (var f in field.Transform)
+            {
+                switch (f)
+                {
+                    case "TORETURNS":
+                        if (combinedValues.ContainsKey(field.FieldNickName) && combinedValues[field.FieldNickName].Count > 1)
+                            combinedValues[field.FieldNickName] = combinedValues[field.FieldNickName].ret2price(lastPrice);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+
             return true;
         }
     }

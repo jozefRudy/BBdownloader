@@ -66,6 +66,20 @@ namespace BBdownloader.GoogleDocs
                     
                     switch (headings.ElementAtOrDefault(i).ToLower())
                     {
+                        case "transform":
+                            if (col.Length > 0)
+                            {
+                                var cols = col.Split(',');
+                                foreach (var c in cols)
+                                {
+                                    var transform = c.Trim();
+                                    if (transform.Length > 0)
+                                        field.Transform.Add(transform.ToUpper());
+                                }
+                            }
+                            else
+                            { field.Transform.Add("MERGE"); }
+                            break;
                         case "type":
                             if (col.Length > 0)
                                 field.Type = col;

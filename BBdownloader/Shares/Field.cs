@@ -12,10 +12,12 @@ namespace BBdownloader.Shares
         public string FieldName { get; set; }
         public List<string[]> Overrides { get; set; }     
         public string Type { get; set; }
+        public List<string> Transform { get; set; }
         
         public Field()
         {
             Overrides = new List<string[]>();
+            Transform = new List<string>();
         }
 
         public override string ToString()
