@@ -34,8 +34,8 @@ namespace BBdownloader
             sheet.Download(new string[] { gdocsSheet, config.GetValue("fields") });
             sheet.toFields<Field>(fields);
 
-            //sheet.Download(new string[] { gdocsSheet, config.GetValue("indices") });
-            //indexNames = sheet.toShares();
+            sheet.Download(new string[] { gdocsSheet, config.GetValue("indices") });
+            indexNames = sheet.toShares();
             
             IDataSource dataSource = new Bloomberg();
             if (dataSource.Connect(""))
@@ -47,6 +47,14 @@ namespace BBdownloader
                 Environment.Exit(0);
             }
 
+            foreach (var index in indexNames)
+            {
+                var outList = new List<string>();
+                dataSource.DownloadComponents(index, out outList);
+                shareNames.AddRange(outList);
+            }
+            
+
             //LocalDisk disk = new LocalDisk();
 
             Ftp disk = new Ftp(config.GetValue("ftpIP"), config.GetValue("ftpLogin"), config.GetValue("ftpPass"));
@@ -57,8 +65,6 @@ namespace BBdownloader
             foreach (var shareName in shareNames)
             {
                 Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk);
-
-                share.GetMembers("SPX Index");
                 share.PerformOperations();                
             }
 
