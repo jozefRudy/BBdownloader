@@ -84,16 +84,18 @@ namespace BBdownloader.DataSource {
             while (!done)
             {
                 Event eventObj = session.NextEvent();
-                foreach (Message msg in eventObj)
+
+                if (eventObj.Type == Event.EventType.RESPONSE || eventObj.Type == Event.EventType.PARTIAL_RESPONSE)
                 {
-                    System.Console.WriteLine(msg.AsElement);
-                }
-                if (eventObj.Type == Event.EventType.RESPONSE)
-                {
-                    break;
+                    foreach (var msg in eventObj)
+                    {
+                        if (msg.AsElement.HasElement("responseError"))
+                            throw new Exception("Response error: " + msg.GetElement("responseError").GetElement("message"));
+
+                        var security = msg.GetElement("securityData");
+                    }
                 }
             }
-
         }
 
         public void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList)
