@@ -60,7 +60,6 @@ namespace BBdownloader
             Ftp disk = new Ftp(config.GetValue("ftpIP"), config.GetValue("ftpLogin"), config.GetValue("ftpPass"));
 
             disk.SetPath("BBdownloader");
-            var files = disk.ListFiles("AAPL");
 
             foreach (var shareName in shareNames)
             {

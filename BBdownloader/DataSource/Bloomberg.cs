@@ -74,7 +74,7 @@ namespace BBdownloader.DataSource {
             Element fields = request.GetElement("fields");
             fields.AppendValue("INDX_MEMBERS");
 
-            System.Console.WriteLine("Sending Request: " + request);
+            System.Console.WriteLine("Sending Index Components Request: " + Index);
             session.SendRequest(request, null);
 
             bool done = false;
@@ -99,6 +99,7 @@ namespace BBdownloader.DataSource {
                             members.Add(data + " Equity");
                         }
                     }
+                    if (eventObj.Type == Event.EventType.RESPONSE) done = true;
                 }
             }
         }
