@@ -34,10 +34,10 @@ namespace BBdownloader
             sheet.Download(new string[] { gdocsSheet, config.GetValue("fields") });
             sheet.toFields<Field>(fields);
 
-            sheet.Download(new string[] { gdocsSheet, config.GetValue("indices") });
-            indexNames = sheet.toShares();
+            //sheet.Download(new string[] { gdocsSheet, config.GetValue("indices") });
+            //indexNames = sheet.toShares();
             
-            IDataSource dataSource = new FakeData();
+            IDataSource dataSource = new Bloomberg();
             if (dataSource.Connect(""))
                 Console.WriteLine("Connection to Bloomberg Established Succesfully");
             else
@@ -57,6 +57,8 @@ namespace BBdownloader
             foreach (var shareName in shareNames)
             {
                 Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk);
+
+                share.GetMembers("SPX Index");
                 share.PerformOperations();                
             }
 

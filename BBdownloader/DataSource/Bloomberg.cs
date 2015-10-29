@@ -68,9 +68,31 @@ namespace BBdownloader.DataSource {
 
         public void DownloadComponents(string Index, out List<string> members)
         {
-            Request request = refDataService.CreateRequest("");
-
             members = new List<string>();
+            //Request request = refDataService.CreateRequest("ReferenceDataRequest");
+            Request request = refDataService.CreateRequest("HistoricalDataRequest");
+            Element securities = request.GetElement("securities");
+            securities.AppendValue("SPX Index");
+            Element fields = request.GetElement("fields");
+            fields.AppendValue("INDX_MEMBERS");
+
+            System.Console.WriteLine("Sending Request: " + request);
+            session.SendRequest(request, null);
+
+            bool done = false;
+
+            while (!done)
+            {
+                Event eventObj = session.NextEvent();
+                foreach (Message msg in eventObj)
+                {
+                    System.Console.WriteLine(msg.AsElement);
+                }
+                if (eventObj.Type == Event.EventType.RESPONSE)
+                {
+                    break;
+                }
+            }
 
         }
 
