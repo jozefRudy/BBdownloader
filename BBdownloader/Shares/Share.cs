@@ -44,6 +44,17 @@ namespace BBdownloader.Shares
             return true;
         }
 
+        private bool GetMembers(string index)
+        {
+            IField field = new Field();
+            field.FieldName = index;
+            
+            var outlist = new SortedList<DateTime, dynamic>();
+
+            dataSource.DownloadData(securityName: index, field: field, startDate: null, endDate: null, outList: out outlist);
+
+        }
+
         private bool DownloadField(IField field)
         {
             DateTime startDate = new DateTime(1990, 1, 1);

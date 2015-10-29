@@ -66,7 +66,15 @@ namespace BBdownloader.DataSource {
             return connected;
         }
 
-        public void DownloadData(string securityName, IField field, DateTime startDate, DateTime endDate, out SortedList<DateTime, dynamic> outList)
+        public void DownloadComponents(string Index, out List<string> members)
+        {
+            Request request = refDataService.CreateRequest("");
+
+            members = new List<string>();
+
+        }
+
+        public void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList)
         {
             Request request = refDataService.CreateRequest("HistoricalDataRequest");
             Element securities = request.GetElement("securities");
@@ -88,12 +96,19 @@ namespace BBdownloader.DataSource {
             request.Set("periodicityAdjustment", "ACTUAL");
             request.Set("periodicitySelection", "DAILY");
 
-            request.Set("startDate", startDate.ToString("yyyyMMdd"));
+            var d = startDate.Value;
+            
+            if (startDate != null)
+                request.Set("startDate", startDate.Value.ToString("yyyyMMdd"));
 
-            var nextYear = new DateTime(DateTime.Today.Year + 1, 1, 1);
-            var upperLimit = endDate > nextYear ? nextYear : endDate;
+            if (endDate != null)
+            {
+                var nextYear = new DateTime(DateTime.Today.Year + 1, 1, 1);
+                DateTime upperLimit = endDate.Value > nextYear ? nextYear : endDate.Value;
 
-            request.Set("endDate", upperLimit.ToString("yyyyMMdd"));
+                request.Set("endDate", upperLimit.ToString("yyyyMMdd"));
+            }
+
             request.Set("maxDataPoints", 10000);
            
             //request.Set("returnEids", true);
