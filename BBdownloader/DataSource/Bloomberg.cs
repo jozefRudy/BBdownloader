@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using BBdownloader.Shares;
-
 using System.Globalization;
 
 using Event = Bloomberglp.Blpapi.Event;
@@ -69,10 +68,9 @@ namespace BBdownloader.DataSource {
         public void DownloadComponents(string Index, out List<string> members)
         {
             members = new List<string>();
-            //Request request = refDataService.CreateRequest("ReferenceDataRequest");
-            Request request = refDataService.CreateRequest("HistoricalDataRequest");
+            Request request = refDataService.CreateRequest("ReferenceDataRequest");
             Element securities = request.GetElement("securities");
-            securities.AppendValue("SPX Index");
+            securities.AppendValue(Index);
             Element fields = request.GetElement("fields");
             fields.AppendValue("INDX_MEMBERS");
 
@@ -92,7 +90,14 @@ namespace BBdownloader.DataSource {
                         if (msg.AsElement.HasElement("responseError"))
                             throw new Exception("Response error: " + msg.GetElement("responseError").GetElement("message"));
 
-                        var security = msg.GetElement("securityData");
+                        var security = msg.GetElement("securityData").GetValueAsElement();
+                        var field = security.GetElement("fieldData").GetElement("INDX_MEMBERS");
+
+                        for (int i = 0; i < field.NumValues; i++)
+                        {
+                            var data = field.GetValueAsElement(i).GetElement("Member Ticker and Exchange Code").GetValueAsString();
+                            members.Add(data + " Equity");
+                        }
                     }
                 }
             }
