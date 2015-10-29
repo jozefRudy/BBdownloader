@@ -24,6 +24,7 @@ namespace BBdownloader
 
 
             List<string> shareNames = new List<string>();
+            List<string> indexNames = new List<string>();
             var fields = new List<Field>();
 
             Sheet sheet = new Sheet();
@@ -32,6 +33,9 @@ namespace BBdownloader
 
             sheet.Download(new string[] { gdocsSheet, config.GetValue("fields") });
             sheet.toFields<Field>(fields);
+
+            sheet.Download(new string[] { gdocsSheet, config.GetValue("indices") });
+            indexNames = sheet.toShares();
             
             IDataSource dataSource = new FakeData();
             if (dataSource.Connect(""))
