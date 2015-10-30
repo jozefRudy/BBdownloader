@@ -62,7 +62,7 @@ namespace BBdownloader.Shares
                 
             var output = new SortedList<DateTime, dynamic>();
             dataSource.DownloadData(securityName: this.name, field: field, startDate: startDate, endDate: endDate, outList: out output);
-
+            
 
             if (!downloadedValues.ContainsKey(field.FieldNickName))
             {

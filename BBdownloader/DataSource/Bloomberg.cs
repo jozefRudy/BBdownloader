@@ -92,7 +92,7 @@ namespace BBdownloader.DataSource {
 
                         var security = msg.GetElement("securityData").GetValueAsElement();
                         var field = security.GetElement("fieldData").GetElement(bbgField);
-
+                        
                         for (int i = 0; i < field.NumValues; i++)
                         {
                             string data = "";
@@ -108,7 +108,149 @@ namespace BBdownloader.DataSource {
             }
         }
 
-        public void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList)
+
+        public bool DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate, DateTime? endDate)
+        {
+            Request request = refDataService.CreateRequest(fields[0].requestType);
+            
+            foreach (var name in securityNames)
+                request.Append("securities", name);
+
+            foreach (var f in fields)
+                request.Append("fields", f.FieldName);
+
+            foreach (var item in fields[0].Overrides)
+            {
+                if (item[0].Length > 0 && item[1].Length > 0)
+                    request.Set(item[0], item[1]);
+            }
+
+            if (fields[0].requestType == "HistoricalDataRequest")
+            {
+                request.Set("periodicityAdjustment", "ACTUAL");
+                request.Set("periodicitySelection", "DAILY");
+
+                var d = startDate.Value;
+
+                if (startDate != null)
+                    request.Set("startDate", startDate.Value.ToString("yyyyMMdd"));
+
+                if (endDate != null)
+                {
+                    var nextYear = new DateTime(DateTime.Today.Year + 1, 1, 1);
+                    DateTime upperLimit = endDate.Value > nextYear ? nextYear : endDate.Value;
+
+                    request.Set("endDate", upperLimit.ToString("yyyyMMdd"));
+                }
+
+                request.Set("maxDataPoints", 10000);
+            }
+            session.SendRequest(request, null);
+
+            ParseData(securityNames, fields);
+
+            return true;
+        }
+
+
+        private SortedList<DateTime, dynamic> ParseUniversal(Element securityDataArray)
+        {
+            var output = new SortedList<DateTime, string>();
+
+            if (securityDataArray.IsArray)
+            {
+                for (int i = 0; i < securityDataArray.NumValues; i++)
+                {
+                    Element securityData = securityDataArray.GetValueAsElement(i);
+                    Element fieldData = securityData.GetElement("fieldData");
+
+                    for (int j = 0; j < fieldData.NumElements; j++)
+                    {
+                        Element field = fieldData.GetElement(j);
+
+                        dynamic outField;
+                        
+                        for (int k = 0; k < field.NumValues; k++)
+                        {
+                            if (field.NumValues > 1)
+                            {
+                                data = field.GetValueAsElement(i).GetElement(0).GetValueAsString();
+                                dataType = field.GetValueAsElement(i).GetElement(0).Datatype.ToString();
+                            }                            
+                            else
+                            { 
+                                data = field.GetValueAsString();
+                                dataType = field.Datatype.ToString();
+                            }
+                            
+                                                        
+                        }
+
+                        yield return field;
+                    }
+
+                }
+            }
+            else
+            {
+                Element fieldDataArray = securityDataArray.GetElement("fieldData");
+
+                for (int i = 0; i < fieldDataArray.NumValues; i++)
+                {
+                    Element fieldData = fieldDataArray.GetValueAsElement(i);
+
+                    for (int j = 0; j < fieldData.NumElements; j++)
+                    {
+                        Element field = fieldData.GetElement(j);
+                    }
+                }
+            }
+        }
+
+        private bool ParseData(List<string> securityNames, List<IField> fields)
+        {
+            bool done = false;
+
+            while (!done)
+            { 
+                 
+                Event eventObj = session.NextEvent();
+
+                if (eventObj.Type == Event.EventType.RESPONSE || eventObj.Type == Event.EventType.PARTIAL_RESPONSE)
+                {
+                    foreach (var msg in eventObj)
+                    {
+                        if (msg.AsElement.HasElement("responseError"))
+                            throw new Exception("Response error: " + msg.GetElement("responseError").GetElement("message"));
+
+                        Element securityData = msg.GetElement("securityData");
+
+
+                        if (fields[0].requestType == "ReferenceDataRequest")
+                            ParseReference(securityData);
+                        else
+                            ParseHistorical(securityData);
+
+
+                            securityData = securityData.GetValueAsElement();
+
+
+
+                        var field = securityData.GetElement("fieldData").GetElement(bbgField);
+
+
+                    }                       
+                }
+
+                if (eventObj.Type == Event.EventType.RESPONSE) done = true;
+
+            }
+
+            return true;
+        }
+
+
+        public void DownloadData1(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList)
         {
             Request request = refDataService.CreateRequest(field.requestType);
             Element securities = request.GetElement("securities");
