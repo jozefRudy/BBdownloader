@@ -69,6 +69,15 @@ namespace BBdownloader.GoogleDocs
 
                     switch (heading)
                     {
+
+                        case "requesttype":
+                            if (col.Length > 0)
+                            {
+                                field.requestType = col;
+                            }
+                            else
+                                field.requestType = "HistoricalDataRequest";
+                            break;
                         case "transform":
                             if (col.Length > 0)
                             {

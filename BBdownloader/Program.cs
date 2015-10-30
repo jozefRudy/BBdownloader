@@ -50,7 +50,7 @@ namespace BBdownloader
             foreach (var index in indexNames)
             {
                 var outList = new List<string>();
-                dataSource.DownloadComponents(index, out outList);
+                dataSource.DownloadComponents(index, "INDX_MEMBERS", out outList);                
                 shareNames.AddRange(outList);
             }
             

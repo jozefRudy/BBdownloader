@@ -65,14 +65,14 @@ namespace BBdownloader.DataSource {
             return connected;
         }
 
-        public void DownloadComponents(string Index, out List<string> members)
+        public void DownloadComponents(string Index, string bbgField, out List<string> members)
         {
             members = new List<string>();
             Request request = refDataService.CreateRequest("ReferenceDataRequest");
             Element securities = request.GetElement("securities");
             securities.AppendValue(Index);
             Element fields = request.GetElement("fields");
-            fields.AppendValue("INDX_MEMBERS");
+            fields.AppendValue(bbgField);
 
             System.Console.WriteLine("Sending Index Components Request: " + Index);
             session.SendRequest(request, null);
@@ -91,11 +91,15 @@ namespace BBdownloader.DataSource {
                             throw new Exception("Response error: " + msg.GetElement("responseError").GetElement("message"));
 
                         var security = msg.GetElement("securityData").GetValueAsElement();
-                        var field = security.GetElement("fieldData").GetElement("INDX_MEMBERS");
+                        var field = security.GetElement("fieldData").GetElement(bbgField);
 
                         for (int i = 0; i < field.NumValues; i++)
                         {
-                            var data = field.GetValueAsElement(i).GetElement("Member Ticker and Exchange Code").GetValueAsString();
+                            string data = "";
+                            if (field.NumValues > 1)
+                                data = field.GetValueAsElement(i).GetElement(0).GetValueAsString();
+                            else
+                                data = field.GetValueAsString();
                             members.Add(data + " Equity");
                         }
                     }
@@ -106,7 +110,7 @@ namespace BBdownloader.DataSource {
 
         public void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList)
         {
-            Request request = refDataService.CreateRequest("HistoricalDataRequest");
+            Request request = refDataService.CreateRequest(field.requestType);
             Element securities = request.GetElement("securities");
             securities.AppendValue(securityName);
 
@@ -123,23 +127,26 @@ namespace BBdownloader.DataSource {
                     listOverrides.SetElement(item[0],item[1]);
             }
 
-            request.Set("periodicityAdjustment", "ACTUAL");
-            request.Set("periodicitySelection", "DAILY");
-
-            var d = startDate.Value;
-            
-            if (startDate != null)
-                request.Set("startDate", startDate.Value.ToString("yyyyMMdd"));
-
-            if (endDate != null)
+            if (field.requestType != "ReferenceDataRequest")
             {
-                var nextYear = new DateTime(DateTime.Today.Year + 1, 1, 1);
-                DateTime upperLimit = endDate.Value > nextYear ? nextYear : endDate.Value;
+                request.Set("periodicityAdjustment", "ACTUAL");
+                request.Set("periodicitySelection", "DAILY");
 
-                request.Set("endDate", upperLimit.ToString("yyyyMMdd"));
+                var d = startDate.Value;
+
+                if (startDate != null)
+                    request.Set("startDate", startDate.Value.ToString("yyyyMMdd"));
+
+                if (endDate != null)
+                {
+                    var nextYear = new DateTime(DateTime.Today.Year + 1, 1, 1);
+                    DateTime upperLimit = endDate.Value > nextYear ? nextYear : endDate.Value;
+
+                    request.Set("endDate", upperLimit.ToString("yyyyMMdd"));
+                }
+
+                request.Set("maxDataPoints", 10000);
             }
-
-            request.Set("maxDataPoints", 10000);
            
             //request.Set("returnEids", true);
 
@@ -165,6 +172,8 @@ namespace BBdownloader.DataSource {
                         var security = msg.GetElement("securityData");
                         //var securityName = security.GetElementAsString("security");
                         var fieldData = security.GetElement("fieldData");
+
+                        //msg.GetElement("securityData").GetValueAsElement().GetElement("fieldData").GetElement(field.FieldName).Name;
                     
                         for (int i = 0; i < fieldData.NumValues; i++)
                         {

@@ -13,6 +13,7 @@ namespace BBdownloader.Shares
         public List<string[]> Overrides { get; set; }     
         public string Type { get; set; }
         public List<string> Transform { get; set; }
+        public string requestType { get; set; }
         
         public Field()
         {
