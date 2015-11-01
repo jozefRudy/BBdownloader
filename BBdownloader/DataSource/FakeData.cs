@@ -27,5 +27,10 @@ namespace BBdownloader.DataSource
         {
             throw new NotImplementedException();
         }
+
+        public bool DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate, DateTime? endDate)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

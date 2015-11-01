@@ -152,10 +152,39 @@ namespace BBdownloader.DataSource {
             return true;
         }
 
+        private bool ParseData(List<string> securityNames, List<IField> fields)
+        {
+            bool done = false;
+
+            while (!done)
+            {
+
+                Event eventObj = session.NextEvent();
+
+                if (eventObj.Type == Event.EventType.RESPONSE || eventObj.Type == Event.EventType.PARTIAL_RESPONSE)
+                {
+                    foreach (var msg in eventObj)
+                    {
+                        if (msg.AsElement.HasElement("responseError"))
+                            throw new Exception("Response error: " + msg.GetElement("responseError").GetElement("message"));
+
+                        Element securityData = msg.GetElement("securityData");
+
+                        ParseUniversal(securityData);
+                    }
+                }
+
+                if (eventObj.Type == Event.EventType.RESPONSE) done = true;
+
+            }
+
+            return true;
+        }
+
 
         private SortedList<DateTime, dynamic> ParseUniversal(Element securityDataArray)
         {
-            var output = new SortedList<DateTime, string>();
+            SortedList<DateTime, dynamic> output;
 
             if (securityDataArray.IsArray)
             {
@@ -167,26 +196,13 @@ namespace BBdownloader.DataSource {
                     for (int j = 0; j < fieldData.NumElements; j++)
                     {
                         Element field = fieldData.GetElement(j);
-
-                        dynamic outField;
                         
-                        for (int k = 0; k < field.NumValues; k++)
-                        {
-                            if (field.NumValues > 1)
-                            {
-                                data = field.GetValueAsElement(i).GetElement(0).GetValueAsString();
-                                dataType = field.GetValueAsElement(i).GetElement(0).Datatype.ToString();
-                            }                            
-                            else
-                            { 
-                                data = field.GetValueAsString();
-                                dataType = field.Datatype.ToString();
-                            }
-                            
-                                                        
-                        }
-
-                        yield return field;
+                        var data = field.GetValue();
+                        var dataType = field.Datatype.ToString();
+                        output = new SortedList<DateTime, dynamic>();
+                        output.Add(DateTime.Now, data);
+                                                           
+                        return output;
                     }
 
                 }
@@ -201,56 +217,18 @@ namespace BBdownloader.DataSource {
 
                     for (int j = 0; j < fieldData.NumElements; j++)
                     {
-                        Element field = fieldData.GetElement(j);
+                        Element field = fieldData.GetElement(j);                       
                     }
+                    return null;
                 }
             }
-        }
-
-        private bool ParseData(List<string> securityNames, List<IField> fields)
-        {
-            bool done = false;
-
-            while (!done)
-            { 
-                 
-                Event eventObj = session.NextEvent();
-
-                if (eventObj.Type == Event.EventType.RESPONSE || eventObj.Type == Event.EventType.PARTIAL_RESPONSE)
-                {
-                    foreach (var msg in eventObj)
-                    {
-                        if (msg.AsElement.HasElement("responseError"))
-                            throw new Exception("Response error: " + msg.GetElement("responseError").GetElement("message"));
-
-                        Element securityData = msg.GetElement("securityData");
-
-
-                        if (fields[0].requestType == "ReferenceDataRequest")
-                            ParseReference(securityData);
-                        else
-                            ParseHistorical(securityData);
-
-
-                            securityData = securityData.GetValueAsElement();
-
-
-
-                        var field = securityData.GetElement("fieldData").GetElement(bbgField);
-
-
-                    }                       
-                }
-
-                if (eventObj.Type == Event.EventType.RESPONSE) done = true;
-
-            }
-
-            return true;
+            return null;
         }
 
 
-        public void DownloadData1(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList)
+
+
+        public void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList)
         {
             Request request = refDataService.CreateRequest(field.requestType);
             Element securities = request.GetElement("securities");
