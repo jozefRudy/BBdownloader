@@ -188,39 +188,39 @@ namespace BBdownloader.DataSource {
 
             if (securityDataArray.IsArray)
             {
-                for (int i = 0; i < securityDataArray.NumValues; i++)
+                for (int i = 0; i < securityDataArray.NumValues; i++) //data for multiple securities
                 {
-                    Element securityData = securityDataArray.GetValueAsElement(i);
-                    Element fieldData = securityData.GetElement("fieldData");
+                    Element securityData = securityDataArray.GetValueAsElement(i); //single security
+                    Element fieldData = securityData.GetElement("fieldData"); //data for multiple fields.
 
-                    for (int j = 0; j < fieldData.NumElements; j++)
+                    for (int j = 0; j < fieldData.NumElements; j++) //equals 0 if no fields or security wrong
                     {
-                        Element field = fieldData.GetElement(j);
-                        
-                        var data = field.GetValue();
+                        Element field = fieldData.GetElement(j);  // single field
+                        string fieldName = field.Name.ToString();
+
+                        var data = field.GetValue(); //check field.NumValues - sometimes NumValues>1 - then output into single field - because it is single field but with multiple values
                         var dataType = field.Datatype.ToString();
                         output = new SortedList<DateTime, dynamic>();
-                        output.Add(DateTime.Now, data);
-                                                           
-                        return output;
-                    }
-
+                        output.Add(DateTime.Now, data);                                                           
+                    }                   
                 }
+                return null;
             }
             else
             {
-                Element fieldDataArray = securityDataArray.GetElement("fieldData");
+                Element fieldDataArray = securityDataArray.GetElement("fieldData");  // data for multiple fields, multiple dates
 
-                for (int i = 0; i < fieldDataArray.NumValues; i++)
+                for (int i = 0; i < fieldDataArray.NumValues; i++) //equals 0 if no fields or security wrong
                 {
-                    Element fieldData = fieldDataArray.GetValueAsElement(i);
+                    Element fieldData = fieldDataArray.GetValueAsElement(i);  // data for multiple fields, single date
 
                     for (int j = 0; j < fieldData.NumElements; j++)
                     {
-                        Element field = fieldData.GetElement(j);                       
-                    }
-                    return null;
+                        Element field = fieldData.GetElement(j); // single field
+                        string fieldName = field.Name.ToString(); //includes "date" as j=0 and other fields follow
+                    }                    
                 }
+                return null;
             }
             return null;
         }

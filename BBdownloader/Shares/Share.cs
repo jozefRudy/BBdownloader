@@ -63,11 +63,22 @@ namespace BBdownloader.Shares
             var output = new SortedList<DateTime, dynamic>();
             dataSource.DownloadData(securityName: this.name, field: field, startDate: startDate, endDate: endDate, outList: out output);
 
-            var securityNames = new List<string>() { this.name };
-            var fields = new List<IField>() { field };
+            var securityNames = new List<string>() { "SPXJSS Index", "MSFT US Equity" };
+
+            IField field1 = new Field();
+            field1.FieldName = "PX_OPEN";
+            field1.requestType = "HistoricalDataRequest";
+
+            IField field2 = new Field();
+            field2.FieldName = "PX_LAST";
+
+            var fields = new List<IField>() { field1, field2 };
 
             dataSource.DownloadData(securityNames, fields, startDate, endDate);
-                
+
+            //field2.FieldName = "INDX_MEMBERS";
+            field1.requestType = "ReferenceDataRequest";
+            dataSource.DownloadData(securityNames, fields, startDate, endDate);
                 
 
 
