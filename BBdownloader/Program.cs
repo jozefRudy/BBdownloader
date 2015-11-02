@@ -61,9 +61,13 @@ namespace BBdownloader
             disk.SetPath("BBdownloader");
 
 
+            //find shares with no data - no directory exists. Download all historical fields for them. Upload data
 
+            //check if field exists not present in random directory. If yes - get list of shares for which given fields are missing
 
+            // check specific share for last update - for all historical fields. Extend to all shares, where the same conditions are met. Download
 
+            
             //perform single operation (one field, one share at a time)
             Parallel.ForEach( shareNames, (shareName) =>
             {
