@@ -61,7 +61,12 @@ namespace BBdownloader.Shares
             }
                 
             var output = new SortedList<DateTime, dynamic>();
-            dataSource.DownloadData(securityName: this.name, field: field, startDate: startDate, endDate: endDate, outList: out output);
+
+            var collection = dataSource.DownloadData(new List<string> { this.name }, new List<IField> { field }, startDate: startDate, endDate: endDate);
+            foreach (SortedList<DateTime, dynamic> item in collection)
+                output = item;
+                            
+            //dataSource.DownloadData(securityName: this.name, field: field, startDate: startDate, endDate: endDate, outList: out output);
 
             var securityNames = new List<string>() { "SPXJSS Index", "MSFT US Equity" };
 

@@ -54,18 +54,25 @@ namespace BBdownloader
                 shareNames.AddRange(outList);
             }
             
-
             //LocalDisk disk = new LocalDisk();
 
             Ftp disk = new Ftp(config.GetValue("ftpIP"), config.GetValue("ftpLogin"), config.GetValue("ftpPass"));
 
             disk.SetPath("BBdownloader");
 
+            //perform single operation (one field, one share at a time)
+            Parallel.ForEach( shareNames, (shareName) =>
+            {
+                Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk);
+                share.PerformOperations();                
+            });
+
+            /*
             foreach (var shareName in shareNames)
             {
                 Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk);
                 share.PerformOperations();                
-            }
+            }*/
 
             /*
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "1607987342" }); //indices

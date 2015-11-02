@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BBdownloader.Shares;
 using System.Globalization;
+using System.Linq;
 
 using Event = Bloomberglp.Blpapi.Event;
 using Message = Bloomberglp.Blpapi.Message;
@@ -109,7 +110,7 @@ namespace BBdownloader.DataSource {
         }
 
 
-        public bool DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate, DateTime? endDate)
+        public IEnumerable<SortedList<DateTime, dynamic>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate, DateTime? endDate)
         {
             Request request = refDataService.CreateRequest(fields[0].requestType);
             
@@ -127,7 +128,7 @@ namespace BBdownloader.DataSource {
 
             if (fields[0].requestType == "HistoricalDataRequest")
             {
-                request.Set("periodicityAdjustment", "ACTUAL");
+                //request.Set("periodicityAdjustment", "ACTUAL");
                 request.Set("periodicitySelection", "DAILY");
 
                 var d = startDate.Value;
@@ -147,13 +148,6 @@ namespace BBdownloader.DataSource {
             }
             session.SendRequest(request, null);
 
-            ParseData(securityNames, fields);
-
-            return true;
-        }
-
-        private bool ParseData(List<string> securityNames, List<IField> fields)
-        {
             bool done = false;
 
             while (!done)
@@ -170,20 +164,21 @@ namespace BBdownloader.DataSource {
 
                         Element securityData = msg.GetElement("securityData");
 
-                        ParseUniversal(securityData);
+                        foreach (var item in ParseUniversal(securityData, fields))
+                            yield return item;
+                        
                     }
                 }
-
                 if (eventObj.Type == Event.EventType.RESPONSE) done = true;
 
             }
-
-            return true;
         }
 
-
-        private SortedList<DateTime, dynamic> ParseUniversal(Element securityDataArray)
+        private IEnumerable<SortedList<DateTime, dynamic>> ParseUniversal(Element securityDataArray, List<IField> fields)
         {
+            var fieldNames = from f in fields
+                             select f.FieldName.ToUpper();
+
             SortedList<DateTime, dynamic> output;
 
             if (securityDataArray.IsArray)
@@ -193,40 +188,87 @@ namespace BBdownloader.DataSource {
                     Element securityData = securityDataArray.GetValueAsElement(i); //single security
                     Element fieldData = securityData.GetElement("fieldData"); //data for multiple fields.
 
-                    for (int j = 0; j < fieldData.NumElements; j++) //equals 0 if no fields or security wrong
+                    foreach (var fieldName in fieldNames)
                     {
-                        Element field = fieldData.GetElement(j);  // single field
-                        string fieldName = field.Name.ToString();
+                        Element field = fieldData.GetElement(fieldName);
+                        
+                        output = new SortedList<DateTime, dynamic>();
+
+                        if (field == null)
+                            yield return output;
 
                         var data = field.GetValue(); //check field.NumValues - sometimes NumValues>1 - then output into single field - because it is single field but with multiple values
                         var dataType = field.Datatype.ToString();
-                        output = new SortedList<DateTime, dynamic>();
-                        output.Add(DateTime.Now, data);                                                           
-                    }                   
+                        
+                        output.Add(DateTime.Now, data);
+                        yield return output;                                   
+                    }
                 }
-                return null;
             }
             else
             {
-                Element fieldDataArray = securityDataArray.GetElement("fieldData");  // data for multiple fields, multiple dates
+                var Outputs = new SortedList<DateTime, dynamic>[fieldNames.Count()];
+
+                for (int i = 0; i < Outputs.Length; i++)
+                    Outputs[i] = new SortedList<DateTime, dynamic>();
+
+                Element fieldDataArray = securityDataArray.GetElement("fieldData");  // data for multiple fields, multiple dates                                             
 
                 for (int i = 0; i < fieldDataArray.NumValues; i++) //equals 0 if no fields or security wrong
                 {
                     Element fieldData = fieldDataArray.GetValueAsElement(i);  // data for multiple fields, single date
 
-                    for (int j = 0; j < fieldData.NumElements; j++)
+                    int j = -1;
+
+                    foreach (var fieldName in fieldNames)
                     {
-                        Element field = fieldData.GetElement(j); // single field
-                        string fieldName = field.Name.ToString(); //includes "date" as j=0 and other fields follow
-                    }                    
+                        j++;
+
+                        Element date = fieldData.GetElement("date");
+                        Element field = fieldData.GetElement(fieldName);
+                        dynamic elementValue = null;
+                        bool ok = false;
+
+                        string dataType;
+
+                        if (fields[j].Type != null && fields[j].Type.Length > 0)
+                            dataType = fields[j].Type;
+                        else
+                            dataType = field.Datatype.ToString();
+
+                        switch (dataType)
+                        {
+                            case "DATE":
+                                {
+                                    DateTime _elementValue;
+                                    if (DateTime.TryParse(field.GetValue().ToString(), out _elementValue) ||
+                                        DateTime.TryParseExact(field.GetValue().ToString(), "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _elementValue))
+                                    {
+                                        ok = true;
+                                        elementValue = _elementValue;
+                                    }
+                                    break;
+                                }
+                            case "FLOAT64":
+                                {
+                                    float _elementValue;
+                                    ok = float.TryParse(field.GetValue().ToString(), out _elementValue);
+                                    elementValue = _elementValue;
+                                    break;
+                                }
+                            default:
+                                break;
+                        }
+                        if (!ok) { elementValue = null; }
+
+                        Outputs[j].Add(date.GetValueAsDatetime().ToSystemDateTime(), elementValue);                        
+                    }
                 }
-                return null;
+
+                for (int i = 0; i < Outputs.Length; i++)
+                    yield return Outputs[i];                
             }
-            return null;
         }
-
-
-
 
         public void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList)
         {
