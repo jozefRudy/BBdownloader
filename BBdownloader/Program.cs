@@ -60,6 +60,10 @@ namespace BBdownloader
 
             disk.SetPath("BBdownloader");
 
+
+
+
+
             //perform single operation (one field, one share at a time)
             Parallel.ForEach( shareNames, (shareName) =>
             {

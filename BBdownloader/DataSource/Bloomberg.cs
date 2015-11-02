@@ -128,8 +128,16 @@ namespace BBdownloader.DataSource {
 
             if (fields[0].requestType == "HistoricalDataRequest")
             {
-                //request.Set("periodicityAdjustment", "ACTUAL");
-                request.Set("periodicitySelection", "DAILY");
+                IEnumerable<bool> periodicitySelection = from f in fields
+                                                         from o in f.Overrides
+                                                         where o[0] == "periodicitySelection"
+                                                         select true;
+
+                if (periodicitySelection.Count() == 0)
+                    request.Set("periodicitySelection", "DAILY");
+
+                request.Set("periodicityAdjustment", "ACTUAL");
+                
 
                 var d = startDate.Value;
 

@@ -453,7 +453,38 @@ namespace BBdownloader.FileSystem
 
         public bool FileExists(string path)
         {
-            return this.DirectoryExists(path);           
+            bool fileExists = false;
+
+            string currentPath = Path.Combine(this._path, path);
+
+            /* Create an FTP Request */
+            ftpRequest = (FtpWebRequest)WebRequest.Create(host + "/" + currentPath);
+            ftpRequest.Credentials = new NetworkCredential(user, pass);
+            ftpRequest.Method = WebRequestMethods.Ftp.GetFileSize;
+
+            /* When in doubt, use these options */
+            ftpRequest.UseBinary = true;
+            ftpRequest.UsePassive = true;
+            ftpRequest.KeepAlive = true;
+
+            try
+            {
+                using ((FtpWebResponse)ftpRequest.GetResponse())
+                {
+                    fileExists = true;
+                }
+            }
+            catch (WebException ex)
+            {
+                fileExists = false;
+            }
+
+
+            /* Resource Cleanup */
+            ftpResponse.Close();
+            ftpRequest = null;
+
+            return fileExists;
         }
 
     }
