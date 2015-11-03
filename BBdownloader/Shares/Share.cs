@@ -67,7 +67,7 @@ namespace BBdownloader.Shares
                 output = item;
                             
             //dataSource.DownloadData(securityName: this.name, field: field, startDate: startDate, endDate: endDate, outList: out output);
-
+            /*
             var securityNames = new List<string>() { "SPXJSS Index", "MSFT US Equity" };
 
             IField field1 = new Field();
@@ -91,7 +91,7 @@ namespace BBdownloader.Shares
             collection = dataSource.DownloadData(securityNames, fields, startDate, endDate);
             foreach (SortedList<DateTime, dynamic> item in collection)
                 hovno = item;
-
+            */
 
             if (!downloadedValues.ContainsKey(field.FieldNickName))
             {

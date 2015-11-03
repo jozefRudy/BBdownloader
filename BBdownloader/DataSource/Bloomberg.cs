@@ -232,7 +232,12 @@ namespace BBdownloader.DataSource {
                         j++;
 
                         Element date = fieldData.GetElement("date");
+
+                        if (!fieldData.HasElement(fieldName))
+                            continue;
+
                         Element field = fieldData.GetElement(fieldName);
+
                         dynamic elementValue = null;
                         bool ok = false;
 

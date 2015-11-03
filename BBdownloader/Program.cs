@@ -80,7 +80,8 @@ namespace BBdownloader
             foreach (var shareName in shareNames)
             {
                 Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk);
-                share.PerformOperations();                
+                share.PerformOperations();
+                Console.WriteLine("Processing: " + shareName);
             }
 
             /*
