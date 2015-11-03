@@ -110,7 +110,7 @@ namespace BBdownloader.DataSource {
         }
 
 
-        public IEnumerable<SortedList<DateTime, dynamic>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate, DateTime? endDate)
+        public IEnumerable<SortedList<DateTime, dynamic>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate = null, DateTime? endDate = null)
         {
             Request request = refDataService.CreateRequest(fields[0].requestType);
             

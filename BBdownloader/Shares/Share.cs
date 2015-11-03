@@ -22,9 +22,12 @@ namespace BBdownloader.Shares
         IDataSource dataSource { get; set; }
         IFileSystem fileAccess { get; set; }
 
+        private DateTime startDate { get; set; }
+        private DateTime endDate { get; set; }
+
         private float lastPrice { get; set; }
 
-        public Share(string name, IEnumerable<IField> fields, IDataSource dataSource, IFileSystem fileAccess)
+        public Share(string name, IEnumerable<IField> fields, IDataSource dataSource, IFileSystem fileAccess, DateTime? startDate = null, DateTime? endDate = null)
         {
             this.name = name;
             this.fields = fields;
@@ -33,6 +36,12 @@ namespace BBdownloader.Shares
             loadedValues = new Dictionary<string, SortedList<DateTime, dynamic>>();
             downloadedValues = new Dictionary<string, SortedList<DateTime, dynamic>>();
             combinedValues = new Dictionary<string, SortedList<DateTime, dynamic>>();
+
+            if (startDate != null)
+                this.startDate = startDate.Value;
+
+            if (endDate != null)
+                this.endDate = endDate.Value;
         }
 
         private bool DownloadFields()
@@ -46,9 +55,6 @@ namespace BBdownloader.Shares
 
         private bool DownloadField(IField field)
         {
-            DateTime startDate = new DateTime(1990, 1, 1);
-            DateTime endDate = DateTime.Today.AddDays(-1);
-
             if (loadedValues.ContainsKey(field.FieldNickName) && loadedValues[field.FieldNickName].Count>0)
             {
                 var kvp = loadedValues[field.FieldNickName].Last();
@@ -138,6 +144,11 @@ namespace BBdownloader.Shares
                 WriteField(field);
             }
             return true;
+        }
+
+        public bool ShareExists()
+        {
+            return fileAccess.DirectoryExists(this.name);
         }
 
         private bool WriteField(IField field)

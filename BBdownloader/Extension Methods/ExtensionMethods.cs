@@ -8,6 +8,18 @@ namespace BBdownloader.Extension_Methods
 {
     public static class ExtensionMethods
     {
+         public static List<dynamic> RemoveDates(this IEnumerable<SortedList<DateTime, dynamic>> inList)
+         {
+             var outList = new List<dynamic>();
+
+             foreach (var l in inList)
+             {
+                 if (l != null)
+                     outList.Add(l.ElementAt(0).Value);                
+             }
+             return outList;
+         }
+
         public static SortedList<DateTime, dynamic>  price2ret(this SortedList<DateTime, dynamic> inList)
         {
             if (inList.Count < 2)

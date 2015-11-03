@@ -67,6 +67,7 @@
     <Compile Include="Shares\IField.cs" />
     <Compile Include="Shares\Share.cs" />
     <Compile Include="DataSource\FileParser.cs" />
+    <Compile Include="Shares\SharesBatch.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

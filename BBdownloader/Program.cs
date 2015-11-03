@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using BBdownloader.DataSource;
 using BBdownloader.FileSystem;
+using BBdownloader.Extension_Methods;
 
 namespace BBdownloader
 {
@@ -17,6 +18,9 @@ namespace BBdownloader
         [STAThread]
         static void Main()
         {
+            DateTime startDate = new DateTime(1990, 1, 1);
+            DateTime endDate = DateTime.Today.AddDays(-1);
+
             ConfigBase config = new ConfigBase();
             config.Load("settings.cfg");
 
@@ -47,35 +51,41 @@ namespace BBdownloader
                 Environment.Exit(0);
             }
 
-            foreach (var index in indexNames)
+            
             {
-                var outList = new List<string>();
-                dataSource.DownloadComponents(index, "INDX_MEMBERS", out outList);                
-                shareNames.AddRange(outList);
+                //obtain components of indices
+                var names = new List<string>();
+                foreach (var index in indexNames)
+                {
+                    var outList = new List<string>();
+                    dataSource.DownloadComponents(index, "INDX_MEMBERS", out outList);
+                    names.AddRange(outList);
+                }
+
+                //convert tickers -> BB IDs
+                var bbIDs = dataSource.DownloadData(names, new List<IField> { new Field() { FieldName = "BB_ID_GLOBAL" } });
+                var listIDs = from ids in bbIDs.RemoveDates()
+                              select (string)ids;
+                shareNames.AddRange(listIDs.ToList());
             }
+            
             
             //LocalDisk disk = new LocalDisk();
 
             Ftp disk = new Ftp(config.GetValue("ftpIP"), config.GetValue("ftpLogin"), config.GetValue("ftpPass"));
-
             disk.SetPath("BBdownloader");
 
-
-            //find shares with no data - no directory exists. Download all historical fields for them. Upload data
+        
+                     
+            var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
+            
+            shares.DownloadNew();
 
             //check if field exists not present in random directory. If yes - get list of shares for which given fields are missing
+            shares.DownloadNewFields();
 
             // check specific share for last update - for all historical fields. Extend to all shares, where the same conditions are met. Download
-
-            
-            //perform single operation (one field, one share at a time)
-            /*
-            Parallel.ForEach( shareNames, (shareName) =>
-            {
-                Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk);
-                share.PerformOperations();                
-            });*/
-
+            shares.DownloadWithSameLastUpdateDate();
             
             foreach (var shareName in shareNames)
             {

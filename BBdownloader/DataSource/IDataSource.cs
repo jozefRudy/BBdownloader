@@ -10,7 +10,7 @@ namespace BBdownloader.DataSource
         bool Connect(string connectionString);
         void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList);
 
-        IEnumerable<SortedList<DateTime,dynamic>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate, DateTime? endDate);
+        IEnumerable<SortedList<DateTime,dynamic>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate = null, DateTime? endDate = null);
 
         void DownloadComponents(string index, string field, out List<string> members);
     }
