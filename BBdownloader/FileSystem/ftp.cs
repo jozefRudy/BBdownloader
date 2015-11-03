@@ -445,7 +445,6 @@ namespace BBdownloader.FileSystem
 
 
             /* Resource Cleanup */
-            ftpResponse.Close();
             ftpRequest = null;
 
             return directoryExists;

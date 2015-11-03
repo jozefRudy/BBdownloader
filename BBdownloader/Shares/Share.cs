@@ -79,12 +79,18 @@ namespace BBdownloader.Shares
 
             var fields = new List<IField>() { field1, field2 };
 
-            dataSource.DownloadData(securityNames, fields, startDate, endDate);
+
+            collection = dataSource.DownloadData(securityNames, fields, startDate, endDate);
+
+            var hovno = new SortedList<DateTime, dynamic>();
+            foreach (SortedList<DateTime, dynamic> item in collection)
+                hovno = item;
 
             //field2.FieldName = "INDX_MEMBERS";
             field1.requestType = "ReferenceDataRequest";
-            dataSource.DownloadData(securityNames, fields, startDate, endDate);
-                
+            collection = dataSource.DownloadData(securityNames, fields, startDate, endDate);
+            foreach (SortedList<DateTime, dynamic> item in collection)
+                hovno = item;
 
 
             if (!downloadedValues.ContainsKey(field.FieldNickName))

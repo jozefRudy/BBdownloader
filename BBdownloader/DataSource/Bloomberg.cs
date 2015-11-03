@@ -202,13 +202,12 @@ namespace BBdownloader.DataSource {
                         
                         output = new SortedList<DateTime, dynamic>();
 
-                        if (field == null)
-                            yield return output;
-
-                        var data = field.GetValue(); //check field.NumValues - sometimes NumValues>1 - then output into single field - because it is single field but with multiple values
-                        var dataType = field.Datatype.ToString();
-                        
-                        output.Add(DateTime.Now, data);
+                        if (field.NumValues>0)
+                        { 
+                            var data = field.GetValue(); //check field.NumValues - sometimes NumValues>1 - then output into single field - because it is single field but with multiple values
+                            var dataType = field.Datatype.ToString();                        
+                            output.Add(DateTime.Now, data);
+                        }
                         yield return output;                                   
                     }
                 }

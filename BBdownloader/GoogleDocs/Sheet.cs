@@ -98,7 +98,14 @@ namespace BBdownloader.GoogleDocs
                             break;
                         case "override":
                             if (col.Length > 0)
-                                field.Overrides.Add(col.Split(':'));
+                            {
+                                var cols = from c in col.Split(':')
+                                           where c.Length > 0
+                                           select c.Trim();
+                                           
+                                field.Overrides.Add(cols.ToArray());
+
+                            }
                             break;
                         case "fieldnickname":
                             field.FieldNickName = col;
