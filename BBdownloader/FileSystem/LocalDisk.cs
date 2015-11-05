@@ -19,7 +19,9 @@ namespace BBdownloader.FileSystem
 
         public bool FileExists(string path)
         {
-            throw new NotImplementedException();
+            string currentPath = Path.Combine(this._path, path);
+
+            return File.Exists(currentPath);
         }
 
         public string[] ReadFile(string path)
@@ -27,7 +29,7 @@ namespace BBdownloader.FileSystem
             string currentPath = Path.Combine(this._path, path);
             string[] contents;
 
-            if (File.Exists(currentPath))
+            if (this.FileExists(currentPath))
                 contents = File.ReadAllLines(currentPath);
             else
                 contents = new string[0];

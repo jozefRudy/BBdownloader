@@ -65,7 +65,7 @@ namespace BBdownloader.Extension_Methods
 
             int i;
 
-            for (i = prices.Length - 2; i > 0; i--)
+            for (i = prices.Length - 2; i >= 0; i--)
             {
                 prices[i] = prices[i + 1] / (1 + returns[i + 1]);
             }

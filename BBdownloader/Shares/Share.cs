@@ -25,7 +25,7 @@ namespace BBdownloader.Shares
         private DateTime startDate { get; set; }
         private DateTime endDate { get; set; }
 
-        private float lastPrice { get; set; }
+        private Dictionary<string, float> lastPrice { get; set; }
 
         public Share(string name, IEnumerable<IField> fields, IDataSource dataSource, IFileSystem fileAccess, DateTime? startDate = null, DateTime? endDate = null)
         {
@@ -36,6 +36,8 @@ namespace BBdownloader.Shares
             loadedValues = new Dictionary<string, SortedList<DateTime, dynamic>>();
             downloadedValues = new Dictionary<string, SortedList<DateTime, dynamic>>();
             combinedValues = new Dictionary<string, SortedList<DateTime, dynamic>>();
+
+            lastPrice = new Dictionary<string, float>();
 
             if (startDate != null)
                 this.startDate = startDate.Value;
@@ -269,7 +271,7 @@ namespace BBdownloader.Shares
 
                         if (downloadedValues.ContainsKey(field.FieldNickName))
                         {
-                            lastPrice = downloadedValues[field.FieldNickName].Last().Value;
+                            lastPrice[field.FieldNickName] = downloadedValues[field.FieldNickName].Last().Value;
                             downloadedValues[field.FieldNickName] = downloadedValues[field.FieldNickName].price2ret();
                         }
                         break;
@@ -307,7 +309,7 @@ namespace BBdownloader.Shares
                 {
                     case "TORETURNS":
                         if (combinedValues.ContainsKey(field.FieldNickName) && combinedValues[field.FieldNickName].Count > 1)
-                            combinedValues[field.FieldNickName] = combinedValues[field.FieldNickName].ret2price(lastPrice);
+                            combinedValues[field.FieldNickName] = combinedValues[field.FieldNickName].ret2price(lastPrice[field.FieldNickName]);
                         break;
                     default:
                         break;
