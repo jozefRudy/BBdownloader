@@ -63,7 +63,7 @@ namespace BBdownloader
                 }
 
                 //convert tickers -> BB IDs
-                var bbIDs = dataSource.DownloadData(names, new List<IField> { new Field() { FieldName = "BB_ID_GLOBAL" } });
+                var bbIDs = dataSource.DownloadData(names, new List<IField> { new Field() { FieldName = "ID_BB_GLOBAL", requestType ="ReferenceDataRequest" } });
                 var listIDs = from ids in bbIDs.RemoveDates()
                               select (string)ids;
                 shareNames.AddRange(listIDs.ToList());
