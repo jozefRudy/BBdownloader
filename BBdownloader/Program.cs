@@ -12,9 +12,6 @@ namespace BBdownloader
 {
     static class Program
     {
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
         [STAThread]
         static void Main()
         {
@@ -68,31 +65,28 @@ namespace BBdownloader
                               select (string)ids;
                 shareNames.AddRange(listIDs.ToList());
             }
-            
-            
-            //LocalDisk disk = new LocalDisk();
+                        
+            LocalDisk disk = new LocalDisk();
+            disk.SetPath("data");
 
-            Ftp disk = new Ftp(config.GetValue("ftpIP"), config.GetValue("ftpLogin"), config.GetValue("ftpPass"));
-            disk.SetPath("BBdownloader");
-
-        
-                     
+            //Ftp disk = new Ftp(config.GetValue("ftpIP"), config.GetValue("ftpLogin"), config.GetValue("ftpPass"));
+            //disk.SetPath("BBdownloader");
+                            
             var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
-            
-            shares.DownloadNew();
-
-            //check if field exists not present in random directory. If yes - get list of shares for which given fields are missing
-            shares.DownloadNewFields();
-
-            // check specific share for last update - for all historical fields. Extend to all shares, where the same conditions are met. Download
-            shares.DownloadWithSameLastUpdateDate();
+            shares.PerformOperations();
             
             foreach (var shareName in shareNames)
             {
                 Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk);
                 share.PerformOperations();
-                Console.WriteLine("Processing: " + shareName);
             }
+
+            //implement bloomberg handling - if fails to connect - retry 3x and exit - readline
+
+            //zip directories and files
+            //delete old zip file
+            //upload zipped file
+            //show percentage counter of uploading big file
 
             /*
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "1607987342" }); //indices
@@ -100,7 +94,7 @@ namespace BBdownloader
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "485268174" }); //shares reload
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "485268174" }); //shares reload
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "1767144829" }); //shares delete*/
-          
+
         }
     }
 }

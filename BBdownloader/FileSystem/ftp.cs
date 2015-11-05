@@ -413,6 +413,9 @@ namespace BBdownloader.FileSystem
         public void SetPath(string path)
         {
             _path = path;
+
+            if (!this.DirectoryExists(path))
+                this.CreateDirectory(path);
         }
 
         public bool DirectoryExists(string path)

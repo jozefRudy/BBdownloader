@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using BBdownloader.DataSource;
 using BBdownloader.FileSystem;
 
@@ -46,48 +45,95 @@ namespace BBdownloader.Shares
         /// <summary>
         /// find shares with no data - no directory exists. Download all historical fields for them. Upload data.
         /// </summary>
-        public void DownloadNew()
+        /// 
+
+        public void PerformOperations()
+        {
+            Trace.Write("Processing: ");
+            SharesNew(fieldsHistorical);            
+            DownloadShares();
+            DownloadNewFields();
+            DownloadWithSameLastUpdateDate();
+            Trace.Write("\n");
+        }
+
+
+        private void DownloadShares()
+        {
+            this.DownloadNew(sharesNew, fieldsHistorical);
+            this.DownloadNew(sharesNew, fieldsReference);
+        }
+
+        private void SharesNew(IEnumerable<IField> fields)
         {
             sharesNew = new List<string>();
 
             foreach (var shareName in shareNames)
             {
-                var share = new Share(shareName, fieldsHistorical, dataSource, fileAccess);
+                var share = new Share(shareName, fields, dataSource, fileAccess);
                 if (!share.ShareExists())
                     sharesNew.Add(shareName);
             }
+        }
 
-            var output = dataSource.DownloadData(sharesNew, fieldsHistorical.ToList(), startDate: startDate, endDate: endDate);
+        private void DownloadNew(List<string> sharesNew, IEnumerable<IField> fields)
+        {
+            var output = dataSource.DownloadData(sharesNew, fields.ToList(), startDate: startDate, endDate: endDate);
 
             var enumerator = output.GetEnumerator();
 
             foreach (var shareNew in sharesNew)
             {
-                Share share = new Share(shareNew, fieldsHistorical, dataSource, fileAccess);
+                Share share = new Share(shareNew, fields, dataSource, fileAccess);
 
-                foreach (var fieldHistorical in fieldsHistorical)
+                foreach (var fieldHistorical in fields)
 	            {
                     enumerator.MoveNext();
                     var field = enumerator.Current;
 
-                    //share.
+                    share.InjectDownloaded(fieldHistorical, field);
+                    share.FieldsToKeep(fieldsHistorical.Concat(fieldsReference));
+                    share.PerformOperations();
 	            }
             }
+        }
 
+        //check if field exists not present in random directory. If yes - get list of shares for which given fields are missing
+        private void DownloadNewFields()
+        {
+            List<IField> newFieldsReference = new List<IField>();
+            List<IField> newFieldsHistorical = new List<IField>();
 
-            foreach (var share in output)
+            var sharesOld = from s in shareNames
+                            where !this.sharesNew.Contains(s)
+                            select s;
+
+            Share share = new Share(sharesOld.First(), fieldsHistorical, dataSource, fileAccess);
+
+            foreach (var f in fieldsHistorical.Concat(fieldsReference))
             {
-                
+                if (!share.FieldExists(f))
+                {
+                    if (f.requestType == "HistoricalDataRequest")
+                        newFieldsHistorical.Add(f);
+                    else
+                        newFieldsReference.Add(f);
+                }                    
             }
 
+            if (sharesOld != null && sharesOld.Count() > 0)
+            { 
+                if (newFieldsHistorical != null && newFieldsHistorical.Count() > 0)
+                    DownloadNew(sharesOld.ToList(), newFieldsHistorical);
+
+                if (newFieldsReference != null && newFieldsReference.Count() > 0)
+                    DownloadNew(sharesOld.ToList(), newFieldsReference);
+            }
         }
 
-        public void DownloadNewFields()
-        {
 
-        }
-
-        public void DownloadWithSameLastUpdateDate()
+        // check specific share for last update - for all historical fields. Extend to all shares, where the same conditions are met. Download
+        private void DownloadWithSameLastUpdateDate()
         {
 
         }

@@ -18,6 +18,8 @@ namespace BBdownloader.Shares
         Dictionary<string, SortedList<DateTime, dynamic>> combinedValues { get; set; }
 
         IEnumerable<IField> fields { get; set; }
+        IEnumerable<IField> fieldsToKeep { get; set; }
+
         string name;
         IDataSource dataSource { get; set; }
         IFileSystem fileAccess { get; set; }
@@ -64,45 +66,11 @@ namespace BBdownloader.Shares
             }
 
             if (startDate >= endDate)
-            {
                 return false;                
-            }
-                
-            var output = new SortedList<DateTime, dynamic>();
-
-            var collection = dataSource.DownloadData(new List<string> { this.name }, new List<IField> { field }, startDate: startDate, endDate: endDate);
-            foreach (SortedList<DateTime, dynamic> item in collection)
-                output = item;
-                            
-            //dataSource.DownloadData(securityName: this.name, field: field, startDate: startDate, endDate: endDate, outList: out output);
-            /*
-            var securityNames = new List<string>() { "SPXJSS Index", "MSFT US Equity" };
-
-            IField field1 = new Field();
-            field1.FieldName = "PX_OPEN";
-            field1.requestType = "HistoricalDataRequest";
-
-            IField field2 = new Field();
-            field2.FieldName = "PX_LAST";
-
-            var fields = new List<IField>() { field1, field2 };
-
-
-            collection = dataSource.DownloadData(securityNames, fields, startDate, endDate);
-
-            var hovno = new SortedList<DateTime, dynamic>();
-            foreach (SortedList<DateTime, dynamic> item in collection)
-                hovno = item;
-
-            //field2.FieldName = "INDX_MEMBERS";
-            field1.requestType = "ReferenceDataRequest";
-            collection = dataSource.DownloadData(securityNames, fields, startDate, endDate);
-            foreach (SortedList<DateTime, dynamic> item in collection)
-                hovno = item;
-            */
 
             if (!downloadedValues.ContainsKey(field.FieldNickName))
             {
+                var output = dataSource.DownloadData(new List<string> { this.name }, new List<IField> { field }, startDate: startDate, endDate: endDate).First();
                 downloadedValues.Add(field.FieldNickName, output);
             }
             return true;
@@ -148,6 +116,11 @@ namespace BBdownloader.Shares
             return true;
         }
 
+        public bool FieldExists(IField field)
+        {
+            return fileAccess.FileExists(Path.Combine(this.name, field.FieldNickName + ".csv"));
+        }
+
         public bool ShareExists()
         {
             return fileAccess.DirectoryExists(this.name);
@@ -181,14 +154,30 @@ namespace BBdownloader.Shares
             return true;
         }
 
+        public void FieldsToKeep(IEnumerable<IField> fieldsToKeep)
+        {
+            this.fieldsToKeep = fieldsToKeep;
+        }
+
         private bool DeleteFields()
         {
             var files = fileAccess.ListFiles(name);
             List<string> fields = new List<string>();
 
-            var fieldNickNames = from f in this.fields
+            IEnumerable<string> fieldNickNames;
+
+            if (this.fieldsToKeep == null)
+            {
+                fieldNickNames = from f in this.fields
                                  select f.FieldNickName;
-                                 
+            }
+            else
+            {
+                fieldNickNames = from f in fieldsToKeep
+                                 select f.FieldNickName;
+            }
+
+
             foreach (var file in files)
             {
                 var field = file.Split('.')[0];
@@ -214,8 +203,14 @@ namespace BBdownloader.Shares
             return true;
         }
 
+        public void InjectDownloaded(IField field, SortedList<DateTime,dynamic> data)
+        {
+            downloadedValues[field.FieldNickName] = new SortedList<DateTime, dynamic>(data);
+        }
+
         public bool PerformOperations()
         {
+            Trace.Write(this.name + ", ");
             LoadFields();
             DownloadFields();
             TransformFields();
@@ -240,8 +235,17 @@ namespace BBdownloader.Shares
                     return true;
                 }
 
-                combinedValues[field.FieldNickName] =
-                                loadedValues[field.FieldNickName].merge(downloadedValues[field.FieldNickName], 1);
+                if (field.requestType == "HistoricalDataRequest")
+                {
+                    combinedValues[field.FieldNickName] =
+                        loadedValues[field.FieldNickName].merge(downloadedValues[field.FieldNickName], 1);
+                }
+                else
+                {
+                    combinedValues[field.FieldNickName] = 
+                        loadedValues[field.FieldName].mergeUniqueValues(downloadedValues[field.FieldNickName]);
+                }
+
             }
             else if (field.Transform.Contains("ONLYNEW"))
             {

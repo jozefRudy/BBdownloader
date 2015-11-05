@@ -119,5 +119,30 @@ namespace BBdownloader.Extension_Methods
             return outList;
         }
 
+        public static SortedList<DateTime, dynamic> mergeUniqueValues(this SortedList<DateTime, dynamic> first, SortedList<DateTime, dynamic> second)
+        {
+            SortedList<DateTime, dynamic> primary;
+            SortedList<DateTime, dynamic> secondary;
+            SortedList<DateTime, dynamic> outList;
+
+            primary = first;
+            secondary = second;
+            
+
+            if (primary != null)
+                outList = new SortedList<DateTime, dynamic>(primary);
+            else
+                outList = new SortedList<DateTime, dynamic>();
+
+            foreach (var kvp in secondary)
+            {
+                if (outList.Last().Value != kvp.Value)
+                    outList.Add(kvp.Key, kvp.Value);
+            }
+
+            return outList;
+        }
+
+
     }
 }
