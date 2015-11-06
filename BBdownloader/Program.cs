@@ -38,7 +38,8 @@ namespace BBdownloader
             sheet.Download(new string[] { gdocsSheet, config.GetValue("indices") });
             indexNames = sheet.toShares();
             
-            IDataSource dataSource = new Bloomberg();
+            IDataSource dataSource = new Bloomberg();            
+
             if (dataSource.Connect(""))
                 Console.WriteLine("Connection to Bloomberg Established Succesfully");
             else

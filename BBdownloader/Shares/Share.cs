@@ -210,7 +210,7 @@ namespace BBdownloader.Shares
 
         public bool PerformOperations()
         {
-            Trace.Write(this.name + ", ");
+            Console.Write(this.name + ", ");
             LoadFields();
             DownloadFields();
             TransformFields();

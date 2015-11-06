@@ -57,7 +57,11 @@ namespace BBdownloader.FileSystem
         public string[] ListFiles(string path)
         {
             string currentPath = Path.Combine(this._path, path);
-            return Directory.GetFiles(currentPath);
+
+            var dirs = (from dir in Directory.GetFiles(currentPath)
+                        select Path.GetFileName(dir)).ToArray();
+
+            return dirs;
         }
 
         public void SetPath(string path)
