@@ -49,12 +49,12 @@ namespace BBdownloader.Shares
 
         public void PerformOperations()
         {
-            Trace.Write("Processing: ");
+            Console.Write("Processing: ");
             SharesNew(fieldsHistorical);            
             DownloadShares();
             DownloadNewFields();
             DownloadWithSameLastUpdateDate();
-            Trace.Write("\n");
+            Console.Write("\n");
         }
 
 
