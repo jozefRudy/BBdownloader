@@ -14,7 +14,8 @@ namespace BBdownloader.FileSystem
 
         public bool DirectoryExists(string path)
         {
-            throw new NotImplementedException();
+            string currentPath = Path.Combine(this._path, path);
+            return Directory.Exists(currentPath);
         }
 
         public bool FileExists(string path)
