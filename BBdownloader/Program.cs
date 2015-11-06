@@ -3,7 +3,6 @@ using BBdownloader.GoogleDocs;
 using System.Collections.Generic;
 using BBdownloader.Shares;
 using System.Linq;
-using System.Threading.Tasks;
 using BBdownloader.DataSource;
 using BBdownloader.FileSystem;
 using BBdownloader.Extension_Methods;
@@ -17,6 +16,7 @@ namespace BBdownloader
         {
             DateTime startDate = new DateTime(1990, 1, 1);
             DateTime endDate = DateTime.Today.AddDays(-1);
+
 
             ConfigBase config = new ConfigBase();
             config.Load("settings.cfg");
@@ -65,20 +65,23 @@ namespace BBdownloader
                               select (string)ids;
                 shareNames.AddRange(listIDs.ToList());
             }
-                        
-            LocalDisk disk = new LocalDisk();
-            disk.SetPath("data");
 
-            //Ftp disk = new Ftp(config.GetValue("ftpIP"), config.GetValue("ftpLogin"), config.GetValue("ftpPass"));
-            //disk.SetPath("BBdownloader");
-                            
-            var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
-            shares.PerformOperations();
-            
-            foreach (var shareName in shareNames)
+            //download data
             {
-                Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk);
-                share.PerformOperations();
+                LocalDisk disk = new LocalDisk();
+                disk.SetPath("data");
+
+                //Ftp disk = new Ftp(config.GetValue("ftpIP"), config.GetValue("ftpLogin"), config.GetValue("ftpPass"));
+                //disk.SetPath("BBdownloader");
+                            
+                var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
+                shares.PerformOperations();
+            
+                foreach (var shareName in shareNames)
+                {
+                    Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk);
+                    share.PerformOperations();
+                }
             }
 
             //implement bloomberg handling - if fails to connect - retry 3x and exit - readline
