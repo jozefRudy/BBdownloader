@@ -91,10 +91,10 @@ namespace BBdownloader.Shares
                     enumerator.MoveNext();
                     var field = enumerator.Current;
 
-                    share.InjectDownloaded(fieldHistorical, field);
-                    share.FieldsToKeep(fieldsHistorical.Concat(fieldsReference));
-                    share.PerformOperations();
+                    share.InjectDownloaded(fieldHistorical, field);                                       
 	            }
+                share.FieldsToKeep(fieldsHistorical.Concat(fieldsReference));
+                share.PerformOperations();
             }
         }
 

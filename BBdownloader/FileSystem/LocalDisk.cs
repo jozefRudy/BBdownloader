@@ -30,7 +30,7 @@ namespace BBdownloader.FileSystem
             string currentPath = Path.Combine(this._path, path);
             string[] contents;
 
-            if (this.FileExists(currentPath))
+            if (this.FileExists(path))
                 contents = File.ReadAllLines(currentPath);
             else
                 contents = new string[0];

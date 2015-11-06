@@ -136,7 +136,7 @@ namespace BBdownloader.Extension_Methods
 
             foreach (var kvp in secondary)
             {
-                if (outList.Last().Value != kvp.Value)
+                if (outList.Count==0 || outList.Last().Value != kvp.Value)
                     outList.Add(kvp.Key, kvp.Value);
             }
 

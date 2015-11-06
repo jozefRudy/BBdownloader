@@ -50,11 +50,28 @@ namespace BBdownloader.Shares
 
         private bool DownloadFields()
         {
+            var anyDownloaded = from f in this.fields
+                                select DownloadField(f);
+
+            bool wasAnyDownloaded = false;
+
+            foreach (var any in anyDownloaded)
+            {
+                if (any == true)
+                    wasAnyDownloaded = true;
+            }
+
+            if (wasAnyDownloaded)
+                return true;
+            else 
+                return false;
+
+            /*
             foreach (var field in this.fields)
 	        {
                 DownloadField(field);
 	        }
-            return true;
+            return true;*/
         }
 
         private bool DownloadField(IField field)
@@ -238,12 +255,12 @@ namespace BBdownloader.Shares
                 if (field.requestType == "HistoricalDataRequest")
                 {
                     combinedValues[field.FieldNickName] =
-                        loadedValues[field.FieldNickName].merge(downloadedValues[field.FieldNickName], 1);
+                        loadedValues[field.FieldNickName].merge(downloadedValues[field.FieldNickName], 0);
                 }
                 else
                 {
-                    combinedValues[field.FieldNickName] = 
-                        loadedValues[field.FieldName].mergeUniqueValues(downloadedValues[field.FieldNickName]);
+                    combinedValues[field.FieldNickName] =
+                        loadedValues[field.FieldNickName].mergeUniqueValues(downloadedValues[field.FieldNickName]);
                 }
 
             }
@@ -271,8 +288,10 @@ namespace BBdownloader.Shares
                 {
                     case "TORETURNS":
                         if (loadedValues.ContainsKey(field.FieldNickName))
+                        {
                             loadedValues[field.FieldNickName] = loadedValues[field.FieldNickName].price2ret();
-
+                            lastPrice[field.FieldNickName] = loadedValues[field.FieldNickName].Last().Value;
+                        }
                         if (downloadedValues.ContainsKey(field.FieldNickName))
                         {
                             lastPrice[field.FieldNickName] = downloadedValues[field.FieldNickName].Last().Value;

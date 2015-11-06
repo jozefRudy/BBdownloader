@@ -77,10 +77,11 @@ namespace BBdownloader
                             
                 var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
                 shares.PerformOperations();
-            
+
+                Console.Write("Processing Individual: ");
                 foreach (var shareName in shareNames)
                 {
-                    Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk);
+                    Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk, startDate: startDate, endDate: endDate);
                     share.PerformOperations();
                 }
             }
