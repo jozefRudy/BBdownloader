@@ -47,6 +47,13 @@ namespace BBdownloader.FileSystem
             return true;
         }
 
+        public bool DeleteDirectory(string path)
+        {
+            Directory.Delete(path, true);
+            return true;
+        }
+
+
         public bool DeleteFile(string path)
         {
             string currentPath = Path.Combine(this._path, path);
@@ -64,11 +71,21 @@ namespace BBdownloader.FileSystem
             return dirs;
         }
 
+        public string[] ListDirectories(string path)
+        {
+            string currentPath = Path.Combine(this._path, path);
+
+            var dirs = (from dir in Directory.GetDirectories(currentPath)
+                        select Path.GetFileName(dir)).ToArray();
+
+            return dirs;
+        }
+
         public void SetPath(string path)
         {
             _path = path;
 
-            if (!DirectoryExists(path))
+            if (!DirectoryExists(""))
                 CreateDirectory("");
         }
 
@@ -77,6 +94,25 @@ namespace BBdownloader.FileSystem
             string currentPath = Path.Combine(this._path, path);
             Directory.CreateDirectory(currentPath);
             return true;
+        }
+
+        public float FileSize(string path)
+        {
+            string currentPath = Path.Combine(this._path, path);
+
+            if (this.FileExists(path))
+            {
+                var fileInfo = new FileInfo(currentPath);
+                return fileInfo.Length;
+            }
+            else return 0;
+        }
+
+
+
+        public bool WriteFile(string path, string[] contents)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -120,7 +120,16 @@ namespace BBdownloader.DataSource
             return outputString.ToString();
         }
 
+        public string Write(string[] inList)
+        {
+            StringBuilder outputString = new StringBuilder();
 
+            foreach (var item in inList)
+            {
+                outputString.AppendLine(item);
+            }
+            return outputString.ToString();
+        }
 
 
 

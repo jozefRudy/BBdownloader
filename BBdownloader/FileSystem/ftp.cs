@@ -2,6 +2,8 @@
 using System.Net;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace BBdownloader.FileSystem
 {
@@ -14,6 +16,7 @@ namespace BBdownloader.FileSystem
         private FtpWebResponse ftpResponse = null;
         private Stream ftpStream = null;
         private int bufferSize = 2048;
+        private readonly int pause = 500;
 
         private string _path;
 
@@ -24,7 +27,8 @@ namespace BBdownloader.FileSystem
             user = userName;
             pass = password;
         }
-
+   
+        
         /* Rename File */
         public void rename(string currentFileNameAndPath, string newFileName)
         {
@@ -37,7 +41,7 @@ namespace BBdownloader.FileSystem
                 /* When in doubt, use these options */
                 ftpRequest.UseBinary = true;
                 ftpRequest.UsePassive = true;
-                ftpRequest.KeepAlive = true;
+                //ftpRequest.KeepAlive = true;
                 /* Specify the Type of FTP Request */
                 ftpRequest.Method = WebRequestMethods.Ftp.Rename;
                 /* Rename the File */
@@ -51,35 +55,28 @@ namespace BBdownloader.FileSystem
             catch (Exception ex) { Console.WriteLine(ex.ToString()); }
             return;
         }
-
+       
         public string[] ReadFile(string remoteFile)
         {
             if (!this.DirectoryExists(remoteFile))
                 return new string[] {""};
 
-
             var contents = new List<string>();
+
+            string currentPath = Path.Combine(this._path, remoteFile);
+
+            ftpRequest = (FtpWebRequest)FtpWebRequest.Create(host + "/" + currentPath);
+            ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
+            ftpRequest.Credentials = new NetworkCredential(user, pass);         
+            ftpRequest.UseBinary = true;
+            ftpRequest.UsePassive = true;
+
             try
-            {
-                /* Create an FTP Request */
-                string currentPath = Path.Combine(this._path, remoteFile);
-
-                ftpRequest = (FtpWebRequest)FtpWebRequest.Create(host + "/" + currentPath);
-                /* Log in to the FTP Server with the User Name and Password Provided */
-                ftpRequest.Credentials = new NetworkCredential(user, pass);
-                /* When in doubt, use these options */
-                ftpRequest.UseBinary = true;
-                ftpRequest.UsePassive = true;
-                ftpRequest.KeepAlive = true;
-                /* Specify the Type of FTP Request */
-                ftpRequest.Method = WebRequestMethods.Ftp.DownloadFile;
-                /* Establish Return Communication with the FTP Server */
+            {              
                 ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
-                /* Get the FTP Server's Response Stream */
-                ftpStream = ftpResponse.GetResponseStream();
-                /* Open a File Stream to Write the Downloaded File */
+                Thread.Sleep(pause);
 
-                /* Buffer for the Downloaded Data */
+                ftpStream = ftpResponse.GetResponseStream();
                 byte[] byteBuffer = new byte[bufferSize];
                 int bytesRead;
 
@@ -108,160 +105,215 @@ namespace BBdownloader.FileSystem
                     }
 
                 }
-                /* Resource Cleanup */                
-                ftpStream.Close();
-                ftpResponse.Close();
-                ftpRequest = null;
-                return contents.ToArray();
-
             }
             catch (Exception ex) { Console.WriteLine(ex.ToString()); }
-            return new string[0];
+            finally
+            {
+                ftpStream.Close();
+                ftpResponse.Close();
+                ftpResponse = null;
+                ftpRequest = null;
+
+            }
+            return contents.ToArray();
         }
         
-        public bool WriteFile(string remoteFile, string contents)
+        public bool WriteFile(string remoteFile, string[] contents)
         {
-            string[] array = contents.Split('\n');
+            string currentPath = Path.Combine(this._path, remoteFile);
+
+            ftpRequest = (FtpWebRequest)FtpWebRequest.Create(host + "/" + currentPath);
+            ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
+            ftpRequest.Credentials = new NetworkCredential(user, pass);
+
+            ftpRequest.UseBinary = true;
+            ftpRequest.UsePassive = true;
 
             try
             {
-                /* Create an FTP Request */
-                string currentPath = Path.Combine(this._path, remoteFile);
-
-                ftpRequest = (FtpWebRequest)FtpWebRequest.Create(host + "/" + currentPath);
-                /* Log in to the FTP Server with the User Name and Password Provided */
-                ftpRequest.Credentials = new NetworkCredential(user, pass);
-                /* When in doubt, use these options */
-                ftpRequest.UseBinary = true;
-                ftpRequest.UsePassive = true;
-                ftpRequest.KeepAlive = true;
-                /* Specify the Type of FTP Request */
-                ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
-                /* Establish Return Communication with the FTP Server */
                 ftpStream = ftpRequest.GetRequestStream();
-                /* Open a File Stream to Read the File for Upload */               
-
-                /* Buffer for the Downloaded Data */
+                Thread.Sleep(pause);
                 byte[] byteBuffer = new byte[bufferSize];
-                //int bytesSent = localFileStream.Read(byteBuffer, 0, bufferSize);
 
                 using (var stream = new MemoryStream())
                 using (var writer = new StreamWriter(stream))
                 {
-                    foreach (var line in array)
-	                {
+                    foreach (var line in contents)
+                    {
                         writer.Write(line);
-	                }
+                    }
                     writer.Flush();
 
                     stream.Position = 0;
                     try
                     {
                         int bytesSent;
-                       
+
                         while ((bytesSent = stream.Read(byteBuffer, 0, bufferSize)) != 0)
                         {
-                            ftpStream.Write(byteBuffer, 0, bytesSent);                            
+                            ftpStream.Write(byteBuffer, 0, bytesSent);
                         }
                         ftpStream.Flush();
                     }
                     catch (Exception ex) { Console.WriteLine(ex.ToString()); }
-                }               
-
-                /* Upload the File by Sending the Buffered Data Until the Transfer is Complete */
-
-                /* Resource Cleanup */
-                ftpStream.Close();
-                ftpRequest = null;
+                }
             }
             catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+            finally
+            {
+                ftpStream.Close();
+                ftpResponse = null;
+                ftpRequest = null;
+            }
+            return true;
+        }
+
+        public bool WriteFile(string remoteFile, string contents)
+        {
+            string[] array = contents.Split('\n');
+            this.WriteFile(remoteFile, array);
             return true;
         }
 
         /* Delete File */
         public bool DeleteFile(string deleteFile)
         {
-            if (!this.DirectoryExists(deleteFile))
+            if (!this.FileExists(deleteFile))
                 return false;
+
+            string currentPath = Path.Combine(this._path, deleteFile);
+
+            ftpRequest = (FtpWebRequest)WebRequest.Create(host + "/" + currentPath);
+            ftpRequest.Method = WebRequestMethods.Ftp.DeleteFile;
+            ftpRequest.Credentials = new NetworkCredential(user, pass);
 
             try
             {
                 /* Create an FTP Request */
-                string currentPath = Path.Combine(this._path, deleteFile);
-
-                ftpRequest = (FtpWebRequest)WebRequest.Create(host + "/" + currentPath);
-                /* Log in to the FTP Server with the User Name and Password Provided */
-                ftpRequest.Credentials = new NetworkCredential(user, pass);
-                /* When in doubt, use these options */
-                ftpRequest.UseBinary = true;
-                ftpRequest.UsePassive = true;
-                ftpRequest.KeepAlive = true;
-                /* Specify the Type of FTP Request */
-                ftpRequest.Method = WebRequestMethods.Ftp.DeleteFile;
-                
-                /* Establish Return Communication with the FTP Server */
+                             
                 ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
+                Thread.Sleep(pause);
                 /* Resource Cleanup */
-                ftpResponse.Close();
-                ftpRequest = null;
             }
             catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+            finally
+            {
+                ftpResponse.Close();
+                ftpResponse = null;
+                ftpRequest = null;
+            }
             return true;
         }
+
+        public bool DeleteDirectory(string deleteDirectory)
+        {
+            if (!this.DirectoryExists(deleteDirectory))
+                return false;
+
+            var files = from f in this.ListFiles(deleteDirectory)
+                        select f;
+
+            foreach (string f in files)
+            {
+                if (!String.IsNullOrEmpty(f))
+                    DeleteFile(Path.Combine(deleteDirectory, f));
+            }
+
+            string currentPath = Path.Combine(this._path, deleteDirectory);
+
+            ftpRequest = (FtpWebRequest)WebRequest.Create(host + "/" + currentPath);
+            ftpRequest.Method = WebRequestMethods.Ftp.RemoveDirectory;
+            ftpRequest.Credentials = new NetworkCredential(user, pass);
+
+            try
+            {
+                /* Create an FTP Request */
+
+                ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
+                Thread.Sleep(pause);
+                
+            }
+            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+            finally
+            {
+                ftpResponse.Close();
+                ftpResponse = null;
+                ftpRequest = null;
+            }
+            return true;
+        }
+
+
+        public string[] ListDirectories(string directory)
+        {
+            return ListFiles(directory);
+        }
+
 
         /* List Directory Contents File/Folder Name Only */
         public string[] ListFiles(string directory)
         {
+            string[] directoryList = new List<string>().ToArray();
+
             if (!this.DirectoryExists(directory))
                 return new string[] { "" };
 
-            try
-            {
-                /* Create an FTP Request */
-                string currentPath = Path.Combine(this._path, directory);
+            /* Create an FTP Request */
+            string currentPath = Path.Combine(this._path, directory);
                 
-                ftpRequest = (FtpWebRequest)FtpWebRequest.Create(host + "/" + currentPath);
-                /* Log in to the FTP Server with the User Name and Password Provided */
-                ftpRequest.Credentials = new NetworkCredential(user, pass);
-                /* When in doubt, use these options */
-                ftpRequest.UseBinary = true;
-                ftpRequest.UsePassive = true;
-                ftpRequest.KeepAlive = true;
-                /* Specify the Type of FTP Request */
-                ftpRequest.Method = WebRequestMethods.Ftp.ListDirectory;
-                /* Establish Return Communication with the FTP Server */
+            ftpRequest = (FtpWebRequest)FtpWebRequest.Create(host + "/" + currentPath);
+
+            ftpRequest.Method = WebRequestMethods.Ftp.ListDirectory;
+            ftpRequest.Credentials = new NetworkCredential(user, pass);
+
+            
+
+            try {
+                
                 ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
-                /* Establish Return Communication with the FTP Server */
+                Thread.Sleep(pause);
+
                 ftpStream = ftpResponse.GetResponseStream();
                 /* Get the FTP Server's Response Stream */
-                StreamReader ftpReader = new StreamReader(ftpStream);
-                /* Store the Raw Response */
                 string directoryRaw = null;
-                /* Read Each Line of the Response and Append a Pipe to Each Line for Easy Parsing */
-                try {
+
+                using (var ftpReader = new StreamReader(ftpStream))
+                {
+                    
+                    /* Read Each Line of the Response and Append a Pipe to Each Line for Easy Parsing */
+
                     while (ftpReader.Peek() != -1)
                     {
                         string file = Path.GetFileName(ftpReader.ReadLine());
-                        
+
                         if (!file.Equals("..") && !file.Equals(".") && !String.IsNullOrEmpty(file))
                             directoryRaw += file + "|";
                     }
                 }
-                catch (Exception ex) { Console.WriteLine(ex.ToString()); }
-                /* Resource Cleanup */
-                ftpReader.Close();
+                /* Store the Raw Response */
+                
+                directoryRaw = directoryRaw.Trim('|');
+                try 
+                { 
+                    directoryList = directoryRaw.Split("|".ToCharArray()); 
+                }
+                catch 
+                { 
+                    //Console.WriteLine("Directory Empty"); 
+                }
+            }
+            catch (Exception ex) 
+            {
+                //Console.WriteLine("Directory Empty");
+            }
+            finally
+            {
                 ftpStream.Close();
                 ftpResponse.Close();
+                ftpResponse = null;
                 ftpRequest = null;
-                /* Return the Directory Listing as a string Array by Parsing 'directoryRaw' with the Delimiter you Append (I use | in This Example) */
-
-                directoryRaw = directoryRaw.Trim('|');
-                try { string[] directoryList = directoryRaw.Split("|".ToCharArray()); return directoryList; }
-                catch (Exception ex) { Console.WriteLine(ex.ToString()); }
             }
-            catch (Exception ex) { Console.WriteLine("Directory " + directory + " does not exist"); }
-            /* Return an Empty string Array if an Exception Occurs */
-            return new string[] { "" };
+            return directoryList;
         }
 
         /* Create a New Directory on the FTP Server */
@@ -273,16 +325,12 @@ namespace BBdownloader.FileSystem
 
                 /* Create an FTP Request */
                 ftpRequest = (FtpWebRequest)WebRequest.Create(host + "/" + currentPath);
-                /* Log in to the FTP Server with the User Name and Password Provided */
-                ftpRequest.Credentials = new NetworkCredential(user, pass);
-                /* When in doubt, use these options */
-                ftpRequest.UseBinary = true;
-                ftpRequest.UsePassive = true;
-                ftpRequest.KeepAlive = true;
-                /* Specify the Type of FTP Request */
                 ftpRequest.Method = WebRequestMethods.Ftp.MakeDirectory;
+                ftpRequest.Credentials = new NetworkCredential(user, pass);
+
                 /* Establish Return Communication with the FTP Server */
                 ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
+                Thread.Sleep(pause);
                 /* Resource Cleanup */
                 ftpResponse.Close();
                 ftpRequest = null;
@@ -298,14 +346,9 @@ namespace BBdownloader.FileSystem
             {
                 /* Create an FTP Request */
                 ftpRequest = (FtpWebRequest)FtpWebRequest.Create(host + "/" + fileName);
-                /* Log in to the FTP Server with the User Name and Password Provided */
-                ftpRequest.Credentials = new NetworkCredential(user, pass);
-                /* When in doubt, use these options */
-                ftpRequest.UseBinary = true;
-                ftpRequest.UsePassive = true;
-                ftpRequest.KeepAlive = true;
-                /* Specify the Type of FTP Request */
                 ftpRequest.Method = WebRequestMethods.Ftp.GetDateTimestamp;
+                ftpRequest.Credentials = new NetworkCredential(user, pass);
+
                 /* Establish Return Communication with the FTP Server */
                 ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
                 /* Establish Return Communication with the FTP Server */
@@ -331,42 +374,36 @@ namespace BBdownloader.FileSystem
         }
 
         /* Get the Size of a File */
-        public string getFileSize(string fileName)
+        public float FileSize(string fileName)
         {
+            string currentPath = Path.Combine(this._path, fileName);
+            float size = 0;
             try
             {
                 /* Create an FTP Request */
-                ftpRequest = (FtpWebRequest)FtpWebRequest.Create(host + "/" + fileName);
-                /* Log in to the FTP Server with the User Name and Password Provided */
-                ftpRequest.Credentials = new NetworkCredential(user, pass);
-                /* When in doubt, use these options */
-                ftpRequest.UseBinary = true;
-                ftpRequest.UsePassive = true;
-                ftpRequest.KeepAlive = true;
+                ftpRequest = (FtpWebRequest)FtpWebRequest.Create(host + "/" + currentPath);
+                //ftpRequest.KeepAlive = true;
                 /* Specify the Type of FTP Request */
                 ftpRequest.Method = WebRequestMethods.Ftp.GetFileSize;
+                ftpRequest.Credentials = new NetworkCredential(user, pass);
+
                 /* Establish Return Communication with the FTP Server */
                 ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
-                /* Establish Return Communication with the FTP Server */
-                ftpStream = ftpResponse.GetResponseStream();
-                /* Get the FTP Server's Response Stream */
-                StreamReader ftpReader = new StreamReader(ftpStream);
-                /* Store the Raw Response */
-                string fileInfo = null;
-                /* Read the Full Response Stream */
-                try { while (ftpReader.Peek() != -1) { fileInfo = ftpReader.ReadToEnd(); } }
-                catch (Exception ex) { Console.WriteLine(ex.ToString()); }
-                /* Resource Cleanup */
-                ftpReader.Close();
-                ftpStream.Close();
-                ftpResponse.Close();
-                ftpRequest = null;
-                /* Return File Size */
-                return fileInfo;
+
+                size = ftpResponse.ContentLength;
             }
-            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
-            /* Return an Empty string Array if an Exception Occurs */
-            return "";
+            catch (Exception ex) 
+            { 
+                Console.WriteLine(ex.ToString()); 
+            }
+            finally
+            {
+                ftpResponse.Close();
+                ftpResponse = null;
+                ftpRequest = null;
+            }
+            
+            return size;
         }
 
 
@@ -377,15 +414,14 @@ namespace BBdownloader.FileSystem
             {
                 /* Create an FTP Request */
                 ftpRequest = (FtpWebRequest)FtpWebRequest.Create(host + "/" + directory);
-                /* Log in to the FTP Server with the User Name and Password Provided */
+                
+                ftpRequest.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
                 ftpRequest.Credentials = new NetworkCredential(user, pass);
-                /* When in doubt, use these options */
+
                 ftpRequest.UseBinary = true;
                 ftpRequest.UsePassive = true;
-                ftpRequest.KeepAlive = true;
-                /* Specify the Type of FTP Request */
-                ftpRequest.Method = WebRequestMethods.Ftp.ListDirectoryDetails;
-                /* Establish Return Communication with the FTP Server */
+
+                
                 ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
                 /* Establish Return Communication with the FTP Server */
                 ftpStream = ftpResponse.GetResponseStream();
@@ -400,6 +436,7 @@ namespace BBdownloader.FileSystem
                 ftpReader.Close();
                 ftpStream.Close();
                 ftpResponse.Close();
+                ftpResponse = null;
                 ftpRequest = null;
                 /* Return the Directory Listing as a string Array by Parsing 'directoryRaw' with the Delimiter you Append (I use | in This Example) */
                 try { string[] directoryList = directoryRaw.Split("|".ToCharArray()); return directoryList; }
@@ -414,7 +451,7 @@ namespace BBdownloader.FileSystem
         {
             _path = path;
 
-            if (!this.DirectoryExists(path))
+            if (!this.DirectoryExists(""))
                 this.CreateDirectory("");
         }
 
@@ -426,29 +463,24 @@ namespace BBdownloader.FileSystem
 
             /* Create an FTP Request */
             ftpRequest = (FtpWebRequest)WebRequest.Create(host + "/" + currentPath);
+            ftpRequest.Method = WebRequestMethods.Ftp.PrintWorkingDirectory;
             ftpRequest.Credentials = new NetworkCredential(user, pass);
-            ftpRequest.Method = WebRequestMethods.Ftp.ListDirectory;
             
-            /* When in doubt, use these options */
-            ftpRequest.UseBinary = true;
-            ftpRequest.UsePassive = true;
-            ftpRequest.KeepAlive = true;
-
             try
             {
-                using ((FtpWebResponse)ftpRequest.GetResponse())
-                {
-                    directoryExists = true;
-                }
+                ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
+                directoryExists = true;                
             }
-            catch (WebException)
+            catch (WebException ex)
             {
                 directoryExists = false;
             }
-
-
-            /* Resource Cleanup */
-            ftpRequest = null;
+            finally
+            {
+                ftpResponse.Close();
+                ftpResponse = null;
+                ftpRequest = null;
+            }
 
             return directoryExists;
         }
@@ -460,31 +492,27 @@ namespace BBdownloader.FileSystem
             string currentPath = Path.Combine(this._path, path);
 
             /* Create an FTP Request */
-            ftpRequest = (FtpWebRequest)WebRequest.Create(host + "/" + currentPath);
-            ftpRequest.Credentials = new NetworkCredential(user, pass);
+            ftpRequest = (FtpWebRequest)WebRequest.Create(host + "/" + currentPath);            
             ftpRequest.Method = WebRequestMethods.Ftp.GetFileSize;
-
-            /* When in doubt, use these options */
-            ftpRequest.UseBinary = true;
-            ftpRequest.UsePassive = true;
-            ftpRequest.KeepAlive = true;
+            ftpRequest.Credentials = new NetworkCredential(user, pass);
 
             try
             {
-                using ((FtpWebResponse)ftpRequest.GetResponse())
-                {
-                    fileExists = true;
-                }
+                ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
+                fileExists = true;
+                
             }
             catch (WebException ex)
             {
                 fileExists = false;
             }
-
-
-            /* Resource Cleanup */
-            ftpResponse.Close();
-            ftpRequest = null;
+            finally
+            {
+                if (ftpResponse != null)
+                    ftpResponse.Close();
+                ftpResponse = null;            
+                ftpRequest = null;
+            }
 
             return fileExists;
         }

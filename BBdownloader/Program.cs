@@ -14,13 +14,14 @@ namespace BBdownloader
         [STAThread]
         static void Main()
         {
+            
             DateTime startDate = new DateTime(1990, 1, 1);
             DateTime endDate = DateTime.Today.AddDays(-1);
 
 
             ConfigBase config = new ConfigBase();
             config.Load("settings.cfg");
-
+            /*
             string gdocsSheet = config.GetValue("sheetCode");
 
 
@@ -40,6 +41,7 @@ namespace BBdownloader
             
             IDataSource dataSource = new Bloomberg();            
 
+            
             if (dataSource.Connect(""))
                 Console.WriteLine("Connection to Bloomberg Established Succesfully");
             else
@@ -68,13 +70,9 @@ namespace BBdownloader
             }
 
             //download data
-            {
-                LocalDisk disk = new LocalDisk();
-                disk.SetPath("data");
-
-                //Ftp disk = new Ftp(config.GetValue("ftpIP"), config.GetValue("ftpLogin"), config.GetValue("ftpPass"));
-                //disk.SetPath("BBdownloader");
-                            
+            LocalDisk disk = new LocalDisk();
+            disk.SetPath("data");
+            {                           
                 var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
                 shares.PerformOperations();
 
@@ -85,13 +83,29 @@ namespace BBdownloader
                     share.PerformOperations();
                 }
             }
+            */
+            //upload data
+            {
+                LocalDisk disk = new LocalDisk();
+                disk.SetPath("data");
+                var diskDirectories = disk.ListDirectories("");
 
-            //implement bloomberg handling - if fails to connect - retry 3x and exit - readline
 
-            //zip directories and files
-            //delete old zip file
-            //upload zipped file
-            //show percentage counter of uploading big file
+                Ftp ftp = new Ftp(config.GetValue("ftpIP"), config.GetValue("ftpLogin"), config.GetValue("ftpPass"));
+                ftp.SetPath("BBdownloader1");
+
+                var directoryList = ftp.ListDirectories("");
+
+                
+
+                Mirror mirror = new Mirror(disk, ftp);
+                mirror.PerformOperations();
+
+                //finish 1:1 file copy
+                //include progress bar
+                //test with mato
+            }
+
 
             /*
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "1607987342" }); //indices

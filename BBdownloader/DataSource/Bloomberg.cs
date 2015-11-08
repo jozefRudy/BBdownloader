@@ -93,21 +93,8 @@ namespace BBdownloader.DataSource {
 
             System.Console.WriteLine("Sending Index Components Request: " + Index);
 
+            session.SendRequest(request, null);
 
-            bool connection = false;
-            while (!connection)
-            { 
-                try
-                {
-                    session.SendRequest(request, null);
-                    connection = true;
-                }
-                catch
-                {
-                    this.Connect("");
-                    connection = false;
-                }
-            }
 
             bool done = false;
 
@@ -185,20 +172,7 @@ namespace BBdownloader.DataSource {
                 request.Set("maxDataPoints", 10000);
             }
 
-            bool connection = false;
-            while (!connection)
-            {
-                try
-                {
-                    session.SendRequest(request, null);
-                    connection = true;
-                }
-                catch
-                {
-                    this.Connect("");
-                    connection = false;
-                }
-            }
+            session.SendRequest(request, null);
 
             bool done = false;
 
