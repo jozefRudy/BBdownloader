@@ -18,15 +18,16 @@ using Element = Bloomberglp.Blpapi.Element;
 namespace BBdownloader.DataSource { 
     public class Bloomberg: IDataSource
     {
-        public string DefaultField {get;set; }
-
         public static Service refDataService;
         public static Session session;
         public static bool connected;
+        public static int reconnectAttempts;
+        public readonly int maxReconnectAttempts = 10;
+        public readonly int reconnectionInterval = 60;
 
         public Bloomberg()
         {
-            DefaultField = "PX_LAST";
+            reconnectAttempts = 0;
         }
 
         public bool Connect(string user = "")
@@ -34,33 +35,48 @@ namespace BBdownloader.DataSource {
             if (connected)
                 goto finish;
 
-            string serverHost = "localhost";
-            int serverPort = 8194;
-
-            SessionOptions sessionOptions = new SessionOptions();
-            sessionOptions.ServerHost = serverHost;
-            sessionOptions.ServerPort = serverPort;
-
-            Console.WriteLine("Connecting to " + serverHost + ":" + serverPort);
-            session = new Session(sessionOptions);
-
-            bool sessionStarted = session.Start();
-
-            if (!sessionStarted)
+            while (!connected)
             {
-                Console.Error.WriteLine("Failed to start session.");
-                return false;
-            }
-            if (!session.OpenService("//blp/refdata"))
-            {
-                Console.Error.WriteLine("Failed to open //blp/refdata");
-                return false;
-            }
+                reconnectAttempts++;
 
-            refDataService = session.GetService("//blp/refdata");
-            
-            Console.WriteLine("Connected to Bloomberg");
-            connected = true;
+                string serverHost = "localhost";
+                int serverPort = 8194;
+
+                SessionOptions sessionOptions = new SessionOptions();
+                sessionOptions.ServerHost = serverHost;
+                sessionOptions.ServerPort = serverPort;
+
+                Console.WriteLine("Connecting to Bloomberg. Attempt " + reconnectAttempts + "/" + maxReconnectAttempts +".");
+                session = new Session(sessionOptions);
+
+                bool sessionStarted = session.Start();
+
+                try
+                {
+                    session.OpenService("//blp/refdata");
+                    refDataService = session.GetService("//blp/refdata");
+                    Console.WriteLine("Connected to Bloomberg");
+                    connected = true;
+                    reconnectAttempts = 0;
+                }
+                catch
+                {
+                    Console.Write("Failed to connect. ");
+                    connected = false;
+                    if (reconnectAttempts >= maxReconnectAttempts)
+                    {
+                        Console.Write("\n");
+                        Console.WriteLine("Tried to connect to Bloomberg " + reconnectAttempts + " times.");
+                        Console.WriteLine("Press any key to exit.");
+                        Console.ReadLine();
+                        Environment.Exit(0);
+                    }
+
+                    Console.WriteLine("Waiting for " + reconnectionInterval + "s before retrying to connect.");
+                    System.Threading.Thread.Sleep(reconnectionInterval * 1000);
+                    
+                }
+            }
 
             finish:
             return connected;
@@ -76,7 +92,22 @@ namespace BBdownloader.DataSource {
             fields.AppendValue(bbgField);
 
             System.Console.WriteLine("Sending Index Components Request: " + Index);
-            session.SendRequest(request, null);
+
+
+            bool connection = false;
+            while (!connection)
+            { 
+                try
+                {
+                    session.SendRequest(request, null);
+                    connection = true;
+                }
+                catch
+                {
+                    this.Connect("");
+                    connection = false;
+                }
+            }
 
             bool done = false;
 
@@ -108,7 +139,6 @@ namespace BBdownloader.DataSource {
                 }
             }
         }
-
 
         public IEnumerable<SortedList<DateTime, dynamic>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate = null, DateTime? endDate = null)
         {
@@ -154,7 +184,21 @@ namespace BBdownloader.DataSource {
 
                 request.Set("maxDataPoints", 10000);
             }
-            session.SendRequest(request, null);
+
+            bool connection = false;
+            while (!connection)
+            {
+                try
+                {
+                    session.SendRequest(request, null);
+                    connection = true;
+                }
+                catch
+                {
+                    this.Connect("");
+                    connection = false;
+                }
+            }
 
             bool done = false;
 
@@ -282,6 +326,7 @@ namespace BBdownloader.DataSource {
             }
         }
 
+        /*
         public void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList)
         {
             Request request = refDataService.CreateRequest(field.requestType);
@@ -409,6 +454,8 @@ namespace BBdownloader.DataSource {
                 }
             }
         }
+        */
+
 
     }
 }

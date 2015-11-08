@@ -226,15 +226,18 @@ namespace BBdownloader.Shares
         }
 
         public bool PerformOperations()
-        {
-            Console.Write(this.name + ", ");
+        {            
             LoadFields();
-            DownloadFields();
-            TransformFields();
-            CombineLoadedDownladedAll();
-            UnTransformFields();
-            WriteFields();
+            if (DownloadFields())
+            {
+                Console.Write(this.name + ", ");
+                TransformFields();
+                CombineLoadedDownladedAll();
+                UnTransformFields();
+                WriteFields();
+            }
             DeleteFields();
+
             return true;
         }
 
