@@ -55,7 +55,7 @@ namespace BBdownloader.FileSystem
             catch (Exception ex) { Console.WriteLine(ex.ToString()); }
             return;
         }
-       
+
         public string[] ReadFile(string remoteFile)
         {
             if (!this.DirectoryExists(remoteFile))
@@ -172,6 +172,57 @@ namespace BBdownloader.FileSystem
         {
             string[] array = contents.Split('\n');
             this.WriteFile(remoteFile, array);
+            return true;
+        }
+
+        public bool WriteFileRaw(string remoteFile, byte[] byteArray)
+        {
+            string currentPath = Path.Combine(this._path, remoteFile);
+
+            ftpRequest = (FtpWebRequest)FtpWebRequest.Create(host + "/" + currentPath);
+            ftpRequest.Method = WebRequestMethods.Ftp.UploadFile;
+            ftpRequest.Credentials = new NetworkCredential(user, pass);
+
+            ftpRequest.UseBinary = true;
+            ftpRequest.UsePassive = true;
+
+            try
+            {
+                ftpStream = ftpRequest.GetRequestStream();
+                Thread.Sleep(pause);
+                byte[] byteBuffer = new byte[bufferSize];
+
+                using (var stream = new MemoryStream(byteArray))
+                using (var writer = new StreamWriter(stream))
+                {            
+                    /*       
+                    foreach (var line in byteArray)
+                    {
+                        writer.Write(line);
+                    }
+                    writer.Flush();
+                    */
+                    stream.Position = 0;
+                    try
+                    {
+                        int bytesSent;
+
+                        while ((bytesSent = stream.Read(byteBuffer, 0, bufferSize)) != 0)
+                        {
+                            ftpStream.Write(byteBuffer, 0, bytesSent);
+                        }
+                        ftpStream.Flush();
+                    }
+                    catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+                }
+            }
+            catch (Exception ex) { Console.WriteLine(ex.ToString()); }
+            finally
+            {
+                ftpStream.Close();
+                ftpResponse = null;
+                ftpRequest = null;
+            }
             return true;
         }
 
@@ -517,5 +568,9 @@ namespace BBdownloader.FileSystem
             return fileExists;
         }
 
+        public byte[] ReadFileRaw(string path)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -73,17 +73,14 @@ namespace BBdownloader.FileSystem
 
             foreach (var file in toCopy)
 	        {
-                var contents = source.ReadFile(Path.Combine(path, file));
-                FileParser parser = new FileParser();
-                target.WriteFile(Path.Combine(path, file), parser.Write(contents) );
+                var contents = source.ReadFileRaw(Path.Combine(path, file));
+                target.WriteFileRaw(Path.Combine(path, file), contents);
 	        }
 
         }
 
         private void CompareFiles(string path)
-        {
-            
-
+        {           
             var sourceFiles = source.ListFiles(path);
             var targetFiles = target.ListFiles(path);
 
@@ -97,9 +94,8 @@ namespace BBdownloader.FileSystem
                 if (sourceSize != targetSize)
                 {
                     target.DeleteFile(Path.Combine(path, targetFile));
-                    var contents = source.ReadFile(fullPath);
-                    FileParser parser = new FileParser();
-                    target.WriteFile(fullPath, parser.Write(contents));
+                    var contents = source.ReadFileRaw(fullPath);
+                    target.WriteFileRaw(fullPath, contents);
                 }
             }
 
@@ -124,8 +120,8 @@ namespace BBdownloader.FileSystem
 
         public void PerformOperations()
         {
-            DeleteDirectoriesOnTarget();
-            CreateDirectoriesOnTarget();
+            //DeleteDirectoriesOnTarget();
+            //CreateDirectoriesOnTarget();
             FileOperations();
         }
 

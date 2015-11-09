@@ -10,6 +10,7 @@ namespace BBdownloader.FileSystem
 {
     public class LocalDisk: IFileSystem
     {
+        private int bufferSize = 2048;
         private string _path;
 
         public bool DirectoryExists(string path)
@@ -36,6 +37,29 @@ namespace BBdownloader.FileSystem
                 contents = new string[0];
 
             return contents;
+        }
+
+        public byte[] ReadFileRaw(string path)
+        {
+            string currentPath = Path.Combine(this._path, path);
+            byte[] byteBuffer = new byte[bufferSize];
+
+            if (!this.FileExists(path))
+                return new byte[0];
+
+            int bytesRead;
+
+            using (var file = new FileStream(currentPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            using (var stream = new MemoryStream())
+            {
+
+                while ((bytesRead = file.Read(byteBuffer, 0, bufferSize)) != 0)
+                    stream.Write(byteBuffer, 0, bytesRead);
+                    
+                stream.Flush();
+                byteBuffer = stream.ToArray();
+            }
+            return byteBuffer;
         }
 
         public bool WriteFile(string path, string contents)
@@ -111,6 +135,11 @@ namespace BBdownloader.FileSystem
 
 
         public bool WriteFile(string path, string[] contents)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool WriteFileRaw(string path, byte[] contents)
         {
             throw new NotImplementedException();
         }

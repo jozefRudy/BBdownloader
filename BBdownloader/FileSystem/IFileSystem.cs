@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.IO;
+
 
 namespace BBdownloader.FileSystem
 {
@@ -16,8 +13,11 @@ namespace BBdownloader.FileSystem
 
 
         string[] ReadFile(string path);
+        byte[] ReadFileRaw(string path);
+
         bool WriteFile(string path, string contents);
         bool WriteFile(string path, string[] contents);
+        bool WriteFileRaw(string path, byte[] byteArray);
 
         bool DeleteFile(string path);
         string[] ListFiles(string path);
