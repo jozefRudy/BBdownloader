@@ -69,7 +69,8 @@ namespace BBdownloader.Shares
                 for (int i = 0; i < fieldCount; i++)
                 {
                     var fields = fieldsHistorical.Skip(i * maxFields).Take(maxFields);
-                    this.DownloadNew(sharesNew, fields);
+                    if (fields != null && fields.Count() > 0)
+                        this.DownloadNew(sharesNew, fields);
                 }
             }
 
@@ -79,7 +80,8 @@ namespace BBdownloader.Shares
                 for (int i = 0; i < fieldCount; i++)
                 {
                     var fields = fieldsReference.Skip(i * maxFields).Take(maxFields);
-                    this.DownloadNew(sharesNew, fields);
+                    if (fields != null && fields.Count() > 0)
+                        this.DownloadNew(sharesNew, fields);
                 }
             }
         }
