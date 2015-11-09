@@ -146,7 +146,7 @@ namespace BBdownloader.Extension_Methods
         public static DateTime GetBusinessDay(this DateTime inputDate, int days)
         {
             DateTime date = inputDate.AddDays(days);
-            var dayOfWeek = inputDate.DayOfWeek;
+            var dayOfWeek = date.DayOfWeek;
 
             if (days>=0)
             {               
