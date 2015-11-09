@@ -9,6 +9,9 @@ namespace BBdownloader.Shares
 {
     public class SharesBatch
     {
+        private readonly int maxFields = 25;
+
+
         private List<string> shareNames { get; set; }
         private List<string> sharesNew { get; set; }
         private IEnumerable<IField> fieldsHistorical { get; set; }
@@ -60,8 +63,25 @@ namespace BBdownloader.Shares
 
         private void DownloadShares()
         {
-            this.DownloadNew(sharesNew, fieldsHistorical);
-            this.DownloadNew(sharesNew, fieldsReference);
+            // Historical Fields
+            { 
+                var fieldCount = fieldsHistorical.Count() / maxFields + 1;
+                for (int i = 0; i < fieldCount; i++)
+                {
+                    var fields = fieldsHistorical.Skip(i * maxFields).Take(maxFields);
+                    this.DownloadNew(sharesNew, fields);
+                }
+            }
+
+            // Reference Fields
+            {
+                var fieldCount = fieldsReference.Count() / maxFields + 1;
+                for (int i = 0; i < fieldCount; i++)
+                {
+                    var fields = fieldsReference.Skip(i * maxFields).Take(maxFields);
+                    this.DownloadNew(sharesNew, fields);
+                }
+            }
         }
 
         private void SharesNew(IEnumerable<IField> fields)
@@ -122,12 +142,34 @@ namespace BBdownloader.Shares
             }
 
             if (sharesOld != null && sharesOld.Count() > 0)
-            { 
+            {
+                { 
+                    var fieldCount = newFieldsHistorical.Count() / maxFields + 1;
+                    for (int i = 0; i < fieldCount; i++)
+                    {
+                        var fields = newFieldsHistorical.Skip(i * maxFields).Take(maxFields);
+                        if (fields != null && fields.Count() > 0)
+                            DownloadNew(sharesOld.ToList(), fields);
+                    }
+                }
+
+                {
+                    var fieldCount = newFieldsReference.Count() / maxFields + 1;
+                    for (int i = 0; i < fieldCount; i++)
+                    {
+                        var fields = newFieldsReference.Skip(i * maxFields).Take(maxFields);
+                        if (fields != null && fields.Count() > 0)
+                            DownloadNew(sharesOld.ToList(), fields);
+                    }
+                }
+
+                /*
                 if (newFieldsHistorical != null && newFieldsHistorical.Count() > 0)
                     DownloadNew(sharesOld.ToList(), newFieldsHistorical);
 
                 if (newFieldsReference != null && newFieldsReference.Count() > 0)
                     DownloadNew(sharesOld.ToList(), newFieldsReference);
+                    */
             }
         }
 

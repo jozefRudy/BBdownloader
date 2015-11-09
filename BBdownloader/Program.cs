@@ -14,7 +14,6 @@ namespace BBdownloader
         [STAThread]
         static void Main()
         {
-            
             DateTime startDate = new DateTime(1990, 1, 1);
             DateTime endDate = DateTime.Today.GetBusinessDay(-1);
             
