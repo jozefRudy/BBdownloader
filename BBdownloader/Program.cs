@@ -16,9 +16,8 @@ namespace BBdownloader
         {
             
             DateTime startDate = new DateTime(1990, 1, 1);
-            DateTime endDate = DateTime.Today.AddDays(-1);
-
-
+            DateTime endDate = DateTime.Today.GetBusinessDay(-1);
+            
             ConfigBase config = new ConfigBase();
             config.Load("settings.cfg");
             

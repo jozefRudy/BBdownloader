@@ -143,6 +143,27 @@ namespace BBdownloader.Extension_Methods
             return outList;
         }
 
+        public static DateTime GetBusinessDay(this DateTime inputDate, int days)
+        {
+            DateTime date = inputDate.AddDays(days);
+            var dayOfWeek = inputDate.DayOfWeek;
+
+            if (days>=0)
+            {               
+                if (dayOfWeek == DayOfWeek.Saturday)
+                    date = date.AddDays(+2);
+                if (dayOfWeek == DayOfWeek.Sunday)
+                    date = date.AddDays(+1);
+            }
+            else
+            {
+                if (dayOfWeek == DayOfWeek.Saturday)
+                    date = date.AddDays(-1);
+                if (dayOfWeek == DayOfWeek.Sunday)
+                    date = date.AddDays(-2);
+            }
+            return date;
+        }
 
     }
 }
