@@ -86,7 +86,8 @@ namespace BBdownloader
             
             //upload data
             {
-                Console.WriteLine("Uplading Files to FTP");
+                Console.Write("\n");
+                Console.WriteLine("Uploading Files to FTP server:");
 
                 var diskDirectories = disk.ListDirectories("");
 
