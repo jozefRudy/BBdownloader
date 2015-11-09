@@ -21,7 +21,7 @@ namespace BBdownloader
 
             ConfigBase config = new ConfigBase();
             config.Load("settings.cfg");
-            /*
+            
             string gdocsSheet = config.GetValue("sheetCode");
 
 
@@ -83,26 +83,21 @@ namespace BBdownloader
                     share.PerformOperations();
                 }
             }
-            */
+            
             //upload data
             {
-                LocalDisk disk = new LocalDisk();
-                disk.SetPath("data");
-                var diskDirectories = disk.ListDirectories("");
+                Console.WriteLine("Uplading Files to FTP");
 
+                var diskDirectories = disk.ListDirectories("");
 
                 Ftp ftp = new Ftp(config.GetValue("ftpIP"), config.GetValue("ftpLogin"), config.GetValue("ftpPass"));
                 ftp.SetPath("BBdownloader1");
 
                 var directoryList = ftp.ListDirectories("");
-
-                
-
+               
                 Mirror mirror = new Mirror(disk, ftp);
                 mirror.PerformOperations();
 
-                //finish 1:1 file copy
-                //include progress bar
                 //test with mato
             }
 

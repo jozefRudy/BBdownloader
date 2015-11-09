@@ -110,8 +110,13 @@ namespace BBdownloader.FileSystem
                              orderby files ascending
                              select files;
 
+            int counter = -1;
+
             foreach (var dir in targetDirs)
             {
+                counter++;
+                ProgressBar.DrawProgressBar(counter+1, targetDirs.Count());
+
                 DeleteFilesOnTarget(dir);
                 CompareFiles(dir);
                 CopyNewFilesToTarget(dir);
@@ -120,8 +125,8 @@ namespace BBdownloader.FileSystem
 
         public void PerformOperations()
         {
-            //DeleteDirectoriesOnTarget();
-            //CreateDirectoriesOnTarget();
+            DeleteDirectoriesOnTarget();
+            CreateDirectoriesOnTarget();
             FileOperations();
         }
 
