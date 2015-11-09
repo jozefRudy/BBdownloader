@@ -300,7 +300,7 @@ namespace BBdownloader.DataSource {
             }
         }
 
-        /*
+        
         public void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList)
         {
             Request request = refDataService.CreateRequest(field.requestType);
@@ -428,8 +428,6 @@ namespace BBdownloader.DataSource {
                 }
             }
         }
-        */
-
-
+        
     }
 }
