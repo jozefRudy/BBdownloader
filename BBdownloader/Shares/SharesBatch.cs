@@ -84,7 +84,7 @@ namespace BBdownloader.Shares
 
             foreach (var shareNew in sharesNew)
             {
-                Share share = new Share(shareNew, fields, dataSource, fileAccess);
+                Share share = new Share(shareNew, fields, dataSource, fileAccess, startDate, endDate);
 
                 foreach (var fieldHistorical in fields)
 	            {

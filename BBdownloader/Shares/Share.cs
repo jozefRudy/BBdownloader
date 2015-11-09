@@ -178,6 +178,9 @@ namespace BBdownloader.Shares
 
         private bool DeleteFields()
         {
+            if (!fileAccess.DirectoryExists(this.name))
+                fileAccess.CreateDirectory(this.name);
+
             var files = fileAccess.ListFiles(name);
             List<string> fields = new List<string>();
 
@@ -293,13 +296,15 @@ namespace BBdownloader.Shares
                         if (loadedValues.ContainsKey(field.FieldNickName))
                         {
                             loadedValues[field.FieldNickName] = loadedValues[field.FieldNickName].price2ret();
-                            lastPrice[field.FieldNickName] = loadedValues[field.FieldNickName].Last().Value;
+                            
                         }
                         if (downloadedValues.ContainsKey(field.FieldNickName))
                         {
                             lastPrice[field.FieldNickName] = downloadedValues[field.FieldNickName].Last().Value;
                             downloadedValues[field.FieldNickName] = downloadedValues[field.FieldNickName].price2ret();
                         }
+                        if (!lastPrice.ContainsKey(field.FieldNickName))
+                            lastPrice[field.FieldNickName] = loadedValues[field.FieldNickName].Last().Value;
                         break;
                     case "ONLYRIGHT":
                         
