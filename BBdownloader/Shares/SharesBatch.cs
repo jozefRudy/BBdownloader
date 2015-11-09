@@ -130,21 +130,23 @@ namespace BBdownloader.Shares
                             where !this.sharesNew.Contains(s)
                             select s;
 
-            Share share = new Share(sharesOld.First(), fieldsHistorical, dataSource, fileAccess);
-
-            foreach (var f in fieldsHistorical.Concat(fieldsReference))
-            {
-                if (!share.FieldExists(f))
-                {
-                    if (f.requestType == "HistoricalDataRequest")
-                        newFieldsHistorical.Add(f);
-                    else
-                        newFieldsReference.Add(f);
-                }                    
-            }
-
+            
             if (sharesOld != null && sharesOld.Count() > 0)
-            {
+            { 
+                Share share = new Share(sharesOld.First(), fieldsHistorical, dataSource, fileAccess);
+
+                foreach (var f in fieldsHistorical.Concat(fieldsReference))
+                {
+                    if (!share.FieldExists(f))
+                    {
+                        if (f.requestType == "HistoricalDataRequest")
+                            newFieldsHistorical.Add(f);
+                        else
+                            newFieldsReference.Add(f);
+                    }                    
+                }
+
+
                 { 
                     var fieldCount = newFieldsHistorical.Count() / maxFields + 1;
                     for (int i = 0; i < fieldCount; i++)
@@ -164,7 +166,7 @@ namespace BBdownloader.Shares
                             DownloadNew(sharesOld.ToList(), fields);
                     }
                 }
-
+                
                 /*
                 if (newFieldsHistorical != null && newFieldsHistorical.Count() > 0)
                     DownloadNew(sharesOld.ToList(), newFieldsHistorical);
