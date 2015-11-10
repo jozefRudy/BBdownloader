@@ -144,7 +144,7 @@ namespace BBdownloader.DataSource {
                 if (item[0].Length > 0 && item[1].Length > 0)
                 {
                     Element override1 = overrides.AppendElement();
-                    override1.SetElement("fieldID", item[0]);
+                    override1.SetElement("fieldId", item[0]);
                     override1.SetElement("value", item[1]);
                     //request.Set(item[0], item[1]);
                 }
