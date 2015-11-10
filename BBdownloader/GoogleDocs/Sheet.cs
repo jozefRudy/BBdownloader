@@ -69,7 +69,12 @@ namespace BBdownloader.GoogleDocs
 
                     switch (heading)
                     {
-
+                        case "periodicitySelection":
+                            if (col.Length > 0)
+                                field.periodicitySelection = col;                            
+                            else
+                                field.periodicitySelection = "DAILY";
+                            break;
                         case "requesttype":
                             if (col.Length > 0)
                             {

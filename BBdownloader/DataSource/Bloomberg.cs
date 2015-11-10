@@ -137,10 +137,17 @@ namespace BBdownloader.DataSource {
             foreach (var f in fields)
                 request.Append("fields", f.FieldName);
 
+            Element overrides = request["overrides"];
+
             foreach (var item in fields[0].Overrides)
             {
                 if (item[0].Length > 0 && item[1].Length > 0)
-                    request.Set(item[0], item[1]);
+                {
+                    Element override1 = overrides.AppendElement();
+                    override1.SetElement("fieldID", item[0]);
+                    override1.SetElement("value", item[1]);
+                    //request.Set(item[0], item[1]);
+                }
             }
 
             if (fields[0].requestType == "HistoricalDataRequest")
@@ -150,8 +157,7 @@ namespace BBdownloader.DataSource {
                                                          where o[0] == "periodicitySelection"
                                                          select true;
 
-                if (periodicitySelection.Count() == 0)
-                    request.Set("periodicitySelection", "DAILY");
+                request.Set("periodicitySelection", fields[0].periodicitySelection);
 
                 request.Set("periodicityAdjustment", "ACTUAL");
                 
