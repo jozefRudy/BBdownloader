@@ -62,8 +62,8 @@ namespace BBdownloader
             LocalDisk disk = new LocalDisk();
             disk.SetPath("data");
             {                           
-                //var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
-                //shares.PerformOperations();
+                var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
+                shares.PerformOperations();
 
                 Console.Write("Processing Individual: ");
                 foreach (var shareName in shareNames)
