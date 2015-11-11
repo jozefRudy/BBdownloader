@@ -8,6 +8,35 @@ namespace BBdownloader.Extension_Methods
 {
     public static class ExtensionMethods
     {
+        public static int Compare(this SortedDictionary<string,string> set1, SortedDictionary<string, string> set2)
+        {
+            int minCount = set1.Count <= set2.Count ? set1.Count : set2.Count;
+
+            for (int i = 0; i < minCount; i++)
+            {
+
+                if (String.Compare(set1.Keys.ElementAt(i), set2.Keys.ElementAt(i)) == 1 )                    
+                { 
+                    if (String.Compare(set1.Values.ElementAt(i), set2.Values.ElementAt(i)) != 1)
+                        return set1.Values.ElementAt(i).CompareTo(set2.Values.ElementAt(i));
+                }
+                else
+                {
+                    return set1.Keys.ElementAt(i).CompareTo(set2.Keys.ElementAt(i));
+                }
+            }
+
+            if (set1.Count == set2.Count)
+                return 0;
+            else
+            {
+                if (set1.Count == minCount)
+                    return 1;
+                else 
+                    return -1;
+            }
+        }
+
          public static List<dynamic> RemoveDates(this IEnumerable<SortedList<DateTime, dynamic>> inList)
          {
              var outList = new List<dynamic>();

@@ -10,7 +10,7 @@ namespace BBdownloader.Shares
     {
         string FieldName { get; set; }
         string FieldNickName { get; set; }
-        List<string[]> Overrides { get; set; }
+        SortedDictionary<string,string> Overrides { get; set; }
         string Type { get; set; }
         List<string> Transform { get; set; }
         string requestType { get; set; }

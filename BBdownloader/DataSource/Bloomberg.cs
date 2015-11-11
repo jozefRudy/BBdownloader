@@ -141,22 +141,17 @@ namespace BBdownloader.DataSource {
 
             foreach (var item in fields[0].Overrides)
             {
-                if (item[0].Length > 0 && item[1].Length > 0)
+                if (item.Key.Length > 0 && item.Value.Length > 0)
                 {
                     Element override1 = overrides.AppendElement();
-                    override1.SetElement("fieldId", item[0]);
-                    override1.SetElement("value", item[1]);
+                    override1.SetElement("fieldId", item.Key);
+                    override1.SetElement("value", item.Value);
                     //request.Set(item[0], item[1]);
                 }
             }
 
             if (fields[0].requestType == "HistoricalDataRequest")
             {
-                IEnumerable<bool> periodicitySelection = from f in fields
-                                                         from o in f.Overrides
-                                                         where o[0] == "periodicitySelection"
-                                                         select true;
-
                 request.Set("periodicitySelection", fields[0].periodicitySelection);
 
                 request.Set("periodicityAdjustment", "ACTUAL");
@@ -306,7 +301,7 @@ namespace BBdownloader.DataSource {
             }
         }
 
-        
+        /*
         public void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList)
         {
             Request request = refDataService.CreateRequest(field.requestType);
@@ -433,7 +428,7 @@ namespace BBdownloader.DataSource {
                     if (eventObj.Type == Event.EventType.RESPONSE) done = true;
                 }
             }
-        }
+        }*/
         
     }
 }

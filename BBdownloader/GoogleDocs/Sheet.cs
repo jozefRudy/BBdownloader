@@ -56,6 +56,9 @@ namespace BBdownloader.GoogleDocs
 
             foreach (var r in rows)
             {
+
+                SortedDictionary<string, string> overrides = new SortedDictionary<string,string>();
+
                 var columns = r.Split(',');
 
                 int i = -1;
@@ -65,7 +68,7 @@ namespace BBdownloader.GoogleDocs
                     i++;
                     string heading = headings.ElementAtOrDefault(i);
                     if (heading != null && heading.Length > 0) 
-                        heading = heading.ToLower();
+                        heading = heading.ToLower();                    
 
                     switch (heading)
                     {
@@ -107,8 +110,10 @@ namespace BBdownloader.GoogleDocs
                                 var cols = from c in col.Split(':')
                                            where c.Length > 0
                                            select c.Trim();
-                                           
-                                field.Overrides.Add(cols.ToArray());
+
+                                overrides.Add(cols.ElementAt(0),cols.ElementAt(1));
+                                
+                                //field.Overrides.Add(cols.ToArray());
 
                             }
                             break;
@@ -123,6 +128,8 @@ namespace BBdownloader.GoogleDocs
                     }
                     
                 }
+                field.Overrides = new SortedDictionary<string,string>(overrides);
+
                 fields.Add(field);
             }            
         }

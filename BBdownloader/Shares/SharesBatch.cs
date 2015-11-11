@@ -61,10 +61,19 @@ namespace BBdownloader.Shares
         }
 
 
+        private static IEnumerable<IEnumerable<IField>> SplitFields(IEnumerable<IField> fields)
+        {
+            var output = new List<List<IField>>();
+
+
+
+            return null;
+        }
+
         private void DownloadShares()
         {
             // Historical Fields
-            { 
+            {   
                 var fieldCount = fieldsHistorical.Count() / maxFields + 1;
                 for (int i = 0; i < fieldCount; i++)
                 {
