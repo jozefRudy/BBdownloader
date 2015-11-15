@@ -118,7 +118,12 @@ namespace BBdownloader.Shares
 
         private bool LoadField(IField field)
         {
-            var content = fileAccess.ReadFile(Path.Combine(this.name,field.FieldNickName + ".csv"));
+            string file = Path.Combine(this.name,field.FieldNickName + ".csv");
+
+            if (!fileAccess.FileExists(file))
+                return false;
+
+            var content = fileAccess.ReadFile(file);
             FileParser parser = new FileParser();
 
             loadedValues[field.FieldNickName] = parser.Read(content);
