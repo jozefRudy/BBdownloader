@@ -87,10 +87,36 @@ namespace BBdownloader
                
                 Mirror mirror = new Mirror(disk, ftp);
                 mirror.PerformOperations();
-
+                
                 //test with mato
             }
 
+            //upload data via http get requests
+
+
+            /*
+            LocalDisk disk = new LocalDisk();
+            disk.SetPath("data");
+
+            {
+                Console.Write("\n");
+                Console.WriteLine("Uploading Files via HTTP requests");
+
+                var HttpRequest = new HttpRequestToSql();
+                HttpRequest.DeleteTable();
+
+                var diskDirectories = disk.ListDirectories("");
+
+                int counter = -1;
+                foreach (var folder in diskDirectories)
+                {
+                    counter++;                    
+                    HttpRequest.UploadFolder(disk, folder);
+                    ProgressBar.DrawProgressBar(counter + 1, diskDirectories.Count());
+                }
+
+
+            }*/
 
             /*
             sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "1607987342" }); //indices

@@ -54,6 +54,7 @@
     <Compile Include="DataSource\IDataSource.cs" />
     <Compile Include="Extension Methods\ExtensionMethods.cs" />
     <Compile Include="FileSystem\Ftp.cs" />
+    <Compile Include="FileSystem\HttpRequestToSql.cs" />
     <Compile Include="FileSystem\LocalDisk.cs" />
     <Compile Include="FileSystem\IFileSystem.cs" />
     <Compile Include="FileSystem\Mirror.cs" />
