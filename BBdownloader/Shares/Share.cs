@@ -155,7 +155,7 @@ namespace BBdownloader.Shares
             if (combinedValues.ContainsKey(field.FieldNickName))
             {
                 FileParser parser = new FileParser();
-                string content = parser.Write(this.name,combinedValues[field.FieldNickName],",");
+                string content = parser.Write(this.name,field.FieldNickName, combinedValues[field.FieldNickName],",");
 
                 if (!downloadedValues.ContainsKey(field.FieldNickName) || downloadedValues[field.FieldNickName]==null || downloadedValues[field.FieldNickName].Count == 0)
                     return false;
