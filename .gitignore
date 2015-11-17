@@ -47,9 +47,10 @@ Temporary Items
 x64/
 build/
 [Oo]bj/
-[Bb]in/
 *.sln
 *.suo
-bin/Debug/*.*
+
+/BBdownloader/bin/Debug/*
+!/BBdownloader/bin/Debug/*.py
 
 .vs/
