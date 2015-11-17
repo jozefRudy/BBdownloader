@@ -72,7 +72,7 @@ namespace BBdownloader
                     share.PerformOperations();
                 }
             }
-            /*
+            
             //upload data
             {
                 Console.Write("\n");
@@ -89,7 +89,7 @@ namespace BBdownloader
                 mirror.PerformOperations();
                 
                 //test with mato
-            }*/
+            }
 
             //upload data via http get requests
 
