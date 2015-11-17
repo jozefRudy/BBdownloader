@@ -49,7 +49,7 @@ namespace BBdownloader.DataSource
             return outList;
         }
 
-        /*
+
         public string Write(string path, DateTime fieldDate, dynamic fieldValueDynamic, string separator)
         {
             StringBuilder outputString = new StringBuilder();
@@ -75,9 +75,9 @@ namespace BBdownloader.DataSource
             outputString.Append(type);
 
             return outputString.ToString();
-        }*/
+        }
 
-        public string Write(string name, string fieldName, SortedList<DateTime, dynamic> inList, string separator)
+        public string Write(string name, SortedList<DateTime, dynamic> inList, string separator)
         {
             StringBuilder outputString = new StringBuilder();
             float value;
@@ -107,8 +107,6 @@ namespace BBdownloader.DataSource
             foreach (var kvp in inList)
             {
                 outputString.Append(name);
-                outputString.Append(separator);
-                outputString.Append(fieldName);
                 outputString.Append(separator);
                 outputString.Append(kvp.Key.ToString(format: "yyyy/MM/dd"));
                 outputString.Append(separator);
