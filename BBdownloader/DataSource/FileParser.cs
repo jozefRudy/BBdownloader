@@ -77,7 +77,7 @@ namespace BBdownloader.DataSource
             return outputString.ToString();
         }
 
-        public string Write(SortedList<DateTime, dynamic> inList, string separator)
+        public string Write(string name, SortedList<DateTime, dynamic> inList, string separator)
         {
             StringBuilder outputString = new StringBuilder();
             float value;
@@ -94,18 +94,20 @@ namespace BBdownloader.DataSource
 
 
                 if (float.TryParse(fieldValue, out value))
-                    type = "~FLOAT";
+                    type = ",float";
                 else if (DateTime.TryParse(fieldValue, out date))
                 {
-                    type = "~DATE";
+                    type = ",date";
                     fieldValue = date.ToString(format: "yyyy/MM/dd");
                 }
                 else
-                    type = "~STRING";
+                    type = ",string";
             }
 
             foreach (var kvp in inList)
             {
+                outputString.Append(name);
+                outputString.Append(separator);
                 outputString.Append(kvp.Key.ToString(format: "yyyy/MM/dd"));
                 outputString.Append(separator);
 
