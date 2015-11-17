@@ -94,14 +94,14 @@ namespace BBdownloader.DataSource
 
 
                 if (float.TryParse(fieldValue, out value))
-                    type = "~FLOAT";
+                    type = ",float";
                 else if (DateTime.TryParse(fieldValue, out date))
                 {
-                    type = "~DATE";
+                    type = ",date";
                     fieldValue = date.ToString(format: "yyyy/MM/dd");
                 }
                 else
-                    type = "~STRING";
+                    type = ",string";
             }
 
             foreach (var kvp in inList)
