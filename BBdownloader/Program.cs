@@ -36,8 +36,8 @@ namespace BBdownloader
 
             sheet.Download(new string[] { gdocsSheet, config.GetValue("indices") });
             indexNames = sheet.toShares();
-            
-            IDataSource dataSource = new Bloomberg();
+
+            IDataSource dataSource = new Bloomberg();           
 
             dataSource.Connect("");
             
@@ -62,8 +62,8 @@ namespace BBdownloader
             LocalDisk disk = new LocalDisk();
             disk.SetPath("data");
             {                           
-                //var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
-                //shares.PerformOperations();
+                var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
+                shares.PerformOperations();
 
                 Console.Write("Processing Individual: ");
                 foreach (var shareName in shareNames)

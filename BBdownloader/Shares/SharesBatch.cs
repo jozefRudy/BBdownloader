@@ -16,6 +16,7 @@ namespace BBdownloader.Shares
         private List<string> sharesNew { get; set; }
         private IEnumerable<IField> fieldsHistorical { get; set; }
         private IEnumerable<IField> fieldsReference { get; set; }
+        private IEnumerable<IField> fields { get; set; }
 
         private DateTime startDate { get; set; }
         private DateTime endDate { get; set; }
@@ -29,6 +30,7 @@ namespace BBdownloader.Shares
             this.dataSource = dataSource;
             this.fileAccess = fileAccess;
 
+            this.fields = fields;
 
             fieldsHistorical = from f in fields
                                where f.requestType == "HistoricalDataRequest"
@@ -53,7 +55,7 @@ namespace BBdownloader.Shares
         public void PerformOperations()
         {
             Console.Write("Processing: ");
-            SharesNew(fieldsHistorical);            
+            SharesNew(fieldsHistorical);
             DownloadShares();
             DownloadNewFields();
             DownloadWithSameLastUpdateDate();
@@ -72,6 +74,12 @@ namespace BBdownloader.Shares
 
         private void DownloadShares()
         {
+            {
+                var flds = new SortedSet<IField>(fields);
+
+            }
+
+
             // Historical Fields
             {   
                 var fieldCount = fieldsHistorical.Count() / maxFields + 1;
