@@ -7,7 +7,7 @@ using BBdownloader.Extension_Methods;
 
 namespace BBdownloader.Shares
 {
-    public class Field: IField, IComparable<IField>
+    public class Field: IField
     {
         public string FieldNickName { get; set; }
         public string FieldName { get; set; }                
@@ -33,14 +33,17 @@ namespace BBdownloader.Shares
 	        }
             if (Overrides.Count>0)
                 overrides = overrides.Remove(overrides.Length - 2);
-            return FieldNickName + ", " + overrides;
+            return FieldNickName + ", " + this.requestType + ", " + overrides;
         }
       
         public int CompareTo(IField secondField)
         {
-            if (String.Compare(this.requestType, secondField.requestType) == 1)
-            {               
-                if (this.Overrides.Compare(secondField.Overrides) == 0)                   
+            if (secondField == null)
+                return -1;
+
+            if (String.Compare(this.requestType, secondField.requestType) == 0)
+            {          
+                if (Enumerable.SequenceEqual(this.Overrides,secondField.Overrides))
                 {
                     return this.periodicitySelection.CompareTo(secondField.periodicitySelection);
                 }

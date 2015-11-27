@@ -9,7 +9,7 @@ namespace BBdownloader.Shares
 {
     public class SharesBatch
     {
-        private readonly int maxFields = 1;
+        private readonly int maxFields = 25;
 
 
         private List<string> shareNames { get; set; }
@@ -52,6 +52,25 @@ namespace BBdownloader.Shares
         /// </summary>
         /// 
 
+        private static IEnumerable<IEnumerable<IField>> FieldBlocks(IEnumerable<IField> fields)
+        {
+            List<IField> batch = new List<IField>();
+            for (int i = 0; i < fields.Count(); i++)
+			{                
+                if (fields.ElementAt(i).CompareTo(fields.ElementAtOrDefault(i-1)) == 0)
+                {
+                    batch.Add(fields.ElementAt(i));
+                }
+			    else
+                {
+                    if (batch.Count()>0)
+                        yield return batch;
+                    batch = new List<IField>();
+                    batch.Add(fields.ElementAt(i));
+                }
+			}            
+        }
+
         public void PerformOperations()
         {
             Console.Write("Processing: ");
@@ -75,7 +94,13 @@ namespace BBdownloader.Shares
         private void DownloadShares()
         {
             {
-                var flds = new SortedSet<IField>(fields);
+                var flds = fields.ToList();
+                flds.Sort();
+
+                foreach (var f in FieldBlocks(flds))
+                {
+                    Console.Write('a');                    
+                }
 
             }
 

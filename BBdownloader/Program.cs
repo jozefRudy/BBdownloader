@@ -37,10 +37,11 @@ namespace BBdownloader
             sheet.Download(new string[] { gdocsSheet, config.GetValue("indices") });
             indexNames = sheet.toShares();
 
-            IDataSource dataSource = new Bloomberg();           
+            IDataSource dataSource = new Bloomberg();
 
+            /*
             dataSource.Connect("");
-            
+                        
             {
                 //obtain components of indices
                 var names = new List<string>();
@@ -56,7 +57,7 @@ namespace BBdownloader
                 var listIDs = from ids in bbIDs.RemoveDates()
                               select (string)ids;
                 shareNames.AddRange(listIDs.ToList());
-            }
+            }*/
 
             //download data
             LocalDisk disk = new LocalDisk();

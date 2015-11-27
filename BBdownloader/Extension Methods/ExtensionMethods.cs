@@ -15,9 +15,9 @@ namespace BBdownloader.Extension_Methods
             for (int i = 0; i < minCount; i++)
             {
 
-                if (String.Compare(set1.Keys.ElementAt(i), set2.Keys.ElementAt(i)) == 1 )                    
+                if (String.Compare(set1.Keys.ElementAt(i), set2.Keys.ElementAt(i)) == 0 )                    
                 { 
-                    if (String.Compare(set1.Values.ElementAt(i), set2.Values.ElementAt(i)) != 1)
+                    if (String.Compare(set1.Values.ElementAt(i), set2.Values.ElementAt(i)) != 0)
                         return set1.Values.ElementAt(i).CompareTo(set2.Values.ElementAt(i));
                 }
                 else

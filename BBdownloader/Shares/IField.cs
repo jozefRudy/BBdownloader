@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BBdownloader.Shares
 {
-    public interface IField
+    public interface IField : IComparable<IField>
     {
         string FieldName { get; set; }
         string FieldNickName { get; set; }
