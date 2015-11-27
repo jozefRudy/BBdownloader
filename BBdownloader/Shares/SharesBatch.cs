@@ -52,12 +52,12 @@ namespace BBdownloader.Shares
         /// </summary>
         /// 
 
-        private static IEnumerable<IEnumerable<IField>> FieldBlocks(IEnumerable<IField> fields)
+        private IEnumerable<IEnumerable<IField>> FieldBlocks(IEnumerable<IField> fields)
         {
             List<IField> batch = new List<IField>();
             for (int i = 0; i < fields.Count(); i++)
 			{                
-                if (fields.ElementAt(i).CompareTo(fields.ElementAtOrDefault(i-1)) == 0)
+                if (fields.ElementAt(i).CompareTo(fields.ElementAtOrDefault(i-1)) == 0 && batch.Count() < maxFields)
                 {
                     batch.Add(fields.ElementAt(i));
                 }
@@ -77,7 +77,7 @@ namespace BBdownloader.Shares
             SharesNew(fieldsHistorical);
             DownloadShares();
             DownloadNewFields();
-            DownloadWithSameLastUpdateDate();
+            DownloadWithSameLastUpdateDate(); //all reference
             Console.Write("\n");
         }
 
@@ -99,31 +99,8 @@ namespace BBdownloader.Shares
 
                 foreach (var f in FieldBlocks(flds))
                 {
-                    Console.Write('a');                    
-                }
-
-            }
-
-
-            // Historical Fields
-            {   
-                var fieldCount = fieldsHistorical.Count() / maxFields + 1;
-                for (int i = 0; i < fieldCount; i++)
-                {
-                    var fields = fieldsHistorical.Skip(i * maxFields).Take(maxFields);
-                    if (fields != null && fields.Count() > 0)
-                        this.DownloadNew(sharesNew, fields);
-                }
-            }
-
-            // Reference Fields
-            {
-                var fieldCount = fieldsReference.Count() / maxFields + 1;
-                for (int i = 0; i < fieldCount; i++)
-                {
-                    var fields = fieldsReference.Skip(i * maxFields).Take(maxFields);
-                    if (fields != null && fields.Count() > 0)
-                        this.DownloadNew(sharesNew, fields);
+                    if (f != null && f.Count() > 0)
+                        this.DownloadNew(sharesNew, f);                                        
                 }
             }
         }
@@ -165,57 +142,34 @@ namespace BBdownloader.Shares
         //check if field exists not present in random directory. If yes - get list of shares for which given fields are missing
         private void DownloadNewFields()
         {
+            List<IField> newFields = new List<IField>();
             List<IField> newFieldsReference = new List<IField>();
             List<IField> newFieldsHistorical = new List<IField>();
 
             var sharesOld = from s in shareNames
                             where !this.sharesNew.Contains(s)
                             select s;
-
             
             if (sharesOld != null && sharesOld.Count() > 0)
             { 
                 Share share = new Share(sharesOld.First(), fieldsHistorical, dataSource, fileAccess);
-
-                foreach (var f in fieldsHistorical.Concat(fieldsReference))
+                foreach (var f in fields)
                 {
                     if (!share.FieldExists(f))
                     {
-                        if (f.requestType == "HistoricalDataRequest")
-                            newFieldsHistorical.Add(f);
-                        else
-                            newFieldsReference.Add(f);
-                    }                    
-                }
-
-
-                { 
-                    var fieldCount = newFieldsHistorical.Count() / maxFields + 1;
-                    for (int i = 0; i < fieldCount; i++)
-                    {
-                        var fields = newFieldsHistorical.Skip(i * maxFields).Take(maxFields);
-                        if (fields != null && fields.Count() > 0)
-                            DownloadNew(sharesOld.ToList(), fields);
+                            newFields.Add(f);
                     }
                 }
 
                 {
-                    var fieldCount = newFieldsReference.Count() / maxFields + 1;
-                    for (int i = 0; i < fieldCount; i++)
+                    newFields.Sort();
+
+                    foreach (var f in FieldBlocks(newFields))
                     {
-                        var fields = newFieldsReference.Skip(i * maxFields).Take(maxFields);
-                        if (fields != null && fields.Count() > 0)
-                            DownloadNew(sharesOld.ToList(), fields);
+                        if (f != null && f.Count() > 0)
+                            this.DownloadNew(sharesOld.ToList(), f);
                     }
                 }
-                
-                /*
-                if (newFieldsHistorical != null && newFieldsHistorical.Count() > 0)
-                    DownloadNew(sharesOld.ToList(), newFieldsHistorical);
-
-                if (newFieldsReference != null && newFieldsReference.Count() > 0)
-                    DownloadNew(sharesOld.ToList(), newFieldsReference);
-                    */
             }
         }
 
