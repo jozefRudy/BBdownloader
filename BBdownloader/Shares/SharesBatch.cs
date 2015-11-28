@@ -14,6 +14,7 @@ namespace BBdownloader.Shares
 
         private List<string> shareNames { get; set; }
         private List<string> sharesNew { get; set; }
+        private List<string> sharesOld { get; set; }
         private IEnumerable<IField> fieldsHistorical { get; set; }
         private IEnumerable<IField> fieldsReference { get; set; }
         private IEnumerable<IField> fields { get; set; }
@@ -74,10 +75,10 @@ namespace BBdownloader.Shares
         public void PerformOperations()
         {
             Console.Write("Processing: ");
-            SharesNew(fieldsHistorical);
-            DownloadShares();
+            SharesNew(fields);
+            DownloadWithSameLastUpdateDate();
             DownloadNewFields();
-            DownloadWithSameLastUpdateDate(); //all reference
+            DownloadNewShares();            
             Console.Write("\n");
         }
 
@@ -91,7 +92,7 @@ namespace BBdownloader.Shares
             return null;
         }
 
-        private void DownloadShares()
+        private void DownloadNewShares()
         {
             {
                 var flds = fields.ToList();
@@ -108,13 +109,16 @@ namespace BBdownloader.Shares
         private void SharesNew(IEnumerable<IField> fields)
         {
             sharesNew = new List<string>();
-
+            sharesOld = new List<string>();
             foreach (var shareName in shareNames)
             {
                 var share = new Share(shareName, fields, dataSource, fileAccess);
                 if (!share.ShareExists())
                     sharesNew.Add(shareName);
             }
+            sharesOld = (from s in shareNames
+                        where !this.sharesNew.Contains(s)
+                        select s).ToList();
         }
 
         private void DownloadNew(List<string> sharesNew, IEnumerable<IField> fields)
@@ -127,14 +131,14 @@ namespace BBdownloader.Shares
             {
                 Share share = new Share(shareNew, fields, dataSource, fileAccess, startDate, endDate);
 
-                foreach (var fieldHistorical in fields)
+                foreach (var f in fields)
 	            {
                     enumerator.MoveNext();
                     var field = enumerator.Current;
 
-                    share.InjectDownloaded(fieldHistorical, field);                                       
+                    share.InjectDownloaded(f, field);                                       
 	            }
-                share.FieldsToKeep(fieldsHistorical.Concat(fieldsReference));
+                share.FieldsToKeep(fields);
                 share.PerformOperations();
             }
         }
@@ -143,33 +147,22 @@ namespace BBdownloader.Shares
         private void DownloadNewFields()
         {
             List<IField> newFields = new List<IField>();
-            List<IField> newFieldsReference = new List<IField>();
-            List<IField> newFieldsHistorical = new List<IField>();
 
-            var sharesOld = from s in shareNames
-                            where !this.sharesNew.Contains(s)
-                            select s;
-            
-            if (sharesOld != null && sharesOld.Count() > 0)
-            { 
-                Share share = new Share(sharesOld.First(), fieldsHistorical, dataSource, fileAccess);
-                foreach (var f in fields)
-                {
-                    if (!share.FieldExists(f))
-                    {
-                            newFields.Add(f);
-                    }
-                }
+            if (sharesOld == null || sharesOld.Count() == 0)
+                return;
+             
+            Share share = new Share(sharesOld.First(), fields, dataSource, fileAccess);
+            foreach (var f in fields)
+            {
+                if (!share.FieldExists(f))
+                    newFields.Add(f);
+            }
 
-                {
-                    newFields.Sort();
-
-                    foreach (var f in FieldBlocks(newFields))
-                    {
-                        if (f != null && f.Count() > 0)
-                            this.DownloadNew(sharesOld.ToList(), f);
-                    }
-                }
+            newFields.Sort();
+            foreach (var f in FieldBlocks(newFields))
+            {
+                if (f != null && f.Count() > 0)
+                    this.DownloadNew(sharesOld.ToList(), f);
             }
         }
 
