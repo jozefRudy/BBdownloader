@@ -83,7 +83,7 @@ namespace BBdownloader.Shares
             }
 
             if (startDate >= endDate)
-                return false;                
+                return false;
 
             if (!downloadedValues.ContainsKey(field.FieldNickName))
             {
@@ -129,6 +129,20 @@ namespace BBdownloader.Shares
             loadedValues[field.FieldNickName] = parser.Read(content);
 
             return true;
+        }
+
+        public DateTime? CheckLatest(IField field)
+        {
+            if (!this.FieldExists(field))
+                return null;
+
+            this.LoadField(field);
+
+
+            var outList = new SortedList<DateTime, dynamic>(); 
+            this.loadedValues.TryGetValue(field.FieldNickName, out outList);
+
+            return outList.Last().Key;                
         }
 
         private bool WriteFields()

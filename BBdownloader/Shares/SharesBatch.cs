@@ -19,6 +19,10 @@ namespace BBdownloader.Shares
         private IEnumerable<IField> fieldsReference { get; set; }
         private IEnumerable<IField> fields { get; set; }
 
+        private List<IField> newFields { get; set; }
+        private List<IField> oldFields { get; set; }
+
+
         private DateTime startDate { get; set; }
         private DateTime endDate { get; set; }
 
@@ -75,9 +79,9 @@ namespace BBdownloader.Shares
         public void PerformOperations()
         {
             Console.Write("Processing: ");
-            SharesNew(fields);
-            DownloadWithSameLastUpdateDate();
-            DownloadNewFields();
+            SharesNewOld(fields);
+            DownloadOldWithSameLastUpdateDate();
+            DownloadNewFieldsForOldShares();
             DownloadNewShares();            
             Console.Write("\n");
         }
@@ -92,21 +96,9 @@ namespace BBdownloader.Shares
             return null;
         }
 
-        private void DownloadNewShares()
-        {
-            {
-                var flds = fields.ToList();
-                flds.Sort();
 
-                foreach (var f in FieldBlocks(flds))
-                {
-                    if (f != null && f.Count() > 0)
-                        this.DownloadNew(sharesNew, f);                                        
-                }
-            }
-        }
 
-        private void SharesNew(IEnumerable<IField> fields)
+        private void SharesNewOld(IEnumerable<IField> fields)
         {
             sharesNew = new List<string>();
             sharesOld = new List<string>();
@@ -121,15 +113,15 @@ namespace BBdownloader.Shares
                         select s).ToList();
         }
 
-        private void DownloadNew(List<string> sharesNew, IEnumerable<IField> fields)
+        private void DownloadNew(List<string> shares, IEnumerable<IField> fields, DateTime? startDate)
         {
-            var output = dataSource.DownloadData(sharesNew, fields.ToList(), startDate: startDate, endDate: endDate);
+            var output = dataSource.DownloadData(shares, fields.ToList(), startDate: startDate.HasValue ? startDate.Value : this.startDate, endDate: endDate);
 
             var enumerator = output.GetEnumerator();
 
-            foreach (var shareNew in sharesNew)
+            foreach (var s in shares)
             {
-                Share share = new Share(shareNew, fields, dataSource, fileAccess, startDate, endDate);
+                Share share = new Share(s, fields, dataSource, fileAccess, startDate, endDate);
 
                 foreach (var f in fields)
 	            {
@@ -138,15 +130,30 @@ namespace BBdownloader.Shares
 
                     share.InjectDownloaded(f, field);                                       
 	            }
-                share.FieldsToKeep(fields);
+                share.FieldsToKeep(this.fields);
                 share.PerformOperations();
             }
         }
 
-        //check if field exists not present in random directory. If yes - get list of shares for which given fields are missing
-        private void DownloadNewFields()
+        private void DownloadNewShares()
         {
-            List<IField> newFields = new List<IField>();
+            {
+                var flds = fields.ToList();
+                flds.Sort();
+
+                foreach (var f in FieldBlocks(flds))
+                {
+                    if (f != null && f.Count() > 0)
+                        this.DownloadNew(sharesNew, f, null);
+                }
+            }
+        }
+
+        //check if field exists not present in random directory. If yes - get list of shares for which given fields are missing
+        private void DownloadNewFieldsForOldShares()
+        {
+            newFields = new List<IField>();
+            oldFields = new List<IField>();
 
             if (sharesOld == null || sharesOld.Count() == 0)
                 return;
@@ -156,21 +163,60 @@ namespace BBdownloader.Shares
             {
                 if (!share.FieldExists(f))
                     newFields.Add(f);
+                else
+                    oldFields.Add(f);
             }
 
             newFields.Sort();
             foreach (var f in FieldBlocks(newFields))
             {
                 if (f != null && f.Count() > 0)
-                    this.DownloadNew(sharesOld.ToList(), f);
+                    this.DownloadNew(sharesOld.ToList(), f, null);
             }
         }
 
 
         // check specific share for last update - for all historical fields. Extend to all shares, where the same conditions are met. Download
-        private void DownloadWithSameLastUpdateDate()
+        private void DownloadOldWithSameLastUpdateDate()
         {
+            var oldFieldsReference = (from f in oldFields
+                            where f.requestType == "ReferenceDataRequest"
+                            select f).ToList();
 
+            oldFieldsReference.Sort();
+
+            foreach (var f in FieldBlocks(oldFieldsReference))
+            {
+                if (f != null && f.Count() > 0)
+                    this.DownloadNew(sharesOld.ToList(), f, null);
+            }
+
+            var oldFieldsHistorical = (from f in oldFields
+                                      where f.requestType == "HistoricalDataRequest"
+                                      select f).ToList();
+
+
+            Share share = new Share(sharesOld.First(), fields, dataSource, fileAccess);
+
+            DateTime latestUpdate = this.startDate;
+            foreach (var f in oldFieldsHistorical)
+            {               
+                var update = share.CheckLatest(f);
+                if (update!=null && update.Value < DateTime.Now)
+                {
+                    if (update > latestUpdate)
+                        latestUpdate = update.Value;
+                }              
+            }
+
+            if (latestUpdate <= this.startDate)
+                return;
+
+            foreach (var f in FieldBlocks(oldFieldsHistorical))
+            {
+                if (f != null && f.Count() > 0)
+                    this.DownloadNew(sharesOld.ToList(), f, latestUpdate);
+            }
         }
     }
 }
