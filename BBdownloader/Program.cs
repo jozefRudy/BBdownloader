@@ -13,12 +13,15 @@ namespace BBdownloader
     {
         [STAThread]
         static void Main()
-        {
+        {           
             DateTime startDate = new DateTime(1990, 1, 1);
             DateTime endDate = DateTime.Today.GetBusinessDay(-1);
             
             ConfigBase config = new ConfigBase();
             config.Load("settings.cfg");
+
+            var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), "data");
+            database.DoWork();
             
             string gdocsSheet = config.GetValue("sheetCode");
 
