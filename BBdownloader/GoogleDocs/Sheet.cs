@@ -43,7 +43,7 @@ namespace BBdownloader.GoogleDocs
             return listShares;
         }
 
-        public void toFields<T>(List<Field> fields) where T: Field, new()
+        public void toFields<T>(List<T> fields) where T: IField, new()
         {
             var rows = new List<string>();
 

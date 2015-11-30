@@ -19,23 +19,20 @@ namespace BBdownloader
             
             ConfigBase config = new ConfigBase();
             config.Load("settings.cfg");
-
-                       
+                                           
             string gdocsSheet = config.GetValue("sheetCode");
-
-            List<string> shareNames = new List<string>();
-            List<string> indexNames = new List<string>();
-            var fields = new List<Field>();
 
             Sheet sheet = new Sheet();
             sheet.Download(new string[] { gdocsSheet, config.GetValue("shareNames") });
-            shareNames = sheet.toShares();
+            var shareNames = sheet.toShares();
 
             sheet.Download(new string[] { gdocsSheet, config.GetValue("fields") });
+
+            var fields = new List<Field>();
             sheet.toFields<Field>(fields);
 
             sheet.Download(new string[] { gdocsSheet, config.GetValue("indices") });
-            indexNames = sheet.toShares();
+            var indexNames = sheet.toShares();
 
             IDataSource dataSource = new Bloomberg();
 

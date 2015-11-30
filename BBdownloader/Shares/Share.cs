@@ -311,7 +311,8 @@ namespace BBdownloader.Shares
         {
             if (field.periodicitySelection.ToLower() == "yearly")
             {
-
+                if (downloadedValues.ContainsKey(field.FieldNickName))
+                    downloadedValues[field.FieldNickName] = downloadedValues[field.FieldNickName].DateToEndYear();
             }
 
             foreach (var f in field.Transform)
