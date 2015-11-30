@@ -13,12 +13,14 @@ namespace BBdownloader.FileSystem
         MySqlConnection conn;
         string myConnectionString;
         string path;
+        IFileSystem disk;
                
-        public MySQL(string ip, string user, string password, string database, string path)
+        public MySQL(string ip, string user, string password, string database, string path, IFileSystem disk)
         {
             myConnectionString = "server="+ip+";uid="+user +";pwd="+ password +";database="+database+";useCompression=true";
-            this.path = Path.GetFullPath(path).Replace("\\","/");
-
+            
+            this.path = disk.GetFullPath().Replace("\\","/");
+            this.disk = disk;
 
             try
             {
@@ -59,7 +61,27 @@ namespace BBdownloader.FileSystem
 
         private void traverseDirs()
         {
-            insertData("BBG000B9XRY4", "BEST_CURRENT_EV_BEST_SALES_2BF");
+            var ids = disk.ListDirectories("");
+
+            Console.WriteLine("Uploading files via compressed SQL connection");
+
+            int counter = -1;            
+            foreach (var id in ids)
+            {
+                ProgressBar.DrawProgressBar(counter + 1, ids.Count());
+                counter++;
+
+                var fields = disk.ListFiles(id);
+                foreach (var field in fields)
+                {
+                    insertData(id, field.Split('.')[0]);
+                }
+                
+            }
+            ProgressBar.DrawProgressBar(1, 1);
+            Console.WriteLine("Upload succesful");
+
+            //insertData("BBG000B9XRY4", "BEST_CURRENT_EV_BEST_SALES_2BF");
         }
 
         public void DoWork()

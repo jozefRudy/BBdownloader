@@ -28,6 +28,11 @@ namespace BBdownloader.FileSystem
             pass = password;
         }
    
+        public string GetFullPath()
+        {
+            return this._path;
+        }
+
         
         /* Rename File */
         public void rename(string currentFileNameAndPath, string newFileName)

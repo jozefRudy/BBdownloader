@@ -20,11 +20,8 @@ namespace BBdownloader
             ConfigBase config = new ConfigBase();
             config.Load("settings.cfg");
 
-            var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), "data");
-            database.DoWork();
-            
+                       
             string gdocsSheet = config.GetValue("sheetCode");
-
 
             List<string> shareNames = new List<string>();
             List<string> indexNames = new List<string>();
@@ -63,8 +60,10 @@ namespace BBdownloader
             }*/
 
             //download data
+            
             LocalDisk disk = new LocalDisk();
             disk.SetPath("data");
+            /*
             {                           
                 var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
                 shares.PerformOperations();
@@ -75,9 +74,16 @@ namespace BBdownloader
                     Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk, startDate: startDate, endDate: endDate);
                     share.PerformOperations();
                 }
-            }
+            }*/
+
+            //upload data via SQL connection
+            var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), "data", disk);
+            database.DoWork();
+            Console.ReadKey();
+
+            
+            //upload data to FTP server
             /*
-            //upload data
             {
                 Console.Write("\n");
                 Console.WriteLine("Uploading Files to FTP server:");
@@ -93,12 +99,10 @@ namespace BBdownloader
                 mirror.PerformOperations();
                 
                 //test with mato
-            }*/
+            }            
 
             //upload data via http get requests
-
-
-            /*
+            
             LocalDisk disk = new LocalDisk();
             disk.SetPath("data");
 
@@ -118,16 +122,7 @@ namespace BBdownloader
                     HttpRequest.UploadFolder(disk, folder);
                     ProgressBar.DrawProgressBar(counter + 1, diskDirectories.Count());
                 }
-
-
             }*/
-
-            /*
-            sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "1607987342" }); //indices
-            sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "794076055" }); //fields
-            sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "485268174" }); //shares reload
-            sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "485268174" }); //shares reload
-            sheet.Add(new string[] { "19hRk5zO3GeJSsgh3v2anYibAYpkEGIs7xIrY3aEJZqw", "1767144829" }); //shares delete*/
 
         }
     }

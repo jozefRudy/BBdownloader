@@ -13,6 +13,11 @@ namespace BBdownloader.FileSystem
         private int bufferSize = 2048;
         private string _path;
 
+        public string GetFullPath()
+        {
+            return Path.GetFullPath(this._path);
+        }
+
         public bool DirectoryExists(string path)
         {
             string currentPath = Path.Combine(this._path, path);

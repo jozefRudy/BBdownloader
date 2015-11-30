@@ -5,6 +5,7 @@ namespace BBdownloader.FileSystem
 {
     public interface IFileSystem
     {
+        string GetFullPath();
         void SetPath(string path);
         bool DirectoryExists(string path);
         bool FileExists(string path);
