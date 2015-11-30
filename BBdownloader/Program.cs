@@ -14,30 +14,31 @@ namespace BBdownloader
         [STAThread]
         static void Main()
         {           
-            DateTime startDate = new DateTime(1990, 1, 1);
-            DateTime endDate = DateTime.Today.GetBusinessDay(-1);
+            var startDate = new DateTime(1990, 1, 1);
+            var endDate = DateTime.Today.GetBusinessDay(-1);
             
-            ConfigBase config = new ConfigBase();
+            var config = new ConfigBase();
             config.Load("settings.cfg");
                                            
-            string gdocsSheet = config.GetValue("sheetCode");
-
-            Sheet sheet = new Sheet();
+            // get specifications
+            var gdocsSheet = config.GetValue("sheetCode");
+            var sheet = new Sheet();
             sheet.Download(new string[] { gdocsSheet, config.GetValue("shareNames") });
             var shareNames = sheet.toShares();
 
             sheet.Download(new string[] { gdocsSheet, config.GetValue("fields") });
-
             var fields = new List<Field>();
             sheet.toFields<Field>(fields);
 
             sheet.Download(new string[] { gdocsSheet, config.GetValue("indices") });
             var indexNames = sheet.toShares();
 
-            IDataSource dataSource = new Bloomberg();
 
-            //download data
-            dataSource.Connect("");                        
+
+            IDataSource dataSource = new Bloomberg();
+            dataSource.Connect("");
+
+            //download index compositions  
             {
                 //obtain components of indices
                 var names = new List<string>();
@@ -53,10 +54,33 @@ namespace BBdownloader
                 var listIDs = from ids in bbIDs.RemoveDates()
                               select (string)ids;
                 shareNames.AddRange(listIDs.ToList());
-            }            
+            }
+
             
             LocalDisk disk = new LocalDisk();
             disk.SetPath("data");
+
+            //delete data for shares-reload and shares-delete
+            { 
+                sheet.Download(new string[] { gdocsSheet, config.GetValue("shares-reload") });
+                var sharesReload = sheet.toShares();
+
+                sheet.Download(new string[] { gdocsSheet, config.GetValue("shares-delete") });
+                var sharesDelete = sheet.toShares();
+
+                foreach (var item in sharesDelete.Concat(sharesReload))
+                    disk.DeleteDirectory(item);
+
+                //delete shares-delete names from list of downloadable shares
+                foreach (var item in sharesDelete)
+                {
+                    if (shareNames.Contains(item))
+                        shareNames.Remove(item);
+                }
+
+            }          
+                        
+            //download and save data
             {
                 var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
                 shares.PerformOperations();
@@ -70,35 +94,12 @@ namespace BBdownloader
             }
 
             //upload data via SQL connection
-            var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), "data", disk);
-            database.DoWork();
-            Console.ReadKey();
+            { 
+                var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), "data", disk);
+                database.DoWork();
+            }
 
-            
-            //upload data to FTP server
             /*
-            {
-                Console.Write("\n");
-                Console.WriteLine("Uploading Files to FTP server:");
-
-                var diskDirectories = disk.ListDirectories("");
-
-                Ftp ftp = new Ftp(config.GetValue("ftpIP"), config.GetValue("ftpLogin"), config.GetValue("ftpPass"));
-                ftp.SetPath("BBdownloader1");
-
-                var directoryList = ftp.ListDirectories("");
-               
-                Mirror mirror = new Mirror(disk, ftp);
-                mirror.PerformOperations();
-                
-                //test with mato
-            }            
-
-            //upload data via http get requests
-            
-            LocalDisk disk = new LocalDisk();
-            disk.SetPath("data");
-
             {
                 Console.Write("\n");
                 Console.WriteLine("Uploading Files via HTTP requests");
@@ -115,8 +116,9 @@ namespace BBdownloader
                     HttpRequest.UploadFolder(disk, folder);
                     ProgressBar.DrawProgressBar(counter + 1, diskDirectories.Count());
                 }
-            }*/
+            }*/            
 
+            Console.ReadKey();            
         }
     }
 }
