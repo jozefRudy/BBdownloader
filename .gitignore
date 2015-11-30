@@ -54,3 +54,4 @@ build/
 !/BBdownloader/bin/Debug/*.py
 
 .vs/
+packages/
