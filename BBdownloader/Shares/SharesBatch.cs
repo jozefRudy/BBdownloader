@@ -78,10 +78,13 @@ namespace BBdownloader.Shares
 
         public void PerformOperations()
         {
-            Console.Write("Processing: ");
+            Console.Write("Processing Batch: ");
             SharesNewOld(fields);
+            Console.Write("Updating old: ");
             DownloadOldWithSameLastUpdateDate();
+            Console.Write("Updating new fields for old: ");
             DownloadNewFieldsForOldShares();
+            Console.Write("Updating new shares: ");
             DownloadNewShares();            
             Console.Write("\n");
         }

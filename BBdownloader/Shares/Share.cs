@@ -309,6 +309,11 @@ namespace BBdownloader.Shares
 
         private bool TransformField(IField field)
         {
+            if (field.periodicitySelection.ToLower() == "yearly")
+            {
+
+            }
+
             foreach (var f in field.Transform)
             {
                 switch (f)

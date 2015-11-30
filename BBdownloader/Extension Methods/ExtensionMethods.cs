@@ -8,6 +8,19 @@ namespace BBdownloader.Extension_Methods
 {
     public static class ExtensionMethods
     {
+
+        public static SortedList<DateTime,dynamic> DateToEndYear(this SortedList<DateTime,dynamic> inList)
+        {
+            var output = new SortedList<DateTime, dynamic>();
+            foreach (var item in inList)
+            {
+                var date = new DateTime(item.Key.Year,12,31);
+                output.Add(date, item.Value);
+            }
+            return output;
+        }
+
+
         public static int Compare(this SortedDictionary<string,string> set1, SortedDictionary<string, string> set2)
         {
             int minCount = set1.Count <= set2.Count ? set1.Count : set2.Count;

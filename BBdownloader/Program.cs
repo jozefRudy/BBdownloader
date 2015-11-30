@@ -39,9 +39,8 @@ namespace BBdownloader
 
             IDataSource dataSource = new Bloomberg();
 
-            /*
-            dataSource.Connect("");
-                        
+            //download data
+            dataSource.Connect("");                        
             {
                 //obtain components of indices
                 var names = new List<string>();
@@ -57,14 +56,11 @@ namespace BBdownloader
                 var listIDs = from ids in bbIDs.RemoveDates()
                               select (string)ids;
                 shareNames.AddRange(listIDs.ToList());
-            }*/
-
-            //download data
+            }            
             
             LocalDisk disk = new LocalDisk();
             disk.SetPath("data");
-            /*
-            {                           
+            {
                 var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
                 shares.PerformOperations();
 
@@ -74,7 +70,7 @@ namespace BBdownloader
                     Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk, startDate: startDate, endDate: endDate);
                     share.PerformOperations();
                 }
-            }*/
+            }
 
             //upload data via SQL connection
             var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), "data", disk);
