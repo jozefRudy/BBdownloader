@@ -1,2 +1,0 @@
-bloomberg_downloader
-====================
