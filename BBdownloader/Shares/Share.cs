@@ -76,6 +76,8 @@ namespace BBdownloader.Shares
 
         private bool DownloadField(IField field)
         {
+            var startDate = this.startDate;
+
             if (loadedValues.ContainsKey(field.FieldNickName) && loadedValues[field.FieldNickName].Count>0)
             {
                 var kvp = loadedValues[field.FieldNickName].Last();
@@ -85,9 +87,17 @@ namespace BBdownloader.Shares
             if (startDate >= endDate)
                 return false;
 
+            string file = Path.Combine(this.name, field.FieldNickName + ".csv");
+            if (fileAccess.LastModifiedDate(file) != null && fileAccess.LastModifiedDate(file).Value == DateTime.Now.Date)
+                return false;
+
             if (!downloadedValues.ContainsKey(field.FieldNickName))
             {
                 var output = dataSource.DownloadData(new List<string> { this.name }, new List<IField> { field }, startDate: startDate, endDate: endDate).First();
+
+                if (output == null || output.Count() == 0)
+                    return false;
+
                 //SortedList<DateTime, dynamic> output = new SortedList<DateTime, dynamic>();
                 //dataSource.DownloadData(this.name, field, startDate, endDate, out output);
                 downloadedValues.Add(field.FieldNickName, output);
@@ -166,7 +176,7 @@ namespace BBdownloader.Shares
 
         private bool WriteField(IField field)
         {
-            if (combinedValues.ContainsKey(field.FieldNickName))
+            if (combinedValues.ContainsKey(field.FieldNickName) && combinedValues[field.FieldNickName]!=null)
             {
                 FileParser parser = new FileParser();
                 string content = parser.Write(combinedValues[field.FieldNickName],",");

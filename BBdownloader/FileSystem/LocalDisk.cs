@@ -13,6 +13,16 @@ namespace BBdownloader.FileSystem
         private int bufferSize = 2048;
         private string _path;
 
+        public DateTime? LastModifiedDate(string path)
+        {
+            string currentPath = Path.Combine(this._path, path);
+
+            if (this.FileExists(path))
+                return File.GetLastWriteTime(currentPath).Date;
+            else
+                return null;
+        }
+
         public string GetFullPath()
         {
             return Path.GetFullPath(this._path);

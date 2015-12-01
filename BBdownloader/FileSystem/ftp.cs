@@ -577,5 +577,11 @@ namespace BBdownloader.FileSystem
         {
             throw new NotImplementedException();
         }
+
+
+        public DateTime? LastModifiedDate(string path)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

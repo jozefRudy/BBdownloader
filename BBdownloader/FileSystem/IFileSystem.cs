@@ -1,5 +1,5 @@
-﻿using System.IO;
-
+﻿using System;
+using System.IO;
 
 namespace BBdownloader.FileSystem
 {
@@ -27,6 +27,6 @@ namespace BBdownloader.FileSystem
         bool DeleteDirectory(string path);
 
         float FileSize(string path);
-
+        DateTime? LastModifiedDate(string path);
     }
 }

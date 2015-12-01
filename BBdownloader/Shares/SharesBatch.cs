@@ -153,7 +153,7 @@ namespace BBdownloader.Shares
 
             foreach (var s in shares)
             {
-                Share share = new Share(s, fields, dataSource, fileAccess, startDate, endDate);
+                Share share = new Share(s, fields, dataSource, fileAccess, startDate: startDate.HasValue ? startDate.Value : this.startDate, endDate: endDate);
 
                 foreach (var f in fields)
 	            {
