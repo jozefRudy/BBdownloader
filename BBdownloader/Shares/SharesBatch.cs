@@ -16,8 +16,6 @@ namespace BBdownloader.Shares
         private List<string> shareNames { get; set; }
         private List<string> sharesNew { get; set; }
         private List<string> sharesOld { get; set; }
-        private IEnumerable<IField> fieldsHistorical { get; set; }
-        private IEnumerable<IField> fieldsReference { get; set; }
         private IEnumerable<IField> fields { get; set; }
 
         private List<IField> newFields { get; set; }
@@ -37,14 +35,6 @@ namespace BBdownloader.Shares
             this.fileAccess = fileAccess;
 
             this.fields = fields;
-
-            fieldsHistorical = from f in fields
-                               where f.requestType == "HistoricalDataRequest"
-                               select f;
-
-            fieldsReference = from f in fields
-                              where f.requestType == "ReferenceDataRequest"
-                              select f;
 
             if (startDate != null)
                 this.startDate = startDate.Value;
@@ -92,17 +82,6 @@ namespace BBdownloader.Shares
         }
 
 
-        private static IEnumerable<IEnumerable<IField>> SplitFields(IEnumerable<IField> fields)
-        {
-            var output = new List<List<IField>>();
-
-
-
-            return null;
-        }
-
-
-
         private void SharesNewOld(IEnumerable<IField> fields)
         {
             sharesNew = new List<string>();
@@ -135,6 +114,9 @@ namespace BBdownloader.Shares
                     oldFields.Add(f);
             }
 
+            newFields.Sort();
+            oldFields.Sort();
+
         }
 
         private void DownloadNew(List<string> shares, IEnumerable<IField> fields, DateTime? startDate)
@@ -163,7 +145,7 @@ namespace BBdownloader.Shares
                     share.InjectDownloaded(f, field);                                       
 	            }
                 share.FieldsToKeep(this.fields);
-                share.PerformOperations();
+                share.DoWork();
             }
         }
 
@@ -184,7 +166,6 @@ namespace BBdownloader.Shares
         //check if field exists not present in random directory. If yes - get list of shares for which given fields are missing
         private void DownloadNewFieldsForOldShares()
         {
-            newFields.Sort();
             foreach (var f in FieldBlocks(newFields))
             {
                 if (f != null && f.Count() > 0)
@@ -202,7 +183,6 @@ namespace BBdownloader.Shares
             var oldFieldsReference = (from f in oldFields
                             where f.requestType == "ReferenceDataRequest"
                             select f).ToList();
-
             oldFieldsReference.Sort();
 
             foreach (var f in FieldBlocks(oldFieldsReference))
@@ -214,7 +194,7 @@ namespace BBdownloader.Shares
             var oldFieldsHistorical = (from f in oldFields
                                       where f.requestType == "HistoricalDataRequest"
                                       select f).ToList();
-
+            oldFieldsHistorical.Sort();
 
             Share share = new Share(sharesOld.First(), fields, dataSource, fileAccess);
 

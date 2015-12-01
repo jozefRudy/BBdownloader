@@ -259,17 +259,18 @@ namespace BBdownloader.Shares
             downloadedValues[field.FieldNickName] = new SortedList<DateTime, dynamic>(data);
         }
 
-        public bool PerformOperations()
+        public bool DoWork()
         {            
             LoadFields();
             if (DownloadFields())
             {
                 Console.Write(this.name + ", ");
-                TransformFields();
-                CombineLoadedDownladedAll();
-                UnTransformFields();
-                WriteFields();
             }
+            TransformFields();
+            CombineLoadedDownladedAll();
+            UnTransformFields();
+            WriteFields();
+            
             DeleteFields();
 
             return true;

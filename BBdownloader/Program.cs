@@ -89,7 +89,7 @@ namespace BBdownloader
                 foreach (var shareName in shareNames)
                 {
                     Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk, startDate: startDate, endDate: endDate);
-                    share.PerformOperations();
+                    share.DoWork();
                 }
             }
 
