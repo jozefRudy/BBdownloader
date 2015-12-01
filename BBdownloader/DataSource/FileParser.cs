@@ -18,32 +18,28 @@ namespace BBdownloader.DataSource
             {
                 string[] items = row.Split(',');
                 
-                if (items.Length > 1)
+                if (items.Length > 2)
                 {
                     DateTime date = DateTime.Parse(items[0]);
                     dynamic parsedValue = "";
 
-                    var value = items[1].Split('~');
-
-                    if (value.Length>1)
+                    switch (items[2])
                     {
-                        switch (value[1])
-                        {
-                            case "FLOAT":
-                                parsedValue = float.Parse(value[0]);
-                                break;
-                            case "DATE":
-                                parsedValue = DateTime.Parse(value[0]);
-                                break;                          
-                            case "STRING":
-                                parsedValue = value[0];
-                                break;
-                            default:
-                                break;
-                        }
-                        if (!outList.ContainsKey(date))
-                            outList.Add(date, parsedValue);
+                        case "float":
+                            parsedValue = float.Parse(items[1]);
+                            break;
+                        case "date":
+                            parsedValue = DateTime.Parse(items[1]);
+                            break;                          
+                        case "string":
+                            parsedValue = items[1];
+                            break;
+                        default:
+                            break;
                     }
+                    if (!outList.ContainsKey(date))
+                        outList.Add(date, parsedValue);
+                    
                 }
             }
             return outList;

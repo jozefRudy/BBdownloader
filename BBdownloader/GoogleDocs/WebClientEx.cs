@@ -35,11 +35,21 @@ namespace BBdownloader.GoogleDocs
             return response;
         }
 
-        protected override WebResponse GetWebResponse(WebRequest request)
+        protected override WebResponse GetWebResponse(WebRequest request)        
         {
-            WebResponse response = base.GetWebResponse(request);
-            ReadCookies(response);
-            return response;
+            try
+            {
+                WebResponse response = base.GetWebResponse(request);
+                ReadCookies(response);
+                return response;
+            }
+            catch
+            {
+                Console.WriteLine("Internet Connection Problem - Failed to download google docs");
+                Console.ReadKey();
+                Environment.Exit(0);
+            }
+            return null;
         }
 
         private void ReadCookies(WebResponse r)

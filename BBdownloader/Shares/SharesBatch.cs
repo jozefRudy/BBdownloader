@@ -4,6 +4,7 @@ using System.Linq;
 using System.Diagnostics;
 using BBdownloader.DataSource;
 using BBdownloader.FileSystem;
+using BBdownloader.Extension_Methods;
 
 namespace BBdownloader.Shares
 {
@@ -78,13 +79,14 @@ namespace BBdownloader.Shares
 
         public void PerformOperations()
         {
-            Console.Write("Processing Batch: ");
+            Console.Write("Processing Batch");
             SharesNewOld(fields);
-            Console.Write("Updating old: ");
+            FieldsNewOld();
+            Console.Write("\nUpdating old: ");
             DownloadOldWithSameLastUpdateDate();
-            Console.Write("Updating new fields for old: ");
+            Console.Write("\nUpdating new fields for old: ");
             DownloadNewFieldsForOldShares();
-            Console.Write("Updating new shares: ");
+            Console.Write("\nUpdating new shares: ");
             DownloadNewShares();            
             Console.Write("\n");
         }
@@ -116,8 +118,35 @@ namespace BBdownloader.Shares
                         select s).ToList();
         }
 
+        private void FieldsNewOld()
+        {
+            newFields = new List<IField>();
+            oldFields = new List<IField>();
+
+            if (sharesOld == null || sharesOld.Count() == 0)
+                return;
+
+            Share share = new Share(sharesOld.First(), fields, dataSource, fileAccess);
+            foreach (var f in fields)
+            {
+                if (!share.FieldExists(f))
+                    newFields.Add(f);
+                else
+                    oldFields.Add(f);
+            }
+
+        }
+
         private void DownloadNew(List<string> shares, IEnumerable<IField> fields, DateTime? startDate)
         {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("\nFields: ");
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write(fields.ToExtendedString());
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write(" Shares: ");
+            Console.ForegroundColor = ConsoleColor.Gray;
+
             var output = dataSource.DownloadData(shares, fields.ToList(), startDate: startDate.HasValue ? startDate.Value : this.startDate, endDate: endDate);
 
             var enumerator = output.GetEnumerator();
@@ -155,21 +184,6 @@ namespace BBdownloader.Shares
         //check if field exists not present in random directory. If yes - get list of shares for which given fields are missing
         private void DownloadNewFieldsForOldShares()
         {
-            newFields = new List<IField>();
-            oldFields = new List<IField>();
-
-            if (sharesOld == null || sharesOld.Count() == 0)
-                return;
-             
-            Share share = new Share(sharesOld.First(), fields, dataSource, fileAccess);
-            foreach (var f in fields)
-            {
-                if (!share.FieldExists(f))
-                    newFields.Add(f);
-                else
-                    oldFields.Add(f);
-            }
-
             newFields.Sort();
             foreach (var f in FieldBlocks(newFields))
             {
@@ -182,6 +196,9 @@ namespace BBdownloader.Shares
         // check specific share for last update - for all historical fields. Extend to all shares, where the same conditions are met. Download
         private void DownloadOldWithSameLastUpdateDate()
         {
+            if (oldFields == null || oldFields.Count()==0)
+                return;
+
             var oldFieldsReference = (from f in oldFields
                             where f.requestType == "ReferenceDataRequest"
                             select f).ToList();
@@ -201,24 +218,24 @@ namespace BBdownloader.Shares
 
             Share share = new Share(sharesOld.First(), fields, dataSource, fileAccess);
 
-            DateTime latestUpdate = this.startDate;
+            DateTime oldestUpdate = this.endDate;
             foreach (var f in oldFieldsHistorical)
             {               
                 var update = share.CheckLatest(f);
-                if (update!=null && update.Value < DateTime.Now)
+                if (update!=null)
                 {
-                    if (update > latestUpdate)
-                        latestUpdate = update.Value;
+                    if (update < oldestUpdate)
+                        oldestUpdate = update.Value;
                 }              
             }
 
-            if (latestUpdate <= this.startDate)
+            if (oldestUpdate <= this.startDate)
                 return;
 
             foreach (var f in FieldBlocks(oldFieldsHistorical))
             {
                 if (f != null && f.Count() > 0)
-                    this.DownloadNew(sharesOld.ToList(), f, latestUpdate);
+                    this.DownloadNew(sharesOld.ToList(), f, oldestUpdate);
             }
         }
     }

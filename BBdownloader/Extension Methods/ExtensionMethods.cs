@@ -3,11 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BBdownloader.Shares;
 
 namespace BBdownloader.Extension_Methods
 {
     public static class ExtensionMethods
     {
+
+        public static string ToExtendedString(this IEnumerable<IField> list)
+        {
+            string output = "";
+            foreach (var item in list)
+            {
+                output += item.FieldNickName + ",";
+            }
+            return output;
+        }
 
         public static SortedList<DateTime,dynamic> DateToEndYear(this SortedList<DateTime,dynamic> inList)
         {
