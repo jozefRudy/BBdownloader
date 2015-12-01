@@ -20,7 +20,7 @@ namespace BBdownloader.Shares
         IEnumerable<IField> fields { get; set; }
         IEnumerable<IField> fieldsToKeep { get; set; }
 
-        string name;
+        public string name;
         IDataSource dataSource { get; set; }
         IFileSystem fileAccess { get; set; }
 
@@ -93,7 +93,7 @@ namespace BBdownloader.Shares
 
             if (!downloadedValues.ContainsKey(field.FieldNickName))
             {
-                var output = dataSource.DownloadData(new List<string> { this.name }, new List<IField> { field }, startDate: startDate, endDate: endDate).First();
+                var output = dataSource.DownloadData(new List<string> { this.name }, new List<IField> { field }, startDate: startDate, endDate: endDate).First().Item2;
 
                 if (output == null || output.Count() == 0)
                     return false;
@@ -336,12 +336,12 @@ namespace BBdownloader.Shares
                             loadedValues[field.FieldNickName] = loadedValues[field.FieldNickName].price2ret();
                             
                         }
-                        if (downloadedValues.ContainsKey(field.FieldNickName))
+                        if (downloadedValues.ContainsKey(field.FieldNickName) && downloadedValues[field.FieldNickName].Count() > 0)
                         {
                             lastPrice[field.FieldNickName] = downloadedValues[field.FieldNickName].Last().Value;
                             downloadedValues[field.FieldNickName] = downloadedValues[field.FieldNickName].price2ret();
                         }
-                        if (!lastPrice.ContainsKey(field.FieldNickName))
+                        if (!lastPrice.ContainsKey(field.FieldNickName) && loadedValues.ContainsKey(field.FieldNickName) && loadedValues[field.FieldNickName].Count()>0)
                             lastPrice[field.FieldNickName] = loadedValues[field.FieldNickName].Last().Value;
                         break;
                     case "ONLYRIGHT":
@@ -377,7 +377,7 @@ namespace BBdownloader.Shares
                 switch (f)
                 {
                     case "TORETURNS":
-                        if (combinedValues.ContainsKey(field.FieldNickName) && combinedValues[field.FieldNickName].Count > 1)
+                        if (combinedValues.ContainsKey(field.FieldNickName) && combinedValues[field.FieldNickName]!=null && combinedValues[field.FieldNickName].Count > 1)
                             combinedValues[field.FieldNickName] = combinedValues[field.FieldNickName].ret2price(lastPrice[field.FieldNickName]);
                         break;
                     default:

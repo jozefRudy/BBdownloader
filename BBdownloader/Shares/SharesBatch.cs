@@ -53,16 +53,16 @@ namespace BBdownloader.Shares
             List<IField> batch = new List<IField>();
             for (int i = 0; i < fields.Count(); i++)
 			{                
-                if (fields.ElementAt(i).CompareTo(fields.ElementAtOrDefault(i-1)) == 0 && batch.Count() < maxFields)
+                if (batch.Count() == 0 || (batch.Last().CompareTo(fields.ElementAtOrDefault(i))==0 && batch.Count() < maxFields))                                       
                 {
                     batch.Add(fields.ElementAt(i));
                 }
-			    else
+
+                if (batch.Last().CompareTo(fields.ElementAtOrDefault(i+1)) != 0 || batch.Count() >= maxFields)
                 {
                     if (batch.Count()>0)
                         yield return batch;
                     batch = new List<IField>();
-                    batch.Add(fields.ElementAt(i));
                 }
 			}            
         }
@@ -129,23 +129,28 @@ namespace BBdownloader.Shares
             Console.Write(" Shares: ");
             Console.ForegroundColor = ConsoleColor.Gray;
 
+            var equities = from s in shares
+                           select s+" Equity";
+
             var output = dataSource.DownloadData(shares, fields.ToList(), startDate: startDate.HasValue ? startDate.Value : this.startDate, endDate: endDate);
 
             var enumerator = output.GetEnumerator();
 
             foreach (var s in shares)
             {
-                Share share = new Share(s, fields, dataSource, fileAccess, startDate: startDate.HasValue ? startDate.Value : this.startDate, endDate: endDate);
+                var share = new Share(" ", fields, dataSource, fileAccess, startDate: startDate.HasValue ? startDate.Value : this.startDate, endDate: endDate);
 
                 foreach (var f in fields)
-	            {
+	            {                    
                     enumerator.MoveNext();
                     var field = enumerator.Current;
-
-                    share.InjectDownloaded(f, field);                                       
+                    share.name = field.Item1;
+                    share.InjectDownloaded(f, field.Item2);                
 	            }
+                
                 share.FieldsToKeep(this.fields);
                 share.DoWork();
+
             }
         }
 
@@ -154,6 +159,9 @@ namespace BBdownloader.Shares
             {
                 var flds = fields.ToList();
                 flds.Sort();
+
+                if (sharesNew.Count() == 0)
+                    return;
 
                 foreach (var f in FieldBlocks(flds))
                 {

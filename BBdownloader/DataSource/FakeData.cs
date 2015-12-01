@@ -28,7 +28,7 @@ namespace BBdownloader.DataSource
             throw new NotImplementedException();
         }
 
-        public IEnumerable<SortedList<DateTime, dynamic>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate, DateTime? endDate)
+        public IEnumerable<Tuple<string,SortedList<DateTime, dynamic>>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate, DateTime? endDate)
         {
             throw new NotImplementedException();
         }

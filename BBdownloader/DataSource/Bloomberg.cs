@@ -127,7 +127,7 @@ namespace BBdownloader.DataSource {
             }
         }
 
-        public IEnumerable<SortedList<DateTime, dynamic>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate = null, DateTime? endDate = null)
+        public IEnumerable<Tuple<string,SortedList<DateTime, dynamic>>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate = null, DateTime? endDate = null)
         {
             Request request = refDataService.CreateRequest(fields[0].requestType);
             
@@ -201,7 +201,7 @@ namespace BBdownloader.DataSource {
             }
         }
 
-        private IEnumerable<SortedList<DateTime, dynamic>> ParseUniversal(Element securityDataArray, List<IField> fields)
+        private IEnumerable<Tuple<string,SortedList<DateTime, dynamic>>> ParseUniversal(Element securityDataArray, List<IField> fields)
         {
             var fieldNames = from f in fields
                              select f.FieldName.ToUpper();
@@ -213,6 +213,7 @@ namespace BBdownloader.DataSource {
                 for (int i = 0; i < securityDataArray.NumValues; i++) //data for multiple securities
                 {
                     Element securityData = securityDataArray.GetValueAsElement(i); //single security
+                    string securityName = securityData.GetElementAsString("security");
                     Element fieldData = securityData.GetElement("fieldData"); //data for multiple fields.
 
                     foreach (var fieldName in fieldNames)
@@ -227,7 +228,7 @@ namespace BBdownloader.DataSource {
                             var dataType = field.Datatype.ToString();                        
                             output.Add(DateTime.Now, data);
                         }
-                        yield return output;                                   
+                        yield return Tuple.Create(securityName,output);
                     }
                 }
             }
@@ -239,6 +240,7 @@ namespace BBdownloader.DataSource {
                     Outputs[i] = new SortedList<DateTime, dynamic>();
 
                 Element fieldDataArray = securityDataArray.GetElement("fieldData");  // data for multiple fields, multiple dates                                             
+                string securityName = securityDataArray.GetElementAsString("security");
 
                 for (int i = 0; i < fieldDataArray.NumValues; i++) //equals 0 if no fields or security wrong
                 {
@@ -297,7 +299,7 @@ namespace BBdownloader.DataSource {
                 }
 
                 for (int i = 0; i < Outputs.Length; i++)
-                    yield return Outputs[i];                
+                    yield return Tuple.Create(securityName, Outputs[i]);                
             }
         }
 

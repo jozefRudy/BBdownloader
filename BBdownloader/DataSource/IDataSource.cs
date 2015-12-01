@@ -8,7 +8,7 @@ namespace BBdownloader.DataSource
     {
         bool Connect(string connectionString);
 
-        IEnumerable<SortedList<DateTime,dynamic>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate = null, DateTime? endDate = null);
+        IEnumerable<Tuple<string,SortedList<DateTime,dynamic>>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate = null, DateTime? endDate = null);
 
         //void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList);
 
