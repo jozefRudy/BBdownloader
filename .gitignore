@@ -50,7 +50,7 @@ build/
 *.sln
 *.suo
 
-/BBdownloader/Installation/*.exe
+Installation/*.exe
 
 /BBdownloader/bin/Debug/*
 !/BBdownloader/bin/Debug/*.py
