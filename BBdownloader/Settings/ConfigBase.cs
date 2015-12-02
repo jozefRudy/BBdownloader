@@ -10,11 +10,17 @@ class ConfigBase
 
     public bool Load(String fname)
     {
+        if (!File.Exists(fname))
+        {
+            Console.WriteLine("Settings file " + fname + " not found");
+            Environment.Exit(0);
+        }
+
         Trace.WriteLine("ConfigBase.Load [" + fname + "]");
 
         _values.Clear();
 
-        String[] lines;
+        String[] lines;      
 
         lines = File.ReadAllLines(fname);
 

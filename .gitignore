@@ -50,8 +50,12 @@ build/
 *.sln
 *.suo
 
+/BBdownloader/Installation/*.exe
+
 /BBdownloader/bin/Debug/*
 !/BBdownloader/bin/Debug/*.py
+
+
 
 .vs/
 packages/
