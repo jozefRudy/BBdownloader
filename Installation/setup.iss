@@ -13,13 +13,10 @@ AppVersion={#AppVersion}
 AppName={#AppName}
 DefaultDirName={pf}\BBdownloader
 DefaultGroupName=BBdownloader
-UninstallDisplayIcon={app}\BBdownloader.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=Installation
 SourceDir=..\
-DirExistsWarning=no
-ChangesAssociations=yes
 OutputBaseFilename= {#AppName +" v"+ AppVersion}
 
 [Files]
@@ -27,4 +24,7 @@ Source: "{#Release}\*.*"; DestDir: "{app}";
 
 [Icons]
 Name: "{group}\BBdownloader"; Filename: "{app}\BBdownloader.exe"
-Name: "{group}\Uninstall BBdownloader"; Filename: "{uninstallexe}"
+Name: "{group}\testBBdownloader"; Filename: "{app}\test.bat"
+Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
+
+
