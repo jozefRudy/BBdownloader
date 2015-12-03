@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using BBdownloader.Shares;
+using BBdownloader.Extension_Methods;
 using System.Globalization;
 using System.Linq;
 
@@ -225,7 +226,7 @@ namespace BBdownloader.DataSource {
                     foreach (var msg in eventObj)
                     {
                         if (msg.AsElement.HasElement("responseError"))
-                            throw new Exception("Response error: " + msg.GetElement("responseError").GetElement("message"));
+                            throw new Exception("Response error for fields ["+ fields.ToExtendedString() + "]: " + msg.GetElement("responseError").GetElement("message") + "field: ");
 
                         Element securityData = msg.GetElement("securityData");
 

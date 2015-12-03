@@ -358,9 +358,9 @@ namespace BBdownloader.FileSystem
                     //Console.WriteLine("Directory Empty"); 
                 }
             }
-            catch (Exception ex) 
+            catch 
             {
-                //Console.WriteLine("Directory Empty");
+                Console.WriteLine("Directory Empty");
             }
             finally
             {
@@ -527,7 +527,7 @@ namespace BBdownloader.FileSystem
                 ftpResponse = (FtpWebResponse)ftpRequest.GetResponse();
                 directoryExists = true;                
             }
-            catch (WebException ex)
+            catch
             {
                 directoryExists = false;
             }
@@ -558,7 +558,7 @@ namespace BBdownloader.FileSystem
                 fileExists = true;
                 
             }
-            catch (WebException ex)
+            catch
             {
                 fileExists = false;
             }

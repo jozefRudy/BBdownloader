@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using BBdownloader.Extension_Methods;
 
 namespace BBdownloader.Shares
@@ -15,8 +13,6 @@ namespace BBdownloader.Shares
         public string Type { get; set; }
         public List<string> Transform { get; set; }
         public string requestType { get; set; }
-        public string periodicitySelection { get; set; }
-        public string periodicityAdjustment { get; set; }
         
         public Field()
         {
@@ -45,15 +41,10 @@ namespace BBdownloader.Shares
             if (String.Compare(this.requestType, secondField.requestType) == 0)
             {          
                 if (Enumerable.SequenceEqual(this.Overrides,secondField.Overrides))
-                {
-                    if (string.Compare(this.periodicitySelection, secondField.periodicitySelection) == 0)
-                        return this.periodicityAdjustment.CompareTo(secondField.periodicityAdjustment);
-                    else
-                        return this.periodicitySelection.CompareTo(secondField.periodicitySelection);
-                }
-                return this.Overrides.Compare(secondField.Overrides);
+                    return 0;
+                else
+                    return this.Overrides.Compare(secondField.Overrides);
             }
-
             return this.requestType.CompareTo(secondField.requestType);            
         }
 

@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-
 
 public static class ProgressBar
 {
@@ -35,7 +29,7 @@ public static class ProgressBar
             if (complete == maxVal)
                 Console.WriteLine();
         }
-        catch (IOException e)
+        catch
         {
             Console.WriteLine("no console available");
         }

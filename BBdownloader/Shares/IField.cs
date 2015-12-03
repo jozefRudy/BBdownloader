@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BBdownloader.Shares
 {
@@ -14,8 +11,6 @@ namespace BBdownloader.Shares
         string Type { get; set; }
         List<string> Transform { get; set; }
         string requestType { get; set; }
-        string periodicitySelection { get; set; }
-        string periodicityAdjustment { get; set; }
     }
 
 }
