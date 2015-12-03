@@ -15,6 +15,7 @@ namespace BBdownloader.Shares
         List<string> Transform { get; set; }
         string requestType { get; set; }
         string periodicitySelection { get; set; }
+        string periodicityAdjustment { get; set; }
     }
 
 }

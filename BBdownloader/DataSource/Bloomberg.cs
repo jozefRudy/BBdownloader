@@ -128,51 +128,59 @@ namespace BBdownloader.DataSource {
 
         public IEnumerable<Tuple<string,SortedList<DateTime, dynamic>>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate = null, DateTime? endDate = null)
         {
-            Request request = refDataService.CreateRequest(fields[0].requestType);
-            
-            foreach (var name in securityNames)
-                request.Append("securities", name);
-
-            foreach (var f in fields)
-                request.Append("fields", f.FieldName);
-
-            Element overrides = request["overrides"];
-
-            foreach (var item in fields[0].Overrides)
+            try
             {
-                if (item.Key.Length > 0 && item.Value.Length > 0)
+                Request request = refDataService.CreateRequest(fields[0].requestType);
+
+                foreach (var name in securityNames)
+                    request.Append("securities", name);
+
+                foreach (var f in fields)
+                    request.Append("fields", f.FieldName);
+
+                Element overrides = request["overrides"];
+
+                foreach (var item in fields[0].Overrides)
                 {
-                    Element override1 = overrides.AppendElement();
-                    override1.SetElement("fieldId", item.Key);
-                    override1.SetElement("value", item.Value);
-                    //request.Set(item[0], item[1]);
-                }
-            }
-
-            if (fields[0].requestType == "HistoricalDataRequest")
-            {
-                request.Set("periodicitySelection", fields[0].periodicitySelection);
-
-                request.Set("periodicityAdjustment", "ACTUAL");
-                
-
-                var d = startDate.Value;
-
-                if (startDate != null)
-                    request.Set("startDate", startDate.Value.ToString("yyyyMMdd"));
-
-                if (endDate != null)
-                {
-                    var nextYear = new DateTime(DateTime.Today.Year + 1, 1, 1);
-                    DateTime upperLimit = endDate.Value > nextYear ? nextYear : endDate.Value;
-
-                    request.Set("endDate", upperLimit.ToString("yyyyMMdd"));
+                    if (item.Key.Length > 0 && item.Value.Length > 0)
+                    {
+                        Element override1 = overrides.AppendElement();
+                        override1.SetElement("fieldId", item.Key);
+                        override1.SetElement("value", item.Value);
+                        //request.Set(item[0], item[1]);
+                    }
                 }
 
-                request.Set("maxDataPoints", 10000);
-            }
+                if (fields[0].requestType == "HistoricalDataRequest")
+                {
+                    request.Set("periodicitySelection", fields[0].periodicitySelection);
 
-            session.SendRequest(request, null);
+                    request.Set("periodicityAdjustment", fields[0].periodicityAdjustment);
+
+
+                    var d = startDate.Value;
+
+                    if (startDate != null)
+                        request.Set("startDate", startDate.Value.ToString("yyyyMMdd"));
+
+                    if (endDate != null)
+                    {
+                        var nextYear = new DateTime(DateTime.Today.Year + 1, 1, 1);
+                        DateTime upperLimit = endDate.Value > nextYear ? nextYear : endDate.Value;
+
+                        request.Set("endDate", upperLimit.ToString("yyyyMMdd"));
+                    }
+
+                    request.Set("maxDataPoints", 10000);
+                }
+
+                session.SendRequest(request, null);
+            }
+            catch
+            {
+                Console.WriteLine("\nWrong bloomberg request for " + fields[0].FieldNickName);
+                yield break;
+            }
 
             bool done = false;
 

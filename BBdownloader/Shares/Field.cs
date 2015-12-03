@@ -16,6 +16,7 @@ namespace BBdownloader.Shares
         public List<string> Transform { get; set; }
         public string requestType { get; set; }
         public string periodicitySelection { get; set; }
+        public string periodicityAdjustment { get; set; }
         
         public Field()
         {
@@ -45,7 +46,10 @@ namespace BBdownloader.Shares
             {          
                 if (Enumerable.SequenceEqual(this.Overrides,secondField.Overrides))
                 {
-                    return this.periodicitySelection.CompareTo(secondField.periodicitySelection);
+                    if (string.Compare(this.periodicitySelection, secondField.periodicitySelection) == 0)
+                        return this.periodicityAdjustment.CompareTo(secondField.periodicityAdjustment);
+                    else
+                        return this.periodicitySelection.CompareTo(secondField.periodicitySelection);
                 }
                 return this.Overrides.Compare(secondField.Overrides);
             }

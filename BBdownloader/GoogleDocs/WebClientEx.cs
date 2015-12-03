@@ -46,7 +46,6 @@ namespace BBdownloader.GoogleDocs
             catch
             {
                 Console.WriteLine("Internet Connection Problem - Failed to download google docs");
-                Console.ReadKey();
                 Environment.Exit(0);
             }
             return null;

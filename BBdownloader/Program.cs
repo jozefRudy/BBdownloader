@@ -48,6 +48,7 @@ namespace BBdownloader
                 dataSource.Connect("");
 
                 //download index compositions  
+                if (indexNames != null && indexNames.Count() > 0)
                 {
                     //obtain components of indices
                     var names = new List<string>();

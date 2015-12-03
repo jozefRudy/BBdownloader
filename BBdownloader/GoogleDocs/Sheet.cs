@@ -77,6 +77,13 @@ namespace BBdownloader.GoogleDocs
                             else
                                 field.periodicitySelection = "DAILY";
                             break;
+
+                        case "periodicityadjustment":
+                            if (col.Length > 0)
+                                field.periodicityAdjustment = col;
+                            else
+                                field.periodicityAdjustment = "ACTUAL";
+                            break;
                         case "requesttype":
                             if (col.Length > 0)
                             {
@@ -110,10 +117,7 @@ namespace BBdownloader.GoogleDocs
                                            where c.Length > 0
                                            select c.Trim();
 
-                                overrides.Add(cols.ElementAt(0),cols.ElementAt(1));
-                                
-                                //field.Overrides.Add(cols.ToArray());
-
+                                overrides.Add(cols.ElementAt(0),cols.ElementAt(1));                                
                             }
                             break;
                         case "fieldnickname":
