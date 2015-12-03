@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using System.IO;
 
 namespace BBdownloader.FileSystem
 {
@@ -63,7 +59,7 @@ namespace BBdownloader.FileSystem
         {
             var ids = disk.ListDirectories("");
 
-            Console.WriteLine("Uploading files via compressed SQL connection");
+            Console.WriteLine("\nUploading files via compressed SQL connection");
 
             int counter = -1;            
             foreach (var id in ids)

@@ -320,11 +320,12 @@ namespace BBdownloader.Shares
 
         private bool TransformField(IField field)
         {
+            /*
             if (field.periodicitySelection.ToLower() == "yearly")
             {
                 if (downloadedValues.ContainsKey(field.FieldNickName))
                     downloadedValues[field.FieldNickName] = downloadedValues[field.FieldNickName].DateToEndYear();
-            }
+            }*/
 
             foreach (var f in field.Transform)
             {

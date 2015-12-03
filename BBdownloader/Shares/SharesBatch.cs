@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Diagnostics;
 using BBdownloader.DataSource;
 using BBdownloader.FileSystem;
 using BBdownloader.Extension_Methods;
@@ -72,9 +71,9 @@ namespace BBdownloader.Shares
             Console.Write("Processing Batch");
             SharesNewOld(fields);
             FieldsNewOld();
-            Console.Write("\nUpdating old: ");
+            Console.Write("\nUpdating old fields for old shares: ");
             DownloadOldWithSameLastUpdateDate();
-            Console.Write("\nUpdating new fields for old: ");
+            Console.Write("\nUpdating new fields for old shares: ");
             DownloadNewFieldsForOldShares();
             Console.Write("\nUpdating new shares: ");
             DownloadNewShares();            

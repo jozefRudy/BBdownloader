@@ -7,7 +7,6 @@ using BBdownloader.DataSource;
 using BBdownloader.FileSystem;
 using BBdownloader.Extension_Methods;
 using CommandLine;
-using CommandLine.Text;
 
 namespace BBdownloader
 {
