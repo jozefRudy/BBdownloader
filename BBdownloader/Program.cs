@@ -17,7 +17,6 @@ namespace BBdownloader
         {
             var options = new CommandLineOptions();
 
-
             if (!Parser.Default.ParseArguments(args, options))
             {
                 Environment.Exit(Parser.DefaultExitCodeFail);
