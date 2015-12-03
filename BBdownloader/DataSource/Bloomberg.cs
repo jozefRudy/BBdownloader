@@ -67,8 +67,7 @@ namespace BBdownloader.DataSource {
                     {
                         Console.Write("\n");
                         Console.WriteLine("Tried to connect to Bloomberg " + reconnectAttempts + " times.");
-                        Console.WriteLine("Press any key to exit.");
-                        Console.ReadLine();
+                        Console.WriteLine("Exiting");
                         Environment.Exit(0);
                     }
 

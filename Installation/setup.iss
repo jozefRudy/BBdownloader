@@ -7,6 +7,7 @@
 #define AppName "BBdownloader"
 #define Release "BBdownloader\bin\Release"
 #define Root "BBdownloader"
+#define Runners "runners"
 
 [Setup]
 AppVersion={#AppVersion}
@@ -21,9 +22,10 @@ OutputBaseFilename= {#AppName +" v"+ AppVersion}
 
 [Files]
 Source: "{#Release}\*.*"; DestDir: "{app}"; 
+Source: "{#Runners}\*.*"; DestDir: "{app}"; 
 
 [Icons]
-Name: "{group}\BBdownloader"; Filename: "{app}\BBdownloader.exe"
+Name: "{group}\BBdownloader"; Filename: "{app}\start.bat"
 Name: "{group}\testBBdownloader"; Filename: "{app}\test.bat"
 Name: "{group}\Uninstall"; Filename: "{uninstallexe}"
 
