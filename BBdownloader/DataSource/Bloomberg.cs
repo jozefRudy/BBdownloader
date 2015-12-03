@@ -126,6 +126,30 @@ namespace BBdownloader.DataSource {
             }
         }
 
+        private dynamic ParseBool(string value)
+        {
+            bool result;
+            if (bool.TryParse(value, out result))
+                return result;
+            else
+                return value;
+        }
+
+        private bool IsOverride(string element)
+        {
+            var Elements = new List<string>() {"periodicitySelection", "periodicityAdjustment", "currency","nonTradingFillOption","nonTradingFillMethod","adjustmentNormal",
+            "adjustmentAbnormal", "adjustmentSplit"};
+
+            var elements = (from e in Elements
+                            select e.ToLower()).ToList();
+
+            if (elements.Contains(element.ToLower()))
+                return false;
+            else
+                return true;
+
+        }
+
         public IEnumerable<Tuple<string,SortedList<DateTime, dynamic>>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate = null, DateTime? endDate = null)
         {
             try
@@ -144,19 +168,26 @@ namespace BBdownloader.DataSource {
                 {
                     if (item.Key.Length > 0 && item.Value.Length > 0)
                     {
-                        Element override1 = overrides.AppendElement();
-                        override1.SetElement("fieldId", item.Key);
-                        override1.SetElement("value", item.Value);
-                        //request.Set(item[0], item[1]);
+                        dynamic value = ParseBool(item.Value);
+
+                        if (!IsOverride(item.Key))
+                        {
+                            request.Set(item.Key, value);
+                        }
+                        else
+                        { 
+                            Element override1 = overrides.AppendElement();
+                            override1.SetElement("fieldId", item.Key);
+                            override1.SetElement("value", value);
+                        }
                     }
                 }
 
                 if (fields[0].requestType == "HistoricalDataRequest")
                 {
-                    request.Set("periodicitySelection", fields[0].periodicitySelection);
+                    //request.Set("periodicitySelection", fields[0].periodicitySelection);
 
-                    request.Set("periodicityAdjustment", fields[0].periodicityAdjustment);
-
+                    //request.Set("periodicityAdjustment", fields[0].periodicityAdjustment);
 
                     var d = startDate.Value;
 
