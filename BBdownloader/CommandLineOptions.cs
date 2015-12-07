@@ -23,10 +23,19 @@ namespace BBdownloader
         [Option("settings", DefaultValue = "settings.cfg", HelpText = "Settings file name")]
         public string Settings { get; set; }
 
+        [Option("logging", DefaultValue = "log.txt", HelpText = "Full logfile path")]
+        public string LogFile { get; set; }
+
+
         [HelpOption]
         public string GetUsage()
         {
             return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
         }
+
+        public override string  ToString()
+        {
+            return "options: --noDownload:" + NoDownload.ToString() + " --noUpload:" + NoUpload.ToString() + " --dir:" + Dir.ToString() + " --settings:" + Settings.ToString() + " --logging:" + LogFile.ToString();
+        }
     }
 }

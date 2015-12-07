@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 public static class ProgressBar
 {
@@ -27,11 +28,11 @@ public static class ProgressBar
             Console.Write(" {0}%", (perc * 100).ToString("N2"));
             Console.CursorLeft = left;
             if (complete == maxVal)
-                Console.WriteLine();
+                Trace.Write("\n");
         }
         catch
         {
-            Console.WriteLine("no console available");
+            Trace.WriteLine("no console available");
         }
 
     }

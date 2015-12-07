@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 using BBdownloader.Shares;
 using BBdownloader.GoogleDocs;
 using BBdownloader.DataSource;
 using BBdownloader.FileSystem;
 using BBdownloader.Extension_Methods;
+using BBdownloader.Settings;
 using CommandLine;
 
 namespace BBdownloader
@@ -18,10 +20,11 @@ namespace BBdownloader
             var options = new CommandLineOptions();
 
             if (!Parser.Default.ParseArguments(args, options))
-            {
                 Environment.Exit(Parser.DefaultExitCodeFail);
-            }                      
 
+            var logging = new Logging(options.LogFile);            
+            Trace.WriteLine(options.ToString());
+           
             var startDate = new DateTime(1990, 1, 1);
             var endDate = DateTime.Today.GetBusinessDay(-1);
             
@@ -94,7 +97,7 @@ namespace BBdownloader
                     var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
                     shares.PerformOperations();
 
-                    Console.Write("Processing Individual: ");
+                    Trace.Write("Processing Individual: ");
                     foreach (var shareName in shareNames)
                     {
                         Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk, startDate: startDate, endDate: endDate);
@@ -114,6 +117,7 @@ namespace BBdownloader
                 var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), options.Dir, disk);
                 database.DoWork();
             }
+            logging.Finalize();
 
             /*
             {

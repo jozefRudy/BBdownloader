@@ -4,6 +4,7 @@ using BBdownloader.Shares;
 using BBdownloader.Extension_Methods;
 using System.Globalization;
 using System.Linq;
+using System.Diagnostics;
 
 using Event = Bloomberglp.Blpapi.Event;
 using Message = Bloomberglp.Blpapi.Message;
@@ -47,7 +48,7 @@ namespace BBdownloader.DataSource {
                 sessionOptions.ServerHost = serverHost;
                 sessionOptions.ServerPort = serverPort;
 
-                Console.WriteLine("Connecting to Bloomberg. Attempt " + reconnectAttempts + "/" + maxReconnectAttempts +".");
+                Trace.WriteLine("Connecting to Bloomberg. Attempt " + reconnectAttempts + "/" + maxReconnectAttempts +".");
                 session = new Session(sessionOptions);
 
                 bool sessionStarted = session.Start();
@@ -56,23 +57,23 @@ namespace BBdownloader.DataSource {
                 {
                     session.OpenService("//blp/refdata");
                     refDataService = session.GetService("//blp/refdata");
-                    Console.WriteLine("Connected to Bloomberg");
+                    Trace.WriteLine("Connected to Bloomberg");
                     connected = true;
                     reconnectAttempts = 0;
                 }
                 catch
                 {
-                    Console.Write("Failed to connect. ");
+                    Trace.Write("Failed to connect. ");
                     connected = false;
                     if (reconnectAttempts >= maxReconnectAttempts)
                     {
-                        Console.Write("\n");
-                        Console.WriteLine("Tried to connect to Bloomberg " + reconnectAttempts + " times.");
-                        Console.WriteLine("Exiting");
+                        Trace.Write("\n");
+                        Trace.WriteLine("Tried to connect to Bloomberg " + reconnectAttempts + " times.");
+                        Trace.WriteLine("Exiting");
                         Environment.Exit(0);
                     }
 
-                    Console.WriteLine("Waiting for " + reconnectionInterval + "s before retrying to connect.");
+                    Trace.WriteLine("Waiting for " + reconnectionInterval + "s before retrying to connect.");
                     System.Threading.Thread.Sleep(reconnectionInterval * 1000);
                     
                 }
@@ -91,7 +92,7 @@ namespace BBdownloader.DataSource {
             Element fields = request.GetElement("fields");
             fields.AppendValue(bbgField);
 
-            System.Console.WriteLine("Sending Index Components Request: " + Index);
+            Trace.WriteLine("Sending Index Components Request: " + Index);
 
             session.SendRequest(request, null);
 
@@ -210,7 +211,7 @@ namespace BBdownloader.DataSource {
             }
             catch
             {
-                Console.WriteLine("\nWrong bloomberg request for " + fields[0].FieldNickName);
+                Trace.WriteLine("\nWrong bloomberg request for " + fields[0].FieldNickName);
                 yield break;
             }
 

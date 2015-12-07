@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 using BBdownloader.DataSource;
 using BBdownloader.FileSystem;
 using BBdownloader.Extension_Methods;
@@ -68,16 +69,16 @@ namespace BBdownloader.Shares
 
         public void PerformOperations()
         {
-            Console.Write("Processing Batch");
+            Trace.Write("Processing Batch");
             SharesNewOld(fields);
             FieldsNewOld();
-            Console.Write("\nUpdating old fields for old shares: ");
+            Trace.Write("\nUpdating old fields for old shares: ");
             DownloadOldWithSameLastUpdateDate();
-            Console.Write("\nUpdating new fields for old shares: ");
+            Trace.Write("\nUpdating new fields for old shares: ");
             DownloadNewFieldsForOldShares();
-            Console.Write("\nUpdating new shares: ");
-            DownloadNewShares();            
-            Console.Write("\n");
+            Trace.Write("\nUpdating new shares: ");
+            DownloadNewShares();
+            Trace.Write("\n");
         }
 
 
@@ -121,11 +122,11 @@ namespace BBdownloader.Shares
         private void DownloadNew(List<string> shares, IEnumerable<IField> fields, DateTime? startDate)
         {
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("\nFields: ");
+            Trace.Write("\nFields: ");
             Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write(fields.ToExtendedString());
+            Trace.Write(fields.ToExtendedString());
             Console.ForegroundColor = ConsoleColor.White;
-            Console.Write(" Shares: ");
+            Trace.Write(" Shares: ");
             Console.ForegroundColor = ConsoleColor.Gray;
 
             var equities = from s in shares

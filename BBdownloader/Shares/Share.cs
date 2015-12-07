@@ -264,7 +264,7 @@ namespace BBdownloader.Shares
             LoadFields();
             if (DownloadFields())
             {
-                Console.Write(this.name + ", ");
+                Trace.Write(this.name + ", ");
             }
             TransformFields();
             CombineLoadedDownladedAll();

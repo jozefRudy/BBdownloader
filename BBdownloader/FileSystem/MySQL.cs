@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Diagnostics;
 using MySql.Data.MySqlClient;
+
 
 namespace BBdownloader.FileSystem
 {
@@ -25,7 +27,7 @@ namespace BBdownloader.FileSystem
             }
             catch (MySqlException ex)
             {
-                Console.WriteLine(ex.Message);
+                Trace.WriteLine(ex.Message);
             }
         }
 
@@ -59,7 +61,7 @@ namespace BBdownloader.FileSystem
         {
             var ids = disk.ListDirectories("");
 
-            Console.WriteLine("\nUploading files via compressed SQL connection");
+            Trace.WriteLine("\nUploading files via compressed SQL connection");
 
             int counter = -1;            
             foreach (var id in ids)
@@ -75,7 +77,7 @@ namespace BBdownloader.FileSystem
                 
             }
             ProgressBar.DrawProgressBar(1, 1);
-            Console.WriteLine("Upload successful");
+            Trace.WriteLine("Upload successful");
 
             //insertData("BBG000B9XRY4", "BEST_CURRENT_EV_BEST_SALES_2BF");
         }

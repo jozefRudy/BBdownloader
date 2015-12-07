@@ -12,7 +12,7 @@ class ConfigBase
     {
         if (!File.Exists(fname))
         {
-            Console.WriteLine("Settings file " + fname + " not found");
+            Trace.WriteLine("Settings file " + fname + " not found");
             Environment.Exit(0);
         }
 
