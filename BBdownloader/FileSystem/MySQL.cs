@@ -67,7 +67,7 @@ namespace BBdownloader.FileSystem
 
         private void uploadFields()
         {
-            Trace.WriteLine("\nUploading field definitions via compressed SQL connection");
+            Trace.WriteLine("Uploading field definitions via compressed SQL connection");
             var ids = disk.ListFiles("");
             
             foreach (var field in ids)
@@ -76,6 +76,7 @@ namespace BBdownloader.FileSystem
                 var cmd = new MySqlCommand(text, conn);
                 cmd.ExecuteNonQuery();
             }
+            Trace.WriteLine("\nUpload successful");
         }
 
         private void insertData(string id, string field)
@@ -89,7 +90,7 @@ namespace BBdownloader.FileSystem
         {
             var ids = disk.ListDirectories("");
 
-            Trace.WriteLine("\nUploading files via compressed SQL connection");
+            Trace.WriteLine("Uploading files via compressed SQL connection");
 
             int counter = -1;            
             foreach (var id in ids)
@@ -105,7 +106,7 @@ namespace BBdownloader.FileSystem
                 
             }
             ProgressBar.DrawProgressBar(1, 1);
-            Trace.WriteLine("Upload successful");
+            Trace.WriteLine("\nUpload successful");
 
             //insertData("BBG000B9XRY4", "BEST_CURRENT_EV_BEST_SALES_2BF");
         }

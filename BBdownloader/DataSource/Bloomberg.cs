@@ -63,11 +63,10 @@ namespace BBdownloader.DataSource {
                 }
                 catch
                 {
-                    Trace.Write("Failed to connect. ");
+                    Trace.WriteLine("Failed to connect. ");
                     connected = false;
                     if (reconnectAttempts >= maxReconnectAttempts)
                     {
-                        Trace.Write("\n");
                         Trace.WriteLine("Tried to connect to Bloomberg " + reconnectAttempts + " times.");
                         Trace.WriteLine("Exiting");
                         Environment.Exit(0);
@@ -345,7 +344,7 @@ namespace BBdownloader.DataSource {
 
         public void Disconnect()
         {
-            Trace.Write("Disconnecting from Bloomberg service.");
+            Trace.WriteLine("\nDisconnecting from Bloomberg service.");
 
             try
             {
