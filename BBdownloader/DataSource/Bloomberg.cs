@@ -362,6 +362,8 @@ namespace BBdownloader.DataSource {
 
             Request request = refDataService.CreateRequest("FieldInfoRequest");
 
+            if (fields == null || fields.Count() == 0)
+                return null;
             foreach (var item in fields)
             {
                 request.Append("id", item.FieldName);

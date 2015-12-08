@@ -297,6 +297,9 @@ namespace BBdownloader.Shares
 
             var outDict = dataSource.DownloadFieldInfo(this.name, toDownload);
 
+            if (outDict == null || outDict.Count() == 0)
+                return false;
+
             foreach (var f in outDict)
             {
                 if (!fieldDefinitions.ContainsKey(f.Key))

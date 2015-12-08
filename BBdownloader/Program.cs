@@ -106,6 +106,7 @@ namespace BBdownloader
                     }
                     dataSource.Disconnect();
                 }
+                //download fieldInfo
                 {
                     if (shareNames.Count()>0)
                     {                        
