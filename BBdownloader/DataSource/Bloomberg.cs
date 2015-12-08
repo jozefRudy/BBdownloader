@@ -48,7 +48,7 @@ namespace BBdownloader.DataSource {
                 sessionOptions.ServerHost = serverHost;
                 sessionOptions.ServerPort = serverPort;
 
-                Trace.WriteLine("Connecting to Bloomberg " + dataType +  ". Attempt " + reconnectAttempts + "/" + maxReconnectAttempts +".");
+                Trace.Write("\nConnecting to Bloomberg " + dataType +  ". Attempt " + reconnectAttempts + "/" + maxReconnectAttempts +".");
                 session = new Session(sessionOptions);
 
                 bool sessionStarted = session.Start();
@@ -57,7 +57,7 @@ namespace BBdownloader.DataSource {
                 {                    
                     session.OpenService(dataType);
                     refDataService = session.GetService(dataType);
-                    Trace.WriteLine("Connected to Bloomberg");
+                    Trace.Write("\nConnected to Bloomberg");
                     connected = true;
                     reconnectAttempts = 0;
                 }
@@ -67,13 +67,12 @@ namespace BBdownloader.DataSource {
                     connected = false;
                     if (reconnectAttempts >= maxReconnectAttempts)
                     {
-                        Trace.Write("\n");
-                        Trace.WriteLine("Tried to connect to Bloomberg " + reconnectAttempts + " times.");
-                        Trace.WriteLine("Exiting");
+                        Trace.Write("\nTried to connect to Bloomberg " + reconnectAttempts + " times.");
+                        Trace.WriteLine("\nExiting");
                         Environment.Exit(0);
                     }
 
-                    Trace.WriteLine("Waiting for " + reconnectionInterval + "s before retrying to connect.");
+                    Trace.Write("\nWaiting for " + reconnectionInterval + "s before retrying to connect.");
                     System.Threading.Thread.Sleep(reconnectionInterval * 1000);
                     
                 }
@@ -92,7 +91,7 @@ namespace BBdownloader.DataSource {
             Element fields = request.GetElement("fields");
             fields.AppendValue(bbgField);
 
-            Trace.WriteLine("Sending Index Components Request: " + Index);
+            Trace.Write("\nSending Index Components Request: " + Index);
 
             session.SendRequest(request, null);
 
@@ -345,7 +344,7 @@ namespace BBdownloader.DataSource {
 
         public void Disconnect()
         {
-            Trace.Write("Disconnecting from Bloomberg service.");
+            Trace.Write("\nDisconnecting from Bloomberg service.");
 
             try
             {
