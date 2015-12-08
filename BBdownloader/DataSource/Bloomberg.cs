@@ -48,7 +48,7 @@ namespace BBdownloader.DataSource {
                 sessionOptions.ServerHost = serverHost;
                 sessionOptions.ServerPort = serverPort;
 
-                Trace.WriteLine("Connecting to Bloomberg. Attempt " + reconnectAttempts + "/" + maxReconnectAttempts +".");
+                Trace.WriteLine("Connecting to Bloomberg " + dataType +  ". Attempt " + reconnectAttempts + "/" + maxReconnectAttempts +".");
                 session = new Session(sessionOptions);
 
                 bool sessionStarted = session.Start();
