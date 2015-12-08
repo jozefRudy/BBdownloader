@@ -53,8 +53,8 @@ namespace BBdownloader.FileSystem
         private void createTableFieldInfo()
         {
             string text = @"CREATE TABLE IF NOT EXISTS `field_info` (
-`attribute_name` varchar(550) PRIMARY KEY,
-`value` varchar(5000) NUT NULL COLLATE latin1_bin DEFAULT '0'
+`attribute_name` varchar(550) NOT NULL COLLATE latin1_bin PRIMARY KEY,
+`value` varchar(5000) NOT NULL COLLATE latin1_bin DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;";
 
             MySqlCommand cmd = new MySqlCommand(text, conn);
@@ -72,7 +72,7 @@ namespace BBdownloader.FileSystem
             
             foreach (var field in ids)
             {
-                string text = String.Format(@"LOAD DATA LOCAL INFILE '{0}/{1}.csv' INTO TABLE field_info (value) SET attribute_name='{1}' ", this.path, field);
+                string text = String.Format(@"LOAD DATA LOCAL INFILE '{0}/{1}.csv' INTO TABLE field_info LINES TERMINATED BY 'IMPOSSIBLE' (value) SET attribute_name='{1}' ", this.path, field.Split('.')[0]);
                 var cmd = new MySqlCommand(text, conn);
                 cmd.ExecuteNonQuery();
             }
