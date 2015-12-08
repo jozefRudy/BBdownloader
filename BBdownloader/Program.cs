@@ -111,7 +111,7 @@ namespace BBdownloader
                     {                        
                         dataSource.Connect(dataType: "//blp/apiflds");
                         Share share = new Share(name: shareNames.First(), fields: fields, dataSource: dataSource, fileAccess: disk, startDate: startDate, endDate: endDate);
-                        share.GetFieldsInfo();
+                        share.DownloadFieldsInfo();
                         dataSource.Disconnect();                        
                     }
 

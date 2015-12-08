@@ -55,8 +55,8 @@ namespace BBdownloader.DataSource {
 
                 try
                 {                    
-                    session.OpenService("//blp/refdata");
-                    refDataService = session.GetService("//blp/refdata");
+                    session.OpenService(dataType);
+                    refDataService = session.GetService(dataType);
                     Trace.WriteLine("Connected to Bloomberg");
                     connected = true;
                     reconnectAttempts = 0;
@@ -356,12 +356,17 @@ namespace BBdownloader.DataSource {
             connected = false;
         }
 
-        public string DownloadFieldInfo(string securityName, IField field)
+        public string DownloadFieldInfo(string securityName, IEnumerable<IField> fields)
         {
             Request request = refDataService.CreateRequest("FieldInfoRequest");
-            request.Append("id", field.FieldName);
 
-            request.Set("returnDocumentation", true);
+            foreach (var item in fields)
+            {
+                request.Append("id", item.FieldName);
+            }
+            
+
+            request.Set("returnFieldDocumentation", true);
             session.SendRequest(request,null);
 
             bool done = false;
@@ -375,10 +380,20 @@ namespace BBdownloader.DataSource {
                     foreach (var msg in eventObj)
                     {
                         if (msg.AsElement.HasElement("responseError"))
-                            throw new Exception("Response error for fields [" + field.ToString() + "]: " + msg.GetElement("responseError").GetElement("message") + "field: ");
+                            throw new Exception("Response error for fields [" + fields.ToExtendedString() + "]: " + msg.GetElement("responseError").GetElement("message") + "field: ");
 
-                        Element securityData = msg.GetElement("fieldData");
-                       
+                        Element securityDataArray = msg.GetElement("fieldData");
+                        for (int i = 0; i < securityDataArray.NumValues; i++)
+                        {
+                            Element fieldData = securityDataArray.GetValueAsElement(i);
+                            Element fieldInfo = fieldData.GetElement("fieldInfo");
+
+                            string fieldName = fieldInfo.GetElementAsString("mnemonic");
+                            string output = fieldInfo.GetElementAsString("documentation");
+                        }
+
+
+
                     }
                 }
                 if (eventObj.Type == Event.EventType.RESPONSE) done = true;

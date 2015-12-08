@@ -74,16 +74,18 @@ namespace BBdownloader.Shares
             return true;*/
         }
 
-        private void GetFieldInfo(IField field)
+        private void DownloadFieldInfo(IField field)
         {
-            dataSource.DownloadFieldInfo(this.name, field);
+            //dataSource.DownloadFieldInfo(this.name, field);
         }
 
-        public void GetFieldsInfo()
+        public void DownloadFieldsInfo()
         {
+            dataSource.DownloadFieldInfo(this.name, this.fields);
+
             foreach (var item in this.fields)
             {
-                GetFieldInfo(item);
+                DownloadFieldInfo(item);
             }
         }
 

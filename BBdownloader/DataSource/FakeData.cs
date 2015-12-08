@@ -42,5 +42,10 @@ namespace BBdownloader.DataSource
         {
             throw new NotImplementedException();
         }
+
+        public string DownloadFieldInfo(string securityName, IEnumerable<IField> field)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
