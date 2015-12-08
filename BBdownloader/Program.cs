@@ -90,7 +90,6 @@ namespace BBdownloader
                         if (shareNames.Contains(item))
                             shareNames.Remove(item);
                     }
-
                 }
 
                 //download and save data
@@ -122,11 +121,21 @@ namespace BBdownloader
             //upload data via SQL connection
             if (!options.NoUpload)
             {
-                LocalDisk disk = new LocalDisk();
-                disk.SetPath(options.Dir);
+                { 
+                    LocalDisk disk = new LocalDisk();
+                    disk.SetPath(options.Dir);
 
-                var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), options.Dir, disk);
-                database.DoWork();
+                    var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), disk);
+                    database.DoWork();
+                }
+
+                {
+                    LocalDisk disk = new LocalDisk();
+                    disk.SetPath(options.FieldInfoDir);
+
+                    var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), disk);
+                    database.DoWorkFieldInfo();
+                }
             }
             logging.Finalize();
 

@@ -310,6 +310,15 @@ namespace BBdownloader.Shares
                 }
             }
 
+            //delete non present fields in gdocs
+            var files = fileAccess.ListFiles("");
+            foreach (var file in files)
+            {
+                var field = file.Split('.')[0];
+                if (!fieldDefinitions.ContainsKey(field))
+                    DeleteField(field);
+            }
+
             return true;
         }
 

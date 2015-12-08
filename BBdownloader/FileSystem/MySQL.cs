@@ -13,7 +13,7 @@ namespace BBdownloader.FileSystem
         string path;
         IFileSystem disk;
                
-        public MySQL(string ip, string user, string password, string database, string path, IFileSystem disk)
+        public MySQL(string ip, string user, string password, string database, IFileSystem disk)
         {
             myConnectionString = "server="+ip+";uid="+user +";pwd="+ password +";database="+database+";useCompression=true";
             
@@ -50,9 +50,37 @@ namespace BBdownloader.FileSystem
             cmd1.ExecuteNonQuery();
         }
 
+        private void createTableFieldInfo()
+        {
+            string text = @"CREATE TABLE IF NOT EXISTS `field_info` (
+`attribute_name` varchar(550) PRIMARY KEY,
+`value` varchar(5000) NUT NULL COLLATE latin1_bin DEFAULT '0'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;";
+
+            MySqlCommand cmd = new MySqlCommand(text, conn);
+            cmd.ExecuteNonQuery();
+
+            text = "TRUNCATE TABLE field_info;";
+            MySqlCommand cmd1 = new MySqlCommand(text, conn);
+            cmd1.ExecuteNonQuery();
+        }
+
+        private void uploadFields()
+        {
+            Trace.WriteLine("\nUploading field definitions via compressed SQL connection");
+            var ids = disk.ListFiles("");
+            
+            foreach (var field in ids)
+            {
+                string text = String.Format(@"LOAD DATA LOCAL INFILE '{0}/{1}.csv' INTO TABLE field_info (value) SET attribute_name='{1}' ", this.path, field);
+                var cmd = new MySqlCommand(text, conn);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
         private void insertData(string id, string field)
         {
-            string text = String.Format(@"LOAD DATA LOCAL INFILE '{0}/{1}/{2}.csv' INTO TABLE global_bbd FIELDS TERMINATED BY ',' (value_date,value,value_typ) SET attribute_name='{1}', bbd_unique='{2}';", this.path,id, field);
+            string text = String.Format(@"LOAD DATA LOCAL INFILE '{0}/{1}/{2}.csv' INTO TABLE global_bbd FIELDS TERMINATED BY ',' (value_date,value,value_typ) SET attribute_name='{2}', bbd_unique='{1}';", this.path,id, field);
             var cmd = new MySqlCommand(text, conn);
             cmd.ExecuteNonQuery();
         }
@@ -82,10 +110,18 @@ namespace BBdownloader.FileSystem
             //insertData("BBG000B9XRY4", "BEST_CURRENT_EV_BEST_SALES_2BF");
         }
 
+
+
         public void DoWork()
         {
             createTable();
             traverseDirs();            
+        }
+
+        public void DoWorkFieldInfo()
+        {
+            createTableFieldInfo();
+            uploadFields();
         }
 
     }

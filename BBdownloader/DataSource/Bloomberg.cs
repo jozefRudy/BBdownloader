@@ -345,6 +345,8 @@ namespace BBdownloader.DataSource {
 
         public void Disconnect()
         {
+            Trace.Write("Disconnecting from Bloomberg service.");
+
             try
             {
                 session.Stop();
