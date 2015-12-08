@@ -13,6 +13,8 @@ namespace BBdownloader.Shares
 {
     public class Share
     {
+        Dictionary<string, string> fieldDefinitions { get; set; }
+
         Dictionary<string, SortedList<DateTime, dynamic>> loadedValues { get; set; }
         Dictionary<string, SortedList<DateTime, dynamic>> downloadedValues { get; set; }
         Dictionary<string, SortedList<DateTime, dynamic>> combinedValues { get; set; }
@@ -35,6 +37,8 @@ namespace BBdownloader.Shares
             this.fields = fields;
             this.dataSource = dataSource;
             this.fileAccess = fileAccess;
+
+            fieldDefinitions = new Dictionary<string, string>();
             loadedValues = new Dictionary<string, SortedList<DateTime, dynamic>>();
             downloadedValues = new Dictionary<string, SortedList<DateTime, dynamic>>();
             combinedValues = new Dictionary<string, SortedList<DateTime, dynamic>>();
@@ -72,21 +76,6 @@ namespace BBdownloader.Shares
                 DownloadField(field);
 	        }
             return true;*/
-        }
-
-        private void DownloadFieldInfo(IField field)
-        {
-            //dataSource.DownloadFieldInfo(this.name, field);
-        }
-
-        public void DownloadFieldsInfo()
-        {
-            dataSource.DownloadFieldInfo(this.name, this.fields);
-
-            foreach (var item in this.fields)
-            {
-                DownloadFieldInfo(item);
-            }
         }
 
         private bool DownloadField(IField field)
@@ -287,6 +276,36 @@ namespace BBdownloader.Shares
             WriteFields();
             
             DeleteFields();
+
+            return true;
+        }
+
+        public bool DoWorkFieldInfo()
+        {
+            var toDownload = new List<IField>();
+            foreach (var f in this.fields)
+            {
+                string file = Path.Combine(f.FieldNickName + ".csv");
+                if (fileAccess.FileExists(file))
+                {
+                    var content = fileAccess.ReadFile(file);
+                    fieldDefinitions[f.FieldNickName] = content.ToString();
+                }
+                else
+                    toDownload.Add(f);                 
+            }
+
+            var outDict = dataSource.DownloadFieldInfo(this.name, toDownload);
+
+            foreach (var f in outDict)
+            {
+                if (!fieldDefinitions.ContainsKey(f.Key))
+                {
+                    string file = Path.Combine(f.Key + ".csv");
+                    fileAccess.WriteFile(file, f.Value.ToString()); 
+                    fieldDefinitions.Add(f.Key, f.Value.ToString());
+                }
+            }
 
             return true;
         }

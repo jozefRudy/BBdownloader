@@ -356,8 +356,10 @@ namespace BBdownloader.DataSource {
             connected = false;
         }
 
-        public string DownloadFieldInfo(string securityName, IEnumerable<IField> fields)
+        public Dictionary<string,string> DownloadFieldInfo(string securityName, IEnumerable<IField> fields)
         {
+            var outDict = new Dictionary<string, string>(); 
+
             Request request = refDataService.CreateRequest("FieldInfoRequest");
 
             foreach (var item in fields)
@@ -365,7 +367,6 @@ namespace BBdownloader.DataSource {
                 request.Append("id", item.FieldName);
             }
             
-
             request.Set("returnFieldDocumentation", true);
             session.SendRequest(request,null);
 
@@ -390,18 +391,23 @@ namespace BBdownloader.DataSource {
 
                             string fieldName = fieldInfo.GetElementAsString("mnemonic");
                             string output = fieldInfo.GetElementAsString("documentation");
+
+                            var fieldNickName = from f in fields
+                                                where f.FieldName == fieldName
+                                                select f.FieldNickName;
+
+                            foreach (var f in fieldNickName)
+                            {
+                                if (!outDict.ContainsKey(f))
+                                    outDict.Add(f, output);
+                            }
                         }
-
-
-
                     }
                 }
                 if (eventObj.Type == Event.EventType.RESPONSE) done = true;
 
             }
-            return "";
-
-
+            return outDict;
         }
 
 

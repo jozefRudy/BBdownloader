@@ -26,6 +26,9 @@ namespace BBdownloader
         [Option("logging", DefaultValue = "log.txt", HelpText = "Full logfile path")]
         public string LogFile { get; set; }
 
+        [Option("fieldInfoDir", DefaultValue = "FieldInfo", HelpText = "field info directory")]
+        public string FieldInfoDir { get; set; }
+
 
         [HelpOption]
         public string GetUsage()
@@ -36,6 +39,7 @@ namespace BBdownloader
         public override string  ToString()
         {
             return "options: --noDownload:" + NoDownload.ToString() + " --noUpload:" + NoUpload.ToString() + " --dir:" + Dir.ToString() + " --settings:" + Settings.ToString() + " --logging:" + LogFile.ToString();
-        }
+        }
+
     }
 }

@@ -20,6 +20,7 @@ namespace BBdownloader.FileSystem
 
         private string _path;
 
+
         /* Construct Object */
         public Ftp(string hostIP, string userName, string password)
         {

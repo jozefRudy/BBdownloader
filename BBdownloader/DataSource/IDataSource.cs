@@ -16,6 +16,6 @@ namespace BBdownloader.DataSource
 
         void Disconnect();
 
-        string DownloadFieldInfo(string securityName, IEnumerable<IField> field);
+        Dictionary<string,string> DownloadFieldInfo(string securityName, IEnumerable<IField> field);
     }
 }

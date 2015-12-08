@@ -11,7 +11,8 @@ namespace BBdownloader.FileSystem
     public class LocalDisk: IFileSystem
     {
         private int bufferSize = 2048;
-        private string _path;
+        private string _path { get; set; }
+
 
         public DateTime? LastModifiedDate(string path)
         {

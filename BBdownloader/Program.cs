@@ -110,17 +110,13 @@ namespace BBdownloader
                     if (shareNames.Count()>0)
                     {                        
                         dataSource.Connect(dataType: "//blp/apiflds");
+                        disk.SetPath(options.FieldInfoDir);
                         Share share = new Share(name: shareNames.First(), fields: fields, dataSource: dataSource, fileAccess: disk, startDate: startDate, endDate: endDate);
-                        share.DownloadFieldsInfo();
+                        share.DoWorkFieldInfo();
                         dataSource.Disconnect();                        
                     }
-
                 }
-
-                
             }
-
-
 
             //upload data via SQL connection
             if (!options.NoUpload)
