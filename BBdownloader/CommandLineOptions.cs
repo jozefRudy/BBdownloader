@@ -20,14 +20,15 @@ namespace BBdownloader
         [Option("dir", DefaultValue = "data", HelpText = "Directory for saving data")]
         public string Dir { get; set; }
 
+        [Option("fieldInfoDir", DefaultValue = "FieldInfo", HelpText = "Directory for field info")]
+        public string FieldInfoDir { get; set; }
+
         [Option("settings", DefaultValue = "settings.cfg", HelpText = "Settings file name")]
         public string Settings { get; set; }
 
         [Option("logging", DefaultValue = "log.txt", HelpText = "Full logfile path")]
         public string LogFile { get; set; }
 
-        [Option("fieldInfoDir", DefaultValue = "FieldInfo", HelpText = "field info directory")]
-        public string FieldInfoDir { get; set; }
 
 
         [HelpOption]
