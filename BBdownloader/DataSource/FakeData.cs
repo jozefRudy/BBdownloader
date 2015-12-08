@@ -32,5 +32,15 @@ namespace BBdownloader.DataSource
         {
             throw new NotImplementedException();
         }
+
+        public bool Connect(string connectionString = "", string dataType = "")
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Disconnect()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -31,8 +31,8 @@ namespace BBdownloader.DataSource {
         {
             reconnectAttempts = 0;
         }
-
-        public bool Connect(string user = "")
+        
+        public bool Connect(string user = "", string dataType = "//blp/refdata")
         {
             if (connected)
                 goto finish;
@@ -54,7 +54,7 @@ namespace BBdownloader.DataSource {
                 bool sessionStarted = session.Start();
 
                 try
-                {
+                {                    
                     session.OpenService("//blp/refdata");
                     refDataService = session.GetService("//blp/refdata");
                     Trace.WriteLine("Connected to Bloomberg");
@@ -343,6 +343,53 @@ namespace BBdownloader.DataSource {
             }
         }
 
+        public void Disconnect()
+        {
+            try
+            {
+                session.Stop();
+            }
+            catch
+            {                
+            }
+            
+            connected = false;
+        }
+
+        public string DownloadFieldInfo(string securityName, IField field)
+        {
+            Request request = refDataService.CreateRequest("FieldInfoRequest");
+            request.Append("id", field.FieldName);
+
+            request.Set("returnDocumentation", true);
+            session.SendRequest(request,null);
+
+            bool done = false;
+            while (!done)
+            {
+
+                Event eventObj = session.NextEvent();
+
+                if (eventObj.Type == Event.EventType.RESPONSE || eventObj.Type == Event.EventType.PARTIAL_RESPONSE)
+                {
+                    foreach (var msg in eventObj)
+                    {
+                        if (msg.AsElement.HasElement("responseError"))
+                            throw new Exception("Response error for fields [" + field.ToString() + "]: " + msg.GetElement("responseError").GetElement("message") + "field: ");
+
+                        Element securityData = msg.GetElement("fieldData");
+                       
+                    }
+                }
+                if (eventObj.Type == Event.EventType.RESPONSE) done = true;
+
+            }
+            return "";
+
+
+        }
+
+
         /*
         public void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList)
         {
@@ -471,6 +518,6 @@ namespace BBdownloader.DataSource {
                 }
             }
         }*/
-        
+
     }
 }

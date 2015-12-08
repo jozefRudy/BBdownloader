@@ -74,6 +74,19 @@ namespace BBdownloader.Shares
             return true;*/
         }
 
+        private void GetFieldInfo(IField field)
+        {
+            dataSource.DownloadFieldInfo(this.name, field);
+        }
+
+        public void GetFieldsInfo()
+        {
+            foreach (var item in this.fields)
+            {
+                GetFieldInfo(item);
+            }
+        }
+
         private bool DownloadField(IField field)
         {
             var startDate = this.startDate;

@@ -47,7 +47,7 @@ namespace BBdownloader
                 var indexNames = sheet.toShares();
 
                 IDataSource dataSource = new Bloomberg();
-                dataSource.Connect("");
+                dataSource.Connect();
 
                 //download index compositions  
                 if (indexNames != null && indexNames.Count() > 0)
@@ -65,7 +65,8 @@ namespace BBdownloader
                     var bbIDs = dataSource.DownloadData(names, new List<IField> { new Field() { FieldName = "ID_BB_GLOBAL", requestType = "ReferenceDataRequest" } });
                     var listIDs = from ids in bbIDs.RemoveDates()
                                   select (string)ids;
-                    shareNames.AddRange(listIDs.ToList());
+                    foreach (var item in listIDs)
+                        shareNames.Add(item);
                 }
 
 
@@ -94,16 +95,29 @@ namespace BBdownloader
 
                 //download and save data
                 {
-                    var shares = new SharesBatch(shareNames, fields, dataSource, disk, startDate, endDate);
+                    var shares = new SharesBatch(shareNames.ToList(), fields, dataSource, disk, startDate, endDate);
                     shares.PerformOperations();
 
                     Trace.Write("Processing Individual: ");
                     foreach (var shareName in shareNames)
                     {
                         Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk, startDate: startDate, endDate: endDate);
-                        share.DoWork();
+                        share.DoWork();                        
                     }
+                    dataSource.Disconnect();
                 }
+                {
+                    if (shareNames.Count()>0)
+                    {                        
+                        dataSource.Connect(dataType: "//blp/apiflds");
+                        Share share = new Share(name: shareNames.First(), fields: fields, dataSource: dataSource, fileAccess: disk, startDate: startDate, endDate: endDate);
+                        share.GetFieldsInfo();
+                        dataSource.Disconnect();                        
+                    }
+
+                }
+
+                
             }
 
 

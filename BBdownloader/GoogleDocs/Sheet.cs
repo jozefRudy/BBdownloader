@@ -29,7 +29,7 @@ namespace BBdownloader.GoogleDocs
             this.output = outputCSVdata;
         }
 
-        public List<string> toShares()
+        public HashSet<string> toShares()
         {
             var listShares = new List<string>();
 
@@ -39,7 +39,11 @@ namespace BBdownloader.GoogleDocs
             listShares.RemoveAt(0); //remove heading
             listShares = listShares.Where(s => !string.IsNullOrWhiteSpace(s)).Distinct().ToList(); //deduplicate and remove empty
 
-            return listShares;
+            var uniqueShares = new HashSet<string>();
+            foreach (var item in listShares)
+                uniqueShares.Add(item);
+
+            return uniqueShares;
         }
 
         public void toFields<T>(List<T> fields) where T: IField, new()
