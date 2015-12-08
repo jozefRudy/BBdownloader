@@ -28,7 +28,8 @@ namespace BBdownloader.Settings
                 Trace.WriteLine("No Logging possible - file locked"); 
             }        
             Trace.AutoFlush = true;
-            Trace.WriteLine("\n"+DateTime.Now.ToString());
+            Trace.WriteLine("");
+            Trace.WriteLine(DateTime.Now.ToString());
         }
 
         public void Finalize()
