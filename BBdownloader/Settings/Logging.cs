@@ -18,10 +18,9 @@ namespace BBdownloader.Settings
 
             try
             {
-                //if (File.Exists(_logFile))
-                    this.logFile = File.AppendText(_logFile);
-                //else
-                //    this.logFile = File.CreateText(_logFile);
+
+                this.logFile = File.AppendText(_logFile);
+
                 Trace.Listeners.Add(new TextWriterTraceListener(this.logFile));                
             }
             catch 
