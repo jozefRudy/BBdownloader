@@ -32,7 +32,7 @@ namespace BBdownloader.Settings
             Trace.WriteLine(DateTime.Now.ToString());
         }
 
-        public void Finalize()
+        ~Logging()
         {            
             if (this.logFile != null)
                 this.logFile.Dispose();

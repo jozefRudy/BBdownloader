@@ -5,6 +5,7 @@ using BBdownloader.Extension_Methods;
 using System.Globalization;
 using System.Linq;
 using System.Diagnostics;
+using System.Threading;
 
 using Event = Bloomberglp.Blpapi.Event;
 using Message = Bloomberglp.Blpapi.Message;
@@ -73,7 +74,7 @@ namespace BBdownloader.DataSource {
                     }
 
                     Trace.WriteLine("Waiting for " + reconnectionInterval + "s before retrying to connect.");
-                    System.Threading.Thread.Sleep(reconnectionInterval * 1000);
+                    Thread.Sleep(reconnectionInterval * 1000);
                     
                 }
             }
@@ -242,6 +243,13 @@ namespace BBdownloader.DataSource {
 
         private IEnumerable<Tuple<string,SortedList<DateTime, dynamic>>> ParseUniversal(Element securityDataArray, List<IField> fields)
         {
+            if (Console.KeyAvailable && Console.ReadKey(true) == ConsoleKey.p)
+            {
+                Console.WriteLine("Download Paused, press c to continue");
+                while (!Console.KeyAvailable || Console.ReadKey(true)  != ConsoleKey.c)
+                { }
+            }
+
             var fieldNames = from f in fields
                              select f.FieldName.ToUpper();
 
