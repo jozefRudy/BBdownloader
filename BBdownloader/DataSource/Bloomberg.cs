@@ -245,7 +245,7 @@ namespace BBdownloader.DataSource {
         {
             if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.P)
             {
-                Console.WriteLine("Download Paused, press c to continue");
+                Console.WriteLine("\nDownload Paused, press c to continue");
                 while (!Console.KeyAvailable || Console.ReadKey(true).Key  != ConsoleKey.C)
                 { }
             }
