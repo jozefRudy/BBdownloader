@@ -11,6 +11,7 @@ namespace BBdownloader.Shares
     public class SharesBatch
     {
         private readonly int maxFields = 25;
+        private readonly int maxShares = 50;
 
 
         private List<string> shareNames { get; set; }
@@ -72,12 +73,21 @@ namespace BBdownloader.Shares
             Trace.Write("Processing Batch");
             SharesNewOld(fields);
             FieldsNewOld();
+            Console.ForegroundColor = ConsoleColor.White;
             Trace.Write("\nUpdating old fields for old shares: ");
+            Console.ForegroundColor = ConsoleColor.Gray;
             DownloadOldWithSameLastUpdateDate();
+
+            Console.ForegroundColor = ConsoleColor.White;
             Trace.Write("\nUpdating new fields for old shares: ");
+            Console.ForegroundColor = ConsoleColor.Gray;
             DownloadNewFieldsForOldShares();
+
+            Console.ForegroundColor = ConsoleColor.White;
             Trace.Write("\nUpdating new shares: ");
+            Console.ForegroundColor = ConsoleColor.Gray;
             DownloadNewShares();
+
             Trace.Write("\n");
         }
 
