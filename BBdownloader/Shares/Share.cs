@@ -268,7 +268,15 @@ namespace BBdownloader.Shares
             LoadFields();
             if (DownloadFields())
             {
-                Trace.Write(this.name + ", ");
+                Console.ForegroundColor = ConsoleColor.White;
+                Trace.Write(this.name);
+                Console.ForegroundColor = ConsoleColor.Gray;
+                Trace.Write(", ");
+            }
+            else
+            {
+                Trace.Write("~" + this.name);
+                Trace.Write(", ");
             }
             TransformFields();
             CombineLoadedDownladedAll();
@@ -366,13 +374,6 @@ namespace BBdownloader.Shares
 
         private bool TransformField(IField field)
         {
-            /*
-            if (field.periodicitySelection.ToLower() == "yearly")
-            {
-                if (downloadedValues.ContainsKey(field.FieldNickName))
-                    downloadedValues[field.FieldNickName] = downloadedValues[field.FieldNickName].DateToEndYear();
-            }*/
-
             foreach (var f in field.Transform)
             {
                 switch (f)

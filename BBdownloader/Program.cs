@@ -98,7 +98,7 @@ namespace BBdownloader
 
                 //download and save data
                 
-                stopwatch.Start();
+                stopwatch.Start();/*
                 {
                     var shares = new SharesBatch(shareNames.ToList(), fields, dataSource, disk, startDate, endDate);
                     shares.PerformOperations();
@@ -110,7 +110,7 @@ namespace BBdownloader
                         share.DoWork();                        
                     }
                     dataSource.Disconnect();
-                }
+                }*/
                 //download fieldInfo
                 {
                     if (shareNames.Count()>0)
