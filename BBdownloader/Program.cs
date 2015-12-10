@@ -149,6 +149,7 @@ namespace BBdownloader
                 Trace.WriteLine("Time spent uploading: " + stopwatch.Elapsed.ToString());
             }
 
+            logging.Close();
             /*
             {
                 Console.Write("\n");

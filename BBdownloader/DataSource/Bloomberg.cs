@@ -243,6 +243,7 @@ namespace BBdownloader.DataSource {
 
         private IEnumerable<Tuple<string,SortedList<DateTime, dynamic>>> ParseUniversal(Element securityDataArray, List<IField> fields)
         {
+            
             if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.P)
             {
                 Console.WriteLine("\nDownload Paused, press c to continue");
