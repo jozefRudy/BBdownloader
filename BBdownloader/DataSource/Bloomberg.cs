@@ -401,19 +401,27 @@ namespace BBdownloader.DataSource {
                         for (int i = 0; i < securityDataArray.NumValues; i++)
                         {
                             Element fieldData = securityDataArray.GetValueAsElement(i);
-                            Element fieldInfo = fieldData.GetElement("fieldInfo");
 
-                            string fieldName = fieldInfo.GetElementAsString("mnemonic");
-                            string output = fieldInfo.GetElementAsString("documentation");
+                            try
+                            { 
+                                Element fieldInfo = fieldData.GetElement("fieldInfo");
 
-                            var fieldNickName = from f in fields
-                                                where f.FieldName == fieldName
-                                                select f.FieldNickName;
+                                string fieldName = fieldInfo.GetElementAsString("mnemonic");
+                                string output = fieldInfo.GetElementAsString("documentation");
 
-                            foreach (var f in fieldNickName)
+                                var fieldNickName = from f in fields
+                                                    where f.FieldName == fieldName
+                                                    select f.FieldNickName;
+
+                                foreach (var f in fieldNickName)
+                                {
+                                    if (!outDict.ContainsKey(f))
+                                        outDict.Add(f, output);
+                                }
+                            }
+                            catch
                             {
-                                if (!outDict.ContainsKey(f))
-                                    outDict.Add(f, output);
+                                Trace.WriteLine("Problem Downloading Field Definition for " + fieldData.GetElement("id"));
                             }
                         }
                     }

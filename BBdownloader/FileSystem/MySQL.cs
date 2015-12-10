@@ -67,7 +67,7 @@ namespace BBdownloader.FileSystem
 
         private void uploadFields()
         {
-            Trace.WriteLine("Uploading field definitions via compressed SQL connection");
+            Trace.WriteLine("Uploading field definitions via compressed SQL connection ...");
             var ids = disk.ListFiles("");
             
             foreach (var field in ids)
