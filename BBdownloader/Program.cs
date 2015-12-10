@@ -17,6 +17,10 @@ namespace BBdownloader
         [STAThread]
         static void Main(string[] args)
         {
+            Stopwatch stopwatch = new Stopwatch();
+
+            Trace.WriteLine("Time spent downloading from BB: " + stopwatch.Elapsed.ToString());
+
             var options = new CommandLineOptions();
 
             if (!Parser.Default.ParseArguments(args, options))
@@ -93,6 +97,8 @@ namespace BBdownloader
                 }
 
                 //download and save data
+                
+                stopwatch.Start();
                 {
                     var shares = new SharesBatch(shareNames.ToList(), fields, dataSource, disk, startDate, endDate);
                     shares.PerformOperations();
@@ -116,11 +122,14 @@ namespace BBdownloader
                         dataSource.Disconnect();                        
                     }
                 }
+                stopwatch.Stop();
+                Trace.WriteLine("Time spent downloading from BB: " + stopwatch.Elapsed.ToString());
             }
 
             //upload data via SQL connection
             if (!options.NoUpload)
             {
+                stopwatch.Restart();
                 { 
                     LocalDisk disk = new LocalDisk();
                     disk.SetPath(options.Dir);
@@ -136,6 +145,8 @@ namespace BBdownloader
                     var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), disk);
                     database.DoWorkFieldInfo();
                 }
+                stopwatch.Stop();
+                Trace.WriteLine("Time spent uploading: " + stopwatch.Elapsed.ToString());
             }
             logging.Finalize();
 
