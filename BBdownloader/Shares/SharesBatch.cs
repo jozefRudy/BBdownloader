@@ -49,6 +49,25 @@ namespace BBdownloader.Shares
         /// </summary>
         /// 
 
+        private IEnumerable<IEnumerable<string>> ShareBlocks(IEnumerable<string> shares)
+        {
+            List<string> batch = new List<string>();
+            for (int i = 0; i < shares.Count(); i++)
+            {
+                if (batch.Count() == 0 || batch.Count() < maxShares)
+                    batch.Add(shares.ElementAt(i));
+                
+                if (batch.Count() >= maxShares)
+                {
+                    if (batch.Count() > 0)
+                        yield return batch;
+                    batch = new List<string>();
+                }
+                
+            }
+
+        }
+
         private IEnumerable<IEnumerable<IField>> FieldBlocks(IEnumerable<IField> fields)
         {
             List<IField> batch = new List<IField>();
@@ -142,25 +161,26 @@ namespace BBdownloader.Shares
             var equities = from s in shares
                            select s+" Equity";
 
-            var output = dataSource.DownloadData(shares, fields.ToList(), startDate: startDate.HasValue ? startDate.Value : this.startDate, endDate: endDate);
+            foreach (var shareBlock in this.ShareBlocks(shares))
+            {           
+                var output = dataSource.DownloadData(shareBlock.ToList(), fields.ToList(), startDate: startDate.HasValue ? startDate.Value : this.startDate, endDate: endDate);
 
-            var enumerator = output.GetEnumerator();
+                var enumerator = output.GetEnumerator();
 
-            foreach (var s in shares)
-            {
-                var share = new Share(" ", fields, dataSource, fileAccess, startDate: startDate.HasValue ? startDate.Value : this.startDate, endDate: endDate);
+                foreach (var s in shareBlock)
+                {
+                    var share = new Share(" ", fields, dataSource, fileAccess, startDate: startDate.HasValue ? startDate.Value : this.startDate, endDate: endDate);
 
-                foreach (var f in fields)
-	            {                    
-                    enumerator.MoveNext();
-                    var field = enumerator.Current;
-                    share.name = field.Item1;
-                    share.InjectDownloaded(f, field.Item2);                
-	            }
-                
-                share.FieldsToKeep(this.fields);
-                share.DoWork();
-
+                    foreach (var f in fields)
+	                {                    
+                        enumerator.MoveNext();
+                        var field = enumerator.Current;
+                        share.name = field.Item1;
+                        share.InjectDownloaded(f, field.Item2);                
+	                }                
+                    share.FieldsToKeep(this.fields);
+                    share.DoWork();
+                }
             }
         }
 
