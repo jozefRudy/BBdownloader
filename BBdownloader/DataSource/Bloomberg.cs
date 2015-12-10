@@ -247,7 +247,9 @@ namespace BBdownloader.DataSource {
             {
                 Console.WriteLine("\nDownload Paused, press c to continue");
                 while (!Console.KeyAvailable || Console.ReadKey(true).Key  != ConsoleKey.C)
-                { }
+                {
+                    Thread.Sleep(1000 * 1);
+                }
             }
 
             var fieldNames = from f in fields
