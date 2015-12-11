@@ -18,7 +18,6 @@ namespace BBdownloader.Settings
 
             try
             {
-
                 this.logFile = File.AppendText(_logFile);
 
                 Trace.Listeners.Add(new TextWriterTraceListener(this.logFile));                

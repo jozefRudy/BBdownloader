@@ -19,19 +19,17 @@ namespace BBdownloader
         {
             Stopwatch stopwatch = new Stopwatch();
 
-            Trace.WriteLine("Time spent downloading from BB: " + stopwatch.Elapsed.ToString());
+            var startDate = new DateTime(1990, 1, 1);
+            var endDate = DateTime.Today.GetBusinessDay(-1);
 
             var options = new CommandLineOptions();
 
             if (!Parser.Default.ParseArguments(args, options))
                 Environment.Exit(Parser.DefaultExitCodeFail);
 
-            var logging = new Logging(options.LogFile);            
+            var logging = new Logging(options.LogFile);
             Trace.WriteLine(options.ToString());
-           
-            var startDate = new DateTime(1990, 1, 1);
-            var endDate = DateTime.Today.GetBusinessDay(-1);
-            
+                       
             var config = new ConfigBase();
             config.Load(options.Settings);
                                            
@@ -96,8 +94,7 @@ namespace BBdownloader
                     }
                 }
 
-                //download and save data
-                
+                //download and save data                
                 stopwatch.Start();
                 {
                     var shares = new SharesBatch(shareNames.ToList(), fields, dataSource, disk, startDate, endDate);
@@ -109,10 +106,11 @@ namespace BBdownloader
                         Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk, startDate: startDate, endDate: endDate);
                         share.DoWork();                        
                     }
-                    dataSource.Disconnect();
+                    
                 }
-                //download fieldInfo
                 dataSource.Disconnect();
+
+                //download fieldInfo
                 {
                     if (shareNames.Count()>0)
                     {                        
@@ -151,24 +149,6 @@ namespace BBdownloader
             }
 
             logging.Close();
-            /*
-            {
-                Console.Write("\n");
-                Console.WriteLine("Uploading Files via HTTP requests");
-
-                var HttpRequest = new HttpRequestToSql();
-                HttpRequest.DeleteTable();
-
-                var diskDirectories = disk.ListDirectories("");
-
-                int counter = -1;
-                foreach (var folder in diskDirectories)
-                {
-                    counter++;                    
-                    HttpRequest.UploadFolder(disk, folder);
-                    ProgressBar.DrawProgressBar(counter + 1, diskDirectories.Count());
-                }
-            }*/
         }
     }
 }
