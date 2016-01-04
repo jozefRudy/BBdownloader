@@ -107,8 +107,6 @@ namespace BBdownloader.FileSystem
             }
             ProgressBar.DrawProgressBar(1, 1);
             Trace.WriteLine("\nUpload successful");
-
-            //insertData("BBG000B9XRY4", "BEST_CURRENT_EV_BEST_SALES_2BF");
         }
 
 
