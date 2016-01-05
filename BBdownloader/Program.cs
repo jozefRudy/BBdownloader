@@ -146,9 +146,16 @@ namespace BBdownloader
                 }
                 stopwatch.Stop();
                 Trace.WriteLine("Time spent uploading: " + stopwatch.Elapsed.ToString());
-            }
+                logging.Close();
 
-            logging.Close();
+                {
+                    Console.WriteLine("Executing long job, you can force exit program, it will continue executing on server");
+                    LocalDisk disk = new LocalDisk();
+                    disk.SetPath(options.Dir);
+                    var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), disk);
+                    database.executeScript();
+                }
+            }
         }
     }
 }

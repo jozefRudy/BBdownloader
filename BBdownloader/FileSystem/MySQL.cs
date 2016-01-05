@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using MySql.Data.MySqlClient;
+using System.Threading.Tasks;
 
 
 namespace BBdownloader.FileSystem
@@ -15,7 +17,7 @@ namespace BBdownloader.FileSystem
                
         public MySQL(string ip, string user, string password, string database, IFileSystem disk)
         {
-            myConnectionString = "server="+ip+";uid="+user +";pwd="+ password +";database="+database+";useCompression=true";
+            myConnectionString = "server="+ip+";uid="+user +";pwd="+ password +";database="+database+ ";useCompression=true;ConnectionTimeout=28880;DefaultCommandTimeout=28880;";
             
             this.path = disk.GetFullPath().Replace("\\","/");
             this.disk = disk;
@@ -39,7 +41,8 @@ namespace BBdownloader.FileSystem
 `attribute_name` varchar(550) NOT NULL COLLATE latin1_bin DEFAULT '0',
 `value_date` varchar(50) COLLATE latin1_bin DEFAULT NULL,
 `value` varchar(550) NOT NULL COLLATE latin1_bin DEFAULT '0',
-`value_typ` varchar(50) NOT NULL COLLATE latin1_bin DEFAULT '0'
+`value_typ` varchar(50) NOT NULL COLLATE latin1_bin DEFAULT '0',
+`titul_id` int(11) DEFAULT NULL,
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_bin;";
             
             MySqlCommand cmd = new MySqlCommand(text, conn);
@@ -64,6 +67,32 @@ namespace BBdownloader.FileSystem
             MySqlCommand cmd1 = new MySqlCommand(text, conn);
             cmd1.ExecuteNonQuery();
         }
+
+        public void executeScript()
+        {
+            string command = @"TRUNCATE TABLE titul_bbd;
+TRUNCATE TABLE attributes_bbd; 
+INSERT INTO titul_bbd(Titul)
+SELECT DISTINCT bbd_unique FROM global_bbd;INSERT INTO attributes_bbd(attributename)
+SELECT DISTINCT attribute_name FROM global_bbd;
+UPDATE global_bbd b
+JOIN
+(
+SELECT  a.globalbbdid, b.titulID
+FROM global_bbd a JOIN titul_bbd b ON bbd_unique = Titul
+) a ON a.globalbbdid = b.globalbbdid
+SET b.titul_id = a.titulID;
+UPDATE global_bbd b
+JOIN
+(
+SELECT a.globalbbdid, b.attributeid
+FROM global_bbd a JOIN attributes_bbd b ON b.attributename = a.attribute_name
+) a ON a.globalbbdid = b.globalbbdid
+SET b.attributeid = a.titulID;";
+            MySqlCommand cmd = new MySqlCommand(command, conn);
+            cmd.ExecuteNonQuery();
+        }
+
 
         private void uploadFields()
         {
@@ -113,9 +142,9 @@ namespace BBdownloader.FileSystem
 
         public void DoWork()
         {
-            createTable();
+            createTable();            
             traverseDirs();            
-        }
+        }        
 
         public void DoWorkFieldInfo()
         {
