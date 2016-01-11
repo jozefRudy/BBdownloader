@@ -1,6 +1,8 @@
 # BBdownloader
 bloomberg downloader - windows desktop c# app
 
+You can see short video describing how the batch download can be configured using google sheets here: https://goo.gl/8JkiwQ
+
 Desktop application to batch download bloomberg data for stocks.
 
 It uses all the bloomberg optimizations (25 fields downloaded at the same time for batch of 50 stocks).
