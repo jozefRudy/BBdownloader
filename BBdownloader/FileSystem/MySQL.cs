@@ -10,7 +10,6 @@ namespace BBdownloader.FileSystem
 {
     class MySQL
     {
-        MySqlConnection conn;
         string myConnectionString;
         string path;
         IFileSystem disk;
@@ -21,16 +20,6 @@ namespace BBdownloader.FileSystem
             
             this.path = disk.GetFullPath().Replace("\\","/");
             this.disk = disk;
-
-            try
-            {
-                conn = new MySqlConnection(myConnectionString);
-                conn.Open();
-            }
-            catch (MySqlException ex)
-            {
-                Trace.WriteLine(ex.Message);
-            }
         }
 
         private void createTable()
@@ -44,13 +33,11 @@ namespace BBdownloader.FileSystem
 `value_typ` varchar(50) NOT NULL COLLATE latin1_bin DEFAULT '0',
 `titul_id` int(11) DEFAULT NULL,
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_bin;";
-            
-            MySqlCommand cmd = new MySqlCommand(text, conn);
-            cmd.ExecuteNonQuery();
+
+            ExecuteQuery(text);
 
             text = "TRUNCATE TABLE global_bbd;";
-            MySqlCommand cmd1 = new MySqlCommand(text, conn);
-            cmd1.ExecuteNonQuery();
+            ExecuteQuery(text);
         }
 
         private void createTableFieldInfo()
@@ -60,12 +47,10 @@ namespace BBdownloader.FileSystem
 `value` varchar(5000) NOT NULL COLLATE latin1_bin DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_bin;";
 
-            MySqlCommand cmd = new MySqlCommand(text, conn);
-            cmd.ExecuteNonQuery();
+            ExecuteQuery(text);
 
             text = "TRUNCATE TABLE field_info;";
-            MySqlCommand cmd1 = new MySqlCommand(text, conn);
-            cmd1.ExecuteNonQuery();
+            ExecuteQuery(text);
         }
 
         public void executeScript()
@@ -89,10 +74,9 @@ SELECT a.globalbbdid, b.attributeid
 FROM global_bbd a JOIN attributes_bbd b ON b.attributename = a.attribute_name
 ) a ON a.globalbbdid = b.globalbbdid
 SET b.attributeid = a.titulID;";
-            MySqlCommand cmd = new MySqlCommand(command, conn);
-            cmd.ExecuteNonQuery();
-        }
 
+            ExecuteQuery(command);
+        }
 
         private void uploadFields()
         {
@@ -102,8 +86,7 @@ SET b.attributeid = a.titulID;";
             foreach (var field in ids)
             {
                 string text = String.Format(@"LOAD DATA LOCAL INFILE '{0}/{1}.csv' INTO TABLE field_info LINES TERMINATED BY 'IMPOSSIBLE' (value) SET attribute_name='{1}' ", this.path, field.Split('.')[0]);
-                var cmd = new MySqlCommand(text, conn);
-                cmd.ExecuteNonQuery();
+                ExecuteQuery(text);
             }
             Trace.WriteLine("\nUpload successful");
         }
@@ -111,8 +94,8 @@ SET b.attributeid = a.titulID;";
         private void insertData(string id, string field)
         {
             string text = String.Format(@"LOAD DATA LOCAL INFILE '{0}/{1}/{2}.csv' INTO TABLE global_bbd FIELDS TERMINATED BY ',' (value_date,value,value_typ) SET attribute_name='{2}', bbd_unique='{1}';", this.path,id, field);
-            var cmd = new MySqlCommand(text, conn);
-            cmd.ExecuteNonQuery();
+
+            ExecuteQuery(text);
         }
 
         private void traverseDirs()
@@ -138,8 +121,6 @@ SET b.attributeid = a.titulID;";
             Trace.WriteLine("\nUpload successful");
         }
 
-
-
         public void DoWork()
         {
             createTable();            
@@ -150,6 +131,24 @@ SET b.attributeid = a.titulID;";
         {
             createTableFieldInfo();
             uploadFields();
+        }
+
+        public void ExecuteQuery(string query)
+        {
+            try
+            {
+                using (var conn = new MySqlConnection(myConnectionString))
+                {
+                    conn.Open();
+                    var cmd = new MySqlCommand(query, conn);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+            catch (MySqlException ex)
+            {
+                Trace.WriteLine(ex.Message);
+            }
+
         }
 
     }
