@@ -83,6 +83,18 @@ namespace BBdownloader.DataSource {
             return connected;
         }
 
+        public List<string> DownloadMultipleComponents(List<string> indices, string bbgField)
+        {
+            var output = new List<string>();
+            foreach (var idx in indices)
+            {
+                var outList = new List<string>();
+                this.DownloadComponents(idx, bbgField, out outList);
+                output.AddRange(outList);
+            }
+            return output;
+        }
+
         public void DownloadComponents(string Index, string bbgField, out List<string> members)
         {
             members = new List<string>();

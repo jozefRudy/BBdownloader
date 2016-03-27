@@ -36,17 +36,16 @@ namespace BBdownloader
             if (!options.NoDownload)
             {
                 // get specifications
-                var gdocsSheet = config.GetValue("sheetCode");
                 var sheet = new Sheet();
-                sheet.Download(new string[] { gdocsSheet, config.GetValue("shareNames") });
+                sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shareNames") });
                 var shareNames = sheet.toShares();
 
-                sheet.Download(new string[] { gdocsSheet, config.GetValue("fields") });
+                sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("indices") });
+                var indexNames = sheet.toShares();
+
+                sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("fields") });
                 var fields = new List<Field>();
                 sheet.toFields<Field>(fields);
-
-                sheet.Download(new string[] { gdocsSheet, config.GetValue("indices") });
-                var indexNames = sheet.toShares();
 
                 IDataSource dataSource = new Bloomberg();
                 dataSource.Connect();
@@ -55,13 +54,7 @@ namespace BBdownloader
                 if (indexNames != null && indexNames.Count() > 0)
                 {
                     //obtain components of indices
-                    var names = new List<string>();
-                    foreach (var index in indexNames)
-                    {
-                        var outList = new List<string>();
-                        dataSource.DownloadComponents(index, "INDX_MEMBERS", out outList);
-                        names.AddRange(outList);
-                    }
+                    var names = dataSource.DownloadMultipleComponents(indexNames.ToList(), "INDX_MEMBERS");
 
                     //convert tickers -> BB IDs
                     var bbIDs = dataSource.DownloadData(names, new List<IField> { new Field() { FieldName = "ID_BB_GLOBAL", requestType = "ReferenceDataRequest" } });
@@ -77,10 +70,10 @@ namespace BBdownloader
 
                 //delete data for shares-reload and shares-delete
                 {
-                    sheet.Download(new string[] { gdocsSheet, config.GetValue("shares-reload") });
+                    sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shares-reload") });
                     var sharesReload = sheet.toShares();
 
-                    sheet.Download(new string[] { gdocsSheet, config.GetValue("shares-delete") });
+                    sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shares-delete") });
                     var sharesDelete = sheet.toShares();
 
                     foreach (var item in sharesDelete.Concat(sharesReload))
@@ -105,8 +98,7 @@ namespace BBdownloader
                     {
                         Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk, startDate: startDate, endDate: endDate);
                         share.DoWork();                        
-                    }
-                    
+                    }                    
                 }
                 dataSource.Disconnect();
 

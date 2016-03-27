@@ -52,5 +52,10 @@ namespace BBdownloader.DataSource
         {
             throw new NotImplementedException();
         }
+
+        List<string> IDataSource.DownloadMultipleComponents(List<string> indices, string bbgField)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

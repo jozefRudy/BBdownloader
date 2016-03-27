@@ -13,6 +13,7 @@ namespace BBdownloader.DataSource
         //void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList);
 
         void DownloadComponents(string index, string field, out List<string> members);
+        List<string> DownloadMultipleComponents(List<string> indices, string bbgField);
 
         void Disconnect();
 
