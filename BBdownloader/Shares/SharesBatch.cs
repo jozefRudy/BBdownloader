@@ -57,7 +57,7 @@ namespace BBdownloader.Shares
                 if (batch.Count() == 0 || batch.Count() < maxShares)
                     batch.Add(shares.ElementAt(i));
                 
-                if (batch.Count() >= maxShares)
+                if (batch.Count() >= maxShares || batch.Count() == shares.Count() )
                 {
                     if (batch.Count() > 0)
                         yield return batch;

@@ -333,6 +333,7 @@ namespace BBdownloader.DataSource {
                                     break;
                                 }
                             case "FLOAT64":
+                            case "FLOAT":
                                 {
                                     float _elementValue;
                                     ok = float.TryParse(field.GetValue().ToString(), out _elementValue);
