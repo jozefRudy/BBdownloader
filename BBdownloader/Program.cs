@@ -9,6 +9,9 @@ using BBdownloader.FileSystem;
 using BBdownloader.Extension_Methods;
 using BBdownloader.Settings;
 using CommandLine;
+using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace BBdownloader
 {
@@ -17,6 +20,8 @@ namespace BBdownloader
         [STAThread]
         static void Main(string[] args)
         {
+            Thread.CurrentThread.CurrentCulture = new CultureInfo("en-US");
+
             Stopwatch stopwatch = new Stopwatch();
 
             var startDate = new DateTime(1990, 1, 1);
