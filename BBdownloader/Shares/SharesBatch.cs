@@ -44,11 +44,6 @@ namespace BBdownloader.Shares
                 this.endDate = endDate.Value;
         }
 
-        /// <summary>
-        /// find shares with no data - no directory exists. Download all historical fields for them. Upload data.
-        /// </summary>
-        /// 
-
         private IEnumerable<IEnumerable<string>> ShareBlocks(IEnumerable<string> shares)
         {
             List<string> batch = new List<string>();

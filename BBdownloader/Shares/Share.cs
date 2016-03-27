@@ -69,13 +69,6 @@ namespace BBdownloader.Shares
                 return true;
             else 
                 return false;
-
-            /*
-            foreach (var field in this.fields)
-	        {
-                DownloadField(field);
-	        }
-            return true;*/
         }
 
         private bool DownloadField(IField field)
@@ -102,8 +95,6 @@ namespace BBdownloader.Shares
                 if (output == null || output.Count() == 0)
                     return false;
 
-                //SortedList<DateTime, dynamic> output = new SortedList<DateTime, dynamic>();
-                //dataSource.DownloadData(this.name, field, startDate, endDate, out output);
                 downloadedValues.Add(field.FieldNickName, output);
             }
             return true;

@@ -10,8 +10,6 @@ namespace BBdownloader.DataSource
 
         IEnumerable<Tuple<string,SortedList<DateTime,dynamic>>> DownloadData(List<string> securityNames, List<IField> fields, DateTime? startDate = null, DateTime? endDate = null);
 
-        //void DownloadData(string securityName, IField field, DateTime? startDate, DateTime? endDate, out SortedList<DateTime, dynamic> outList);
-
         void DownloadComponents(string index, string field, out List<string> members);
         List<string> DownloadMultipleComponents(List<string> indices, string bbgField);
 
