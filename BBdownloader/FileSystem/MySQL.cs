@@ -31,7 +31,7 @@ namespace BBdownloader.FileSystem
 `value_date` varchar(50) COLLATE latin1_bin DEFAULT NULL,
 `value` varchar(550) NOT NULL COLLATE latin1_bin DEFAULT '0',
 `value_typ` varchar(50) NOT NULL COLLATE latin1_bin DEFAULT '0',
-`titul_id` int(11) DEFAULT NULL,
+`titul_id` int(11) DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COLLATE=latin1_bin;";
 
             ExecuteQuery(text);
