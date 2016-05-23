@@ -20,12 +20,12 @@ namespace BBdownloader.GoogleDocs
         {
             this.Id = Id;
 
-            string url = String.Format($"https://spreadsheets.google.com/feeds/download/spreadsheets/Export?key={this.Id[0]}&format=csv&gid={this.Id[1]}");
+            string url = String.Format(@"https://spreadsheets.google.com/feeds/download/spreadsheets/Export?key={0}&exportFormat=csv&gid={1}",this.Id[0],this.Id[1]);
 
             WebClientEx wc = new WebClientEx();
 
-            var dt = wc.DownloadData(url);
-            var outputCSVdata = System.Text.Encoding.UTF8.GetString(dt ?? new byte[] { });
+            var outputCSVdata = wc.DownloadString(url);
+
             this.output = outputCSVdata;
         }
 

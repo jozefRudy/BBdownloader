@@ -284,7 +284,7 @@ namespace BBdownloader.DataSource {
                         { 
                             var data = field.GetValue(); //check field.NumValues - sometimes NumValues>1 - then output into single field - because it is single field but with multiple values
                             var dataType = field.Datatype.ToString();                                                    
-                            output.Add(ExtensionMethods.GetBusinessDay(DateTime.Today, -1), data);
+                            output.Add(ExtensionMethods.GetBusinessDay(DateTime.Now, -1), data);
                         }
                         yield return Tuple.Create(securityName,output);
                     }

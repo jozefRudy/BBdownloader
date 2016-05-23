@@ -29,8 +29,7 @@ namespace BBdownloader
         [Option("logging", DefaultValue = "log.txt", HelpText = "Full logfile path")]
         public string LogFile { get; set; }
 
-        [OptionList("startDate", DefaultValue = new string[] { "2005", "1", "1" }, HelpText = "Start downloading from", Separator = '.', Required = false)]
-        public IList<string> startDate { get; set; }
+
 
         [HelpOption]
         public string GetUsage()
