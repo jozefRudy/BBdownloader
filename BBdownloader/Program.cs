@@ -24,14 +24,16 @@ namespace BBdownloader
 
             Stopwatch stopwatch = new Stopwatch();
 
-            var startDate = new DateTime(1990, 1, 1);
+            DateTime startDate;
             var endDate = DateTime.Today.GetBusinessDay(-1);
 
             var options = new CommandLineOptions();
 
             if (!Parser.Default.ParseArguments(args, options))
                 Environment.Exit(Parser.DefaultExitCodeFail);
-
+            
+            DateTime.TryParse(String.Join(".", options.startDate), out startDate);
+            
             var logging = new Logging(options.LogFile);
             Trace.WriteLine(options.ToString());
                        
