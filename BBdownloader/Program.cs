@@ -11,7 +11,6 @@ using BBdownloader.Settings;
 using CommandLine;
 using System.Globalization;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace BBdownloader
 {
@@ -31,15 +30,15 @@ namespace BBdownloader
 
             if (!Parser.Default.ParseArguments(args, options))
                 Environment.Exit(Parser.DefaultExitCodeFail);
-            
+
             DateTime.TryParse(String.Join(".", options.startDate), out startDate);
-            
+
             var logging = new Logging(options.LogFile);
             Trace.WriteLine(options.ToString());
-                       
+
             var config = new ConfigBase();
             config.Load(options.Settings);
-                                           
+
             if (!options.NoDownload)
             {
                 // get specifications
@@ -104,20 +103,20 @@ namespace BBdownloader
                     foreach (var shareName in shareNames)
                     {
                         Share share = new Share(name: shareName, fields: fields, dataSource: dataSource, fileAccess: disk, startDate: startDate, endDate: endDate);
-                        share.DoWork();                        
-                    }                    
+                        share.DoWork();
+                    }
                 }
                 dataSource.Disconnect();
 
                 //download fieldInfo
                 {
-                    if (shareNames.Count()>0)
-                    {                        
+                    if (shareNames.Count() > 0)
+                    {
                         dataSource.Connect(dataType: "//blp/apiflds");
                         disk.SetPath(options.FieldInfoDir);
                         Share share = new Share(name: shareNames.First(), fields: fields, dataSource: dataSource, fileAccess: disk, startDate: startDate, endDate: endDate);
                         share.DoWorkFieldInfo();
-                        dataSource.Disconnect();                        
+                        dataSource.Disconnect();
                     }
                 }
                 stopwatch.Stop();
@@ -128,7 +127,7 @@ namespace BBdownloader
             if (!options.NoUpload)
             {
                 stopwatch.Restart();
-                { 
+                {
                     LocalDisk disk = new LocalDisk();
                     disk.SetPath(options.Dir);
 
