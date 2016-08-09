@@ -4,11 +4,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BBdownloader.Shares;
+using System.IO;
 
 namespace BBdownloader.Extension_Methods
 {
     public static class ExtensionMethods
     {
+        public static IEnumerable<string> StripOfIllegalCharacters(this IEnumerable<string> fileNames)
+        {
+            var results = new List<string>();
+            foreach (var item in fileNames)
+            {
+                results.Add(item.StripOfIllegalCharacters());
+            }
+            return results;
+        }
+
+        public static string StripOfIllegalCharacters(this string fileName)
+        {
+            return new string(
+                fileName.Where(x => !Path.GetInvalidFileNameChars().Contains(x)).ToArray()
+                );
+        }
+
 
         public static string ToExtendedString(this IEnumerable<IField> list)
         {

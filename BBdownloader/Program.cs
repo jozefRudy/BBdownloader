@@ -41,20 +41,25 @@ namespace BBdownloader
 
             if (!options.NoDownload)
             {
+                IDataSource dataSource = new Bloomberg();
+                dataSource.Connect();
+
+                HashSet<string> shareNames = new HashSet<string>();
+
                 // get specifications
                 var sheet = new Sheet();
                 sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shareNames") });
-                var shareNames = sheet.toShares();
+                var shareIDs = sheet.toShares();
+                shareNames.UnionWith(
+                    dataSource.GetTickers(shareIDs.ToList()).StripOfIllegalCharacters()
+                    );
 
                 sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("indices") });
                 var indexNames = sheet.toShares();
 
                 sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("fields") });
                 var fields = new List<Field>();
-                sheet.toFields<Field>(fields);
-
-                IDataSource dataSource = new Bloomberg();
-                dataSource.Connect();
+                sheet.toFields<Field>(fields);            
 
                 //download index compositions  
                 if (indexNames != null && indexNames.Count() > 0)
@@ -63,13 +68,8 @@ namespace BBdownloader
                     var names = dataSource.DownloadMultipleComponents(indexNames.ToList(), "INDX_MEMBERS");
 
                     //convert tickers -> BB IDs
-                    var bbIDs = dataSource.DownloadData(names, new List<IField> { new Field() { FieldName = "ID_BB_GLOBAL", requestType = "ReferenceDataRequest" } });
-                    var listIDs = from ids in bbIDs.RemoveDates()
-                                  select (string)ids;
-                    foreach (var item in listIDs)
-                        shareNames.Add(item);
+                    shareNames.Union(dataSource.GetTickers(names));
                 }
-
 
                 LocalDisk disk = new LocalDisk();
                 disk.SetPath(options.Dir);
@@ -77,10 +77,11 @@ namespace BBdownloader
                 //delete data for shares-reload and shares-delete
                 {
                     sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shares-reload") });
-                    var sharesReload = sheet.toShares();
+                    var sharesReload = dataSource.GetTickers(sheet.toShares().ToList()).StripOfIllegalCharacters();
+
 
                     sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shares-delete") });
-                    var sharesDelete = sheet.toShares();
+                    var sharesDelete = dataSource.GetTickers(sheet.toShares().ToList()).StripOfIllegalCharacters();
 
                     foreach (var item in sharesDelete.Concat(sharesReload))
                         disk.DeleteDirectory(item);

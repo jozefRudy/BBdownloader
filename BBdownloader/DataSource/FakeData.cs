@@ -57,5 +57,15 @@ namespace BBdownloader.DataSource
         {
             throw new NotImplementedException();
         }
+
+        IEnumerable<string> GetTickers(List<string> IDs)
+        {
+            throw new NotImplementedException();
+        }
+
+        IEnumerable<string> IDataSource.GetTickers(List<string> IDs)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

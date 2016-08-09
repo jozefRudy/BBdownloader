@@ -33,6 +33,20 @@ namespace BBdownloader.DataSource {
             reconnectAttempts = 0;
         }
         
+        public IEnumerable<string> GetTickers(List<string> IDs)
+        {
+            var shareNames = new List<string>();
+            if (!IDs.Any())
+                return shareNames;
+
+            var bbIDs = this.DownloadData(IDs, new List<IField> { new Field() { FieldName = "EQY_FUND_TICKER", requestType = "ReferenceDataRequest" } });
+            var listIDs = from ids in bbIDs.RemoveDates()
+                          select (string)ids;
+            foreach (var item in listIDs)
+                shareNames.Add(item + " Equity");
+            return shareNames;
+        }
+
         public bool Connect(string user = "", string dataType = "//blp/refdata")
         {
             if (connected)
