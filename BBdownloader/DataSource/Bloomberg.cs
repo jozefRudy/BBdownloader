@@ -394,6 +394,7 @@ namespace BBdownloader.DataSource {
                     }
                 default:
                     elementValue = field.GetValue().ToString();
+                    elementValue = ((string)elementValue).Replace(',', ' ');
                     ok = true;
                     break;
             }
