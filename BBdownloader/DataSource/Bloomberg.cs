@@ -288,8 +288,10 @@ namespace BBdownloader.DataSource {
                     string securityName = securityData.GetElementAsString("security");
                     Element fieldData = securityData.GetElement("fieldData"); //data for multiple fields.
 
+                    int j = -1;
                     foreach (var fieldName in fieldNames)
                     {
+                        j++;
                         Element field = fieldData.GetElement(fieldName);
                         
                         output = new SortedList<DateTime, dynamic>();
@@ -297,8 +299,16 @@ namespace BBdownloader.DataSource {
                         if (field.NumValues>0)
                         { 
                             var data = field.GetValue(); //check field.NumValues - sometimes NumValues>1 - then output into single field - because it is single field but with multiple values
-                            var dataType = field.Datatype.ToString();                                                    
-                            output.Add(ExtensionMethods.GetBusinessDay(DateTime.Today, -1), data);
+
+                            string dataType;
+                            if (fields[j].Type != null && fields[j].Type.Length > 0)
+                                dataType = fields[j].Type;
+                            else
+                                dataType = field.Datatype.ToString();
+
+                            var result = ConvertDataType(dataType, field);
+                            
+                            output.Add(ExtensionMethods.GetBusinessDay(DateTime.Today, -1), result.Item2);
                         }
                         yield return Tuple.Create(securityName,output);
                     }
@@ -341,30 +351,10 @@ namespace BBdownloader.DataSource {
                         else
                             dataType = field.Datatype.ToString();
 
-                        switch (dataType)
-                        {
-                            case "DATE":
-                                {
-                                    DateTime _elementValue;
-                                    if (DateTime.TryParse(field.GetValue().ToString(), out _elementValue) ||
-                                        DateTime.TryParseExact(field.GetValue().ToString(), "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _elementValue))
-                                    {
-                                        ok = true;
-                                        elementValue = _elementValue;
-                                    }
-                                    break;
-                                }
-                            case "FLOAT64":
-                            case "FLOAT":
-                                {
-                                    float _elementValue;
-                                    ok = float.TryParse(field.GetValue().ToString(), out _elementValue);
-                                    elementValue = _elementValue;
-                                    break;
-                                }
-                            default:
-                                break;
-                        }
+                        var result = ConvertDataType(dataType, field);
+                        ok = result.Item1;
+                        elementValue = result.Item2;
+
                         if (!ok) { elementValue = null; }
 
                         Outputs[j].Add(date.GetValueAsDatetime().ToSystemDateTime(), elementValue);                        
@@ -374,6 +364,40 @@ namespace BBdownloader.DataSource {
                 for (int i = 0; i < Outputs.Length; i++)
                     yield return Tuple.Create(securityName, Outputs[i]);                
             }
+        }
+
+        private Tuple<bool,dynamic> ConvertDataType(string dataType, Element field)
+        {
+            bool ok = false;
+            dynamic elementValue = null;
+
+            switch (dataType)
+            {
+                case "DATE":
+                    {
+                        DateTime _elementValue;
+                        if (DateTime.TryParse(field.GetValue().ToString(), out _elementValue) ||
+                            DateTime.TryParseExact(field.GetValue().ToString(), "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out _elementValue))
+                        {
+                            ok = true;
+                            elementValue = _elementValue;
+                        }
+                        break;
+                    }
+                case "FLOAT64":
+                case "FLOAT":
+                    {
+                        float _elementValue;
+                        ok = float.TryParse(field.GetValue().ToString(), out _elementValue);
+                        elementValue = _elementValue;
+                        break;
+                    }
+                default:
+                    elementValue = field.GetValue().ToString();
+                    ok = true;
+                    break;
+            }
+            return Tuple.Create<bool, dynamic>(ok, elementValue);
         }
 
         public void Disconnect()

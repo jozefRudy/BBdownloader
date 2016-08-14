@@ -45,34 +45,6 @@ namespace BBdownloader.DataSource
             return outList;
         }
 
-
-        public string Write(string path, DateTime fieldDate, dynamic fieldValueDynamic, string separator)
-        {
-            StringBuilder outputString = new StringBuilder();
-            float value;
-            string type;
-            DateTime date;
-
-            string fieldValue = fieldValueDynamic.ToString();
-
-            if (float.TryParse(fieldValue, out value))
-                type = "~FLOAT";
-            else if (DateTime.TryParse(fieldValue, out date))
-            {
-                type = "~DATE";
-                fieldValue = date.ToString(format: "yyyy/MM/dd");
-            }
-            else
-                type = "~STRING";
-
-            outputString.Append(fieldDate.ToString(format: "yyyy/MM/dd"));
-            outputString.Append(separator);
-            outputString.Append(fieldValue);
-            outputString.Append(type);
-
-            return outputString.ToString();
-        }
-
         public string Write(SortedList<DateTime, dynamic> inList, string separator)
         {
             StringBuilder outputString = new StringBuilder();
@@ -88,13 +60,11 @@ namespace BBdownloader.DataSource
                 if (kvp.Value!=null)
                     fieldValue = kvp.Value.ToString();
 
-
                 if (float.TryParse(fieldValue, out value))
                     type = ",float";
                 else if (DateTime.TryParse(fieldValue, out date))
                 {
                     type = ",date";
-                    fieldValue = date.ToString(format: "yyyy/MM/dd");
                 }
                 else
                     type = ",string";
@@ -107,9 +77,13 @@ namespace BBdownloader.DataSource
 
                 string fieldValue = "";
                 if (kvp.Value != null)
-                    fieldValue = kvp.Value.ToString();
+                    if (typeof(DateTime) == kvp.Value.GetType())
+                    {
+                        fieldValue = kvp.Value.ToString(format: "yyyy/MM/dd");
+                    }
+                    else
+                        fieldValue = kvp.Value.ToString();
                 outputString.Append(fieldValue);
-
                 outputString.AppendLine(type);                
             }
 
