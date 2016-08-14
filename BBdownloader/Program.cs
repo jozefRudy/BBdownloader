@@ -51,7 +51,7 @@ namespace BBdownloader
                 sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shareNames") });
                 var shareIDs = sheet.toShares();
                 shareNames.UnionWith(
-                    dataSource.GetTickers(shareIDs.ToList()).StripOfIllegalCharacters()
+                    dataSource.GetTickers(shareIDs.ToList())
                     );
 
                 sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("indices") });
@@ -78,13 +78,13 @@ namespace BBdownloader
                 //delete data for shares-reload and shares-delete
                 {
                     sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shares-reload") });
-                    var sharesReload = dataSource.GetTickers(sheet.toShares().ToList()).StripOfIllegalCharacters();
+                    var sharesReload = dataSource.GetTickers(sheet.toShares().ToList());
 
                     sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shares-delete") });
-                    var sharesDelete = dataSource.GetTickers(sheet.toShares().ToList()).StripOfIllegalCharacters();
+                    var sharesDelete = dataSource.GetTickers(sheet.toShares().ToList());
 
                     foreach (var item in sharesDelete.Concat(sharesReload))
-                        disk.DeleteDirectory(item);
+                        disk.DeleteDirectory(item.StripOfIllegalCharacters());
 
                     //delete shares-delete names from list of downloadable shares
                     foreach (var item in sharesDelete)

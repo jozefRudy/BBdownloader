@@ -84,7 +84,7 @@ namespace BBdownloader.Shares
             if (startDate >= endDate)
                 return false;
 
-            string file = Path.Combine(this.name, field.FieldNickName + ".csv");
+            string file = Path.Combine(this.name.StripOfIllegalCharacters(), field.FieldNickName + ".csv");
             if (fileAccess.LastModifiedDate(file) != null && fileAccess.LastModifiedDate(file).Value == DateTime.Now.Date)
                 return false;
 
@@ -123,7 +123,7 @@ namespace BBdownloader.Shares
 
         private bool LoadField(IField field)
         {
-            string file = Path.Combine(this.name,field.FieldNickName + ".csv");
+            string file = Path.Combine(this.name.StripOfIllegalCharacters(),field.FieldNickName + ".csv");
 
             if (!fileAccess.FileExists(file))
                 return false;
@@ -161,12 +161,12 @@ namespace BBdownloader.Shares
 
         public bool FieldExists(IField field)
         {
-            return fileAccess.FileExists(Path.Combine(this.name, field.FieldNickName + ".csv"));
+            return fileAccess.FileExists(Path.Combine(this.name.StripOfIllegalCharacters(), field.FieldNickName + ".csv"));
         }
 
         public bool ShareExists()
         {
-            return fileAccess.DirectoryExists(this.name);
+            return fileAccess.DirectoryExists(this.name.StripOfIllegalCharacters());
         }
 
         private bool WriteField(IField field)
@@ -179,10 +179,10 @@ namespace BBdownloader.Shares
                 if (!downloadedValues.ContainsKey(field.FieldNickName) || downloadedValues[field.FieldNickName]==null || downloadedValues[field.FieldNickName].Count == 0)
                     return false;
 
-                if (!fileAccess.DirectoryExists(this.name))
-                    fileAccess.CreateDirectory(this.name);
+                if (!fileAccess.DirectoryExists(this.name.StripOfIllegalCharacters()))
+                    fileAccess.CreateDirectory(this.name.StripOfIllegalCharacters());
 
-                fileAccess.WriteFile(Path.Combine(this.name, field.FieldNickName + ".csv"), content);
+                fileAccess.WriteFile(Path.Combine(this.name.StripOfIllegalCharacters(), field.FieldNickName + ".csv"), content);
                 return true;
             }
             return false;
@@ -204,10 +204,10 @@ namespace BBdownloader.Shares
 
         private bool DeleteFields()
         {
-            if (!fileAccess.DirectoryExists(this.name))
-                fileAccess.CreateDirectory(this.name);
+            if (!fileAccess.DirectoryExists(this.name.StripOfIllegalCharacters()))
+                fileAccess.CreateDirectory(this.name.StripOfIllegalCharacters());
 
-            var files = fileAccess.ListFiles(name);
+            var files = fileAccess.ListFiles(name.StripOfIllegalCharacters());
             List<string> fields = new List<string>();
 
             IEnumerable<string> fieldNickNames;
@@ -236,7 +236,7 @@ namespace BBdownloader.Shares
 
         private bool DeleteField(string field)
         {
-            fileAccess.DeleteFile(Path.Combine(name, field + ".csv"));
+            fileAccess.DeleteFile(Path.Combine(name.StripOfIllegalCharacters(), field + ".csv"));
             return true;
         }
 
@@ -393,8 +393,9 @@ namespace BBdownloader.Shares
 
                                 foreach (var item in downloadedValues[field.FieldNickName])
                                 {
-                                    if (!newOutput.ContainsKey(item.Value))
-                                        newOutput.Add(item.Value, null);
+                                    if (item.Value != null)
+                                        if (!newOutput.ContainsKey(item.Value))
+                                            newOutput.Add(item.Value, null);
                                 }
 
                                 downloadedValues[field.FieldNickName] = new SortedList<DateTime, dynamic>(newOutput);

@@ -21,13 +21,20 @@ namespace BBdownloader.Extension_Methods
         }
 
         public static string StripOfIllegalCharacters(this string fileName)
-        {            
+        {
             return new string(
                 fileName
-                .Where(x => !Path.GetInvalidFileNameChars().Contains(x))
-                .Where(x => !Path.GetInvalidPathChars().Contains(x))
+                .Where(x => !InvalidChars().Contains(x))
                 .ToArray()
                 );
+        }
+
+        public static List<char> InvalidChars()
+        {
+            var invalidChars = new List<char>();
+            invalidChars.AddRange(Path.GetInvalidFileNameChars());
+            invalidChars.AddRange(Path.GetInvalidPathChars());
+            return invalidChars;
         }
 
 
