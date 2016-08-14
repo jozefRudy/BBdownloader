@@ -85,7 +85,7 @@ namespace BBdownloader.Extension_Methods
 
              foreach (var l in inList)
              {
-                 if (l != null)
+                 if (l != null && l.Item2.Count > 0)
                      outList.Add(l.Item2.ElementAt(0).Value);                
              }
              return outList;

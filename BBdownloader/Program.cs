@@ -59,7 +59,7 @@ namespace BBdownloader
 
                 sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("fields") });
                 var fields = new List<Field>();
-                sheet.toFields<Field>(fields);            
+                sheet.toFields<Field>(fields);
 
                 //download index compositions  
                 if (indexNames != null && indexNames.Count() > 0)
@@ -68,7 +68,8 @@ namespace BBdownloader
                     var names = dataSource.DownloadMultipleComponents(indexNames.ToList(), "INDX_MEMBERS");
 
                     //convert tickers -> BB IDs
-                    shareNames.Union(dataSource.GetTickers(names));
+                    shareNames.UnionWith(dataSource.GetTickers(names));
+
                 }
 
                 LocalDisk disk = new LocalDisk();
@@ -78,7 +79,6 @@ namespace BBdownloader
                 {
                     sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shares-reload") });
                     var sharesReload = dataSource.GetTickers(sheet.toShares().ToList()).StripOfIllegalCharacters();
-
 
                     sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shares-delete") });
                     var sharesDelete = dataSource.GetTickers(sheet.toShares().ToList()).StripOfIllegalCharacters();
