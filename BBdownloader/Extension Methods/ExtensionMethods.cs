@@ -21,9 +21,12 @@ namespace BBdownloader.Extension_Methods
         }
 
         public static string StripOfIllegalCharacters(this string fileName)
-        {
+        {            
             return new string(
-                fileName.Where(x => !Path.GetInvalidFileNameChars().Contains(x)).ToArray()
+                fileName
+                .Where(x => !Path.GetInvalidFileNameChars().Contains(x))
+                .Where(x => !Path.GetInvalidPathChars().Contains(x))
+                .ToArray()
                 );
         }
 
@@ -85,8 +88,11 @@ namespace BBdownloader.Extension_Methods
 
              foreach (var l in inList)
              {
-                 if (l != null && l.Item2.Count > 0)
-                     outList.Add(l.Item2.ElementAt(0).Value);                
+                if (l != null)
+                    if (l.Item2.Count > 0)
+                        outList.Add(l.Item2.ElementAt(0).Value);
+                    else
+                        outList.Add(l.Item1);
              }
              return outList;
          }
