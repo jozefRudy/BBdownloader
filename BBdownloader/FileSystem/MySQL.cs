@@ -113,7 +113,7 @@ SET b.attributeid = a.titulID;";
                 var fields = disk.ListFiles(id);
                 foreach (var field in fields)
                 {
-                    insertData(id, field.Split('.')[0]);                    
+                    insertData(id, field.Split('.')[0]);                                        
                 }
                 
             }
