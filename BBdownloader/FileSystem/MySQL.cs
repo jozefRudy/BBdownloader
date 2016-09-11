@@ -85,7 +85,7 @@ SET b.attributeid = a.titulID;";
             
             foreach (var field in ids)
             {
-                string text = String.Format(@"LOAD DATA LOCAL INFILE '{0}/{1}.csv' INTO TABLE field_info LINES TERMINATED BY 'IMPOSSIBLE' (value) SET attribute_name='{1}' ", this.path, field.Split('.')[0]);
+                string text = String.Format($"LOAD DATA LOCAL INFILE '{this.path}/{field.Split('.')[0]}.csv' INTO TABLE field_info LINES TERMINATED BY 'IMPOSSIBLE' (value) SET attribute_name='{field.Split('.')[0]}' ");
                 ExecuteQuery(text);
             }
             Trace.WriteLine("\nUpload successful");
@@ -93,7 +93,7 @@ SET b.attributeid = a.titulID;";
 
         private void insertData(string id, string field)
         {
-            string text = String.Format(@"LOAD DATA LOCAL INFILE '{0}/{1}/{2}.csv' INTO TABLE global_bbd FIELDS TERMINATED BY ',' (value_date,value,value_typ) SET attribute_name='{2}', bbd_unique='{1}';", this.path,id, field);
+            string text = String.Format($"LOAD DATA LOCAL INFILE '{this.path}/{id}/{field}.csv' INTO TABLE global_bbd FIELDS TERMINATED BY ',' (value_date,value,value_typ) SET attribute_name='{field}', bbd_unique='{id}';");
 
             ExecuteQuery(text);
         }
@@ -113,7 +113,7 @@ SET b.attributeid = a.titulID;";
                 var fields = disk.ListFiles(id);
                 foreach (var field in fields)
                 {
-                    insertData(id, field.Split('.')[0]);
+                    insertData(id, field.Split('.')[0]);                    
                 }
                 
             }
