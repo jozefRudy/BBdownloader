@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
@@ -91,9 +92,9 @@ SET b.attributeid = a.titulID;";
             Trace.WriteLine("\nUpload successful");
         }
 
-        private void insertData(string id, string field)
+        private void insertData(string id, string field, string ticker)
         {
-            string text = String.Format($"LOAD DATA LOCAL INFILE '{this.path}/{id}/{field}.csv' INTO TABLE global_bbd FIELDS TERMINATED BY ',' (value_date,value,value_typ) SET attribute_name='{field}', bbd_unique='{id}';");
+            string text = String.Format($"LOAD DATA LOCAL INFILE '{this.path}/{id}/{field}.csv' INTO TABLE global_bbd FIELDS TERMINATED BY ',' (value_date,value,value_typ) SET attribute_name='{field}', bbd_unique='{ticker}';");
 
             ExecuteQuery(text);
         }
@@ -111,11 +112,22 @@ SET b.attributeid = a.titulID;";
                 counter++;
 
                 var fields = disk.ListFiles(id);
-                foreach (var field in fields)
+                var text = File.ReadAllText(Path.Combine(this.path, id, "TICKER.csv"));
+
+                try
                 {
-                    insertData(id, field.Split('.')[0]);                                        
+                    var ticker = text.Split(',')[1];
+                    foreach (var field in fields)
+                    {
+                        insertData(id, field.Split('.')[0], ticker);
+                    }
                 }
-                
+                catch
+                {
+                    Trace.WriteLine("Cannot find TICKER.csv for share ", id);
+                }
+
+
             }
             ProgressBar.DrawProgressBar(1, 1);
             Trace.WriteLine("\nUpload successful");
@@ -123,7 +135,7 @@ SET b.attributeid = a.titulID;";
 
         public void DoWork()
         {
-            createTable();            
+            //createTable();            
             traverseDirs();            
         }        
 
