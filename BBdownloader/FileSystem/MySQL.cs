@@ -112,10 +112,10 @@ SET b.attributeid = a.titulID;";
                 counter++;
 
                 var fields = disk.ListFiles(id);
-                var text = File.ReadAllText(Path.Combine(this.path, id, "TICKER.csv"));
-
+                
                 try
                 {
+                    var text = File.ReadAllText(Path.Combine(this.path, id, "TICKER.csv"));
                     var ticker = text.Split(',')[1];
                     foreach (var field in fields)
                     {
@@ -135,7 +135,7 @@ SET b.attributeid = a.titulID;";
 
         public void DoWork()
         {
-            //createTable();            
+            createTable();            
             traverseDirs();            
         }        
 
