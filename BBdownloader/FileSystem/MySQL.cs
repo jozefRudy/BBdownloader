@@ -14,17 +14,17 @@ namespace BBdownloader.FileSystem
         string myConnectionString;
         string path;
         IFileSystem disk;
-               
+
         public MySQL(string ip, string user, string password, string database, IFileSystem disk)
         {
-            myConnectionString = "server="+ip+";uid="+user +";pwd="+ password +";database="+database+ ";useCompression=true;ConnectionTimeout=28880;DefaultCommandTimeout=28880;";
-            
-            this.path = disk.GetFullPath().Replace("\\","/");
+            myConnectionString = "server=" + ip + ";uid=" + user + ";pwd=" + password + ";database=" + database + ";useCompression=true;ConnectionTimeout=28880;DefaultCommandTimeout=28880;";
+
+            this.path = disk.GetFullPath().Replace("\\", "/");
             this.disk = disk;
         }
 
         private void createTable()
-        {           
+        {
             string text = @"CREATE TABLE IF NOT EXISTS `global_bbd` (
 `globalbbdid` int(11) AUTO_INCREMENT PRIMARY KEY,
 `bbd_unique` varchar(50) NOT NULL COLLATE latin1_bin DEFAULT '0',
@@ -83,7 +83,7 @@ SET b.attributeid = a.titulID;";
         {
             Trace.WriteLine("Uploading field definitions via compressed SQL connection ...");
             var ids = disk.ListFiles("");
-            
+
             foreach (var field in ids)
             {
                 string text = String.Format($"LOAD DATA LOCAL INFILE '{this.path}/{field.Split('.')[0]}.csv' INTO TABLE field_info LINES TERMINATED BY 'IMPOSSIBLE' (value) SET attribute_name='{field.Split('.')[0]}' ");
@@ -105,28 +105,24 @@ SET b.attributeid = a.titulID;";
 
             Trace.WriteLine("Uploading files via compressed SQL connection");
 
-            int counter = -1;            
+            int counter = -1;
             foreach (var id in ids)
             {
                 ProgressBar.DrawProgressBar(counter + 1, ids.Count());
                 counter++;
 
-                var fields = disk.ListFiles(id);
-                
-                try
-                {
-                    var text = File.ReadAllText(Path.Combine(this.path, id, "TICKER.csv"));
-                    var ticker = text.Split(',')[1];
-                    foreach (var field in fields)
-                    {
-                        insertData(id, field.Split('.')[0], ticker);
-                    }
-                }
-                catch
-                {
-                    Trace.WriteLine("Cannot find TICKER.csv for share ", id);
-                }
+                var tickerPath = Path.Combine(this.path, id, "TICKER.csv");
 
+                if (!File.Exists(tickerPath))
+                    continue;
+
+                var text = File.ReadAllText(tickerPath);
+                var ticker = text.Split(',')[1];
+                var fields = disk.ListFiles(id);
+                foreach (var field in fields)
+                {
+                    insertData(id, field.Split('.')[0], ticker);
+                }
 
             }
             ProgressBar.DrawProgressBar(1, 1);
@@ -135,9 +131,9 @@ SET b.attributeid = a.titulID;";
 
         public void DoWork()
         {
-            createTable();            
-            traverseDirs();            
-        }        
+            createTable();
+            traverseDirs();
+        }
 
         public void DoWorkFieldInfo()
         {
