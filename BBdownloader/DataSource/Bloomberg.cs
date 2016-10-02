@@ -39,7 +39,7 @@ namespace BBdownloader.DataSource {
             if (!IDs.Any())
                 return shareNames;
 
-            var bbIDs = this.DownloadData(IDs, new List<IField> { new Field() { FieldName = "EQY_FUND_TICKER", requestType = "ReferenceDataRequest" } });
+            var bbIDs = this.DownloadData(IDs, new List<IField> { new Field() { FieldName = "ID_BB_GLOBAL", requestType = "ReferenceDataRequest" } });
             var listIDs = from ids in bbIDs.RemoveDates()
                           select (string)ids;
             foreach (var item in listIDs)

@@ -154,7 +154,7 @@ namespace BBdownloader.Shares
             Console.ForegroundColor = ConsoleColor.Gray;
 
             var equities = from s in shares
-                           select s+" Equity";
+                           select s;
 
             foreach (var shareBlock in this.ShareBlocks(shares))
             {           
