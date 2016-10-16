@@ -315,7 +315,7 @@ namespace BBdownloader.Shares
             {
                 var field = file.Split('.')[0];
                 if (!fieldDefinitions.ContainsKey(field))
-                    DeleteField(field);
+                    fileAccess.DeleteFile(file);
             }
 
             return true;
