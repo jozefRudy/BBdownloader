@@ -42,8 +42,10 @@ namespace BBdownloader.DataSource {
             var bbIDs = this.DownloadData(IDs, new List<IField> { new Field() { FieldName = "ID_BB_GLOBAL", requestType = "ReferenceDataRequest" } });
             var listIDs = from ids in bbIDs.RemoveDates()
                           select (string)ids;
+            
             foreach (var item in listIDs)
-                shareNames.Add(item + " Equity");
+                shareNames.Add(item);
+
             return shareNames;
         }
 

@@ -99,6 +99,24 @@ SET b.attributeid = a.titulID;";
             ExecuteQuery(text);
         }
 
+        private string readFile(string tickerPath)
+        {
+            var text = File.ReadAllText(tickerPath);
+            var ticker = text.Split(',')[1];
+            return ticker.ToUpper();
+        }
+
+        private string makeName(string ticker, string asset_class)
+        {
+            if (asset_class.Contains("EQUITY"))
+                asset_class = "";
+            else
+                asset_class = " " + asset_class;
+
+            ticker += asset_class;
+            return ticker;
+        }
+
         private void traverseDirs()
         {
             var ids = disk.ListDirectories("");
@@ -111,13 +129,16 @@ SET b.attributeid = a.titulID;";
                 ProgressBar.DrawProgressBar(counter + 1, ids.Count());
                 counter++;
 
-                var tickerPath = Path.Combine(this.path, id, "TICKER.csv");
-
-                if (!File.Exists(tickerPath))
+                var ticker = Path.Combine(this.path, id, "TICKER.csv");                
+                if (!File.Exists(ticker))
                     continue;
 
-                var text = File.ReadAllText(tickerPath);
-                var ticker = text.Split(',')[1];
+                var asset_class = Path.Combine(this.path, id, "ASSET_CLASS.csv");
+                if (!File.Exists(asset_class))
+                    continue;
+
+                ticker = makeName(readFile(ticker), readFile(asset_class));
+
                 var fields = disk.ListFiles(id);
                 foreach (var field in fields)
                 {
