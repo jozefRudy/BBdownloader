@@ -33,13 +33,13 @@ namespace BBdownloader.DataSource {
             reconnectAttempts = 0;
         }
         
-        public IEnumerable<string> GetTickers(List<string> IDs)
+        public IEnumerable<string> GetFields(List<string> IDs, string fieldName)
         {
             var shareNames = new List<string>();
             if (!IDs.Any())
                 return shareNames;
 
-            var bbIDs = this.DownloadData(IDs, new List<IField> { new Field() { FieldName = "ID_BB_GLOBAL", requestType = "ReferenceDataRequest" } });
+            var bbIDs = this.DownloadData(IDs, new List<IField> { new Field() { FieldName = fieldName, requestType = "ReferenceDataRequest" } });
             var listIDs = from ids in bbIDs.RemoveDates()
                           select (string)ids;
             

@@ -51,7 +51,7 @@ namespace BBdownloader
                 sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shareNames") });
                 var shareIDs = sheet.toShares();
                 shareNames.UnionWith(
-                    dataSource.GetTickers(shareIDs.ToList())
+                    dataSource.GetFields(shareIDs.ToList(), "ID_BB_GLOBAL")
                     );
 
                 sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("indices") });
@@ -68,7 +68,7 @@ namespace BBdownloader
                     var names = dataSource.DownloadMultipleComponents(indexNames.ToList(), "INDX_MEMBERS");
 
                     //convert tickers -> BB IDs
-                    shareNames.UnionWith(dataSource.GetTickers(names));
+                    shareNames.UnionWith(dataSource.GetFields(names, "ID_BB_GLOBAL"));
 
                 }
 
@@ -78,10 +78,10 @@ namespace BBdownloader
                 //delete data for shares-reload and shares-delete
                 {
                     sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shares-reload") });
-                    var sharesReload = dataSource.GetTickers(sheet.toShares().ToList());
+                    var sharesReload = dataSource.GetFields(sheet.toShares().ToList(), "ID_BB_GLOBAL");
 
                     sheet.Download(new string[] { config.GetValue("sheetCode"), config.GetValue("shares-delete") });
-                    var sharesDelete = dataSource.GetTickers(sheet.toShares().ToList());
+                    var sharesDelete = dataSource.GetFields(sheet.toShares().ToList(), "ID_BB_GLOBAL");
 
                     foreach (var item in sharesDelete.Concat(sharesReload))
                         disk.DeleteDirectory(item.StripOfIllegalCharacters());
@@ -94,11 +94,35 @@ namespace BBdownloader
                     }
                 }
 
+                //roundtrip to tickers and back to bb_ids - as some bb_ids represent the same share
+                var ticker = dataSource.GetFields(shareNames.ToList(), "EQY_FUND_TICKER");
+                var asset_class = dataSource.GetFields(shareNames.ToList(), "BPIPE_REFERENCE_SECURITY_CL_RT");
+                var tickers = ticker.Zip(asset_class, (first, last) => first + " " + last);
+                HashSet<string> unique_tickers = new HashSet<string>(tickers);
+                shareNames = new HashSet<string>(dataSource.GetFields(unique_tickers.ToList(), "ID_BB_GLOBAL").ToList());
+
                 //download and save data                
                 stopwatch.Start();
-                {
-                    var shares = new SharesBatch(shareNames.ToList(), fields, dataSource, disk, startDate, endDate);
-                    shares.PerformOperations();
+                {                                        
+                    List<List<string>> shareBatches = new List<List<string>>();
+                    {
+                        int size = 300;
+                        var allShareNames = shareNames.ToList();
+                        while (allShareNames.Any())
+                        {
+                            shareBatches.Add(new List<string>());
+                            var list = shareBatches.Last();
+                            list.AddRange(allShareNames.Take(size).ToList());
+                            allShareNames = allShareNames.Skip(size).ToList();
+                        }
+                    }
+
+                    foreach (var item in shareBatches)
+                    {
+                        var shares = new SharesBatch(item.ToList(), fields, dataSource, disk, startDate, endDate);
+                        shares.PerformOperations();
+                        Thread.Sleep(TimeSpan.FromMinutes(5));
+                    }
 
                     Trace.Write("Processing Individual: ");
                     foreach (var shareName in shareNames)

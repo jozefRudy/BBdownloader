@@ -17,6 +17,6 @@ namespace BBdownloader.DataSource
 
         Dictionary<string,string> DownloadFieldInfo(string securityName, IEnumerable<IField> field);
 
-        IEnumerable<string> GetTickers(List<string> IDs);
+        IEnumerable<string> GetFields(List<string> IDs, string fieldName);
     }
 }

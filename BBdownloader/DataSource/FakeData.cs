@@ -63,7 +63,7 @@ namespace BBdownloader.DataSource
             throw new NotImplementedException();
         }
 
-        IEnumerable<string> IDataSource.GetTickers(List<string> IDs)
+        IEnumerable<string> IDataSource.GetFields(List<string> IDs, string fieldName)
         {
             throw new NotImplementedException();
         }
