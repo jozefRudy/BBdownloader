@@ -11,7 +11,7 @@ namespace BBdownloader.Shares
     public class SharesBatch
     {
         private readonly int maxFields = 25;
-        private readonly int maxShares = 50;
+        private readonly int maxShares = 25;
 
 
         private List<string> shareNames { get; set; }

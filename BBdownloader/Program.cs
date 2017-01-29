@@ -94,6 +94,8 @@ namespace BBdownloader
                     }
                 }
 
+                shareNames = new HashSet<string>(shareNames.Where(item => item.Contains("BBG")));
+
                 //roundtrip to tickers and back to bb_ids - as some bb_ids represent the same share
                 var ticker = dataSource.GetFields(shareNames.ToList(), "EQY_FUND_TICKER");
                 var asset_class = dataSource.GetFields(shareNames.ToList(), "BPIPE_REFERENCE_SECURITY_CL_RT");
@@ -104,26 +106,9 @@ namespace BBdownloader
                 //download and save data                
                 stopwatch.Start();
                 {                                        
-                    List<List<string>> shareBatches = new List<List<string>>();
-                    {
-                        int size = 300;
-                        var allShareNames = shareNames.ToList();
-                        while (allShareNames.Any())
-                        {
-                            shareBatches.Add(new List<string>());
-                            var list = shareBatches.Last();
-                            list.AddRange(allShareNames.Take(size).ToList());
-                            allShareNames = allShareNames.Skip(size).ToList();
-                        }
-                    }
-
-                    foreach (var item in shareBatches)
-                    {
-                        var shares = new SharesBatch(item.ToList(), fields, dataSource, disk, startDate, endDate);
-                        shares.PerformOperations();
-                        Thread.Sleep(TimeSpan.FromMinutes(5));
-                    }
-
+                    var shares = new SharesBatch(shareNames.ToList(), fields, dataSource, disk, startDate, endDate);
+                    shares.PerformOperations();
+                    
                     Trace.Write("Processing Individual: ");
                     foreach (var shareName in shareNames)
                     {
