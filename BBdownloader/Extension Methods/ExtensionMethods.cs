@@ -89,18 +89,26 @@ namespace BBdownloader.Extension_Methods
             }
         }
 
-         public static List<dynamic> RemoveDates(this IEnumerable<Tuple<string,SortedList<DateTime, dynamic>>> inList)
+         public static List<dynamic> RemoveDates(this IEnumerable<Tuple<string,SortedList<DateTime, dynamic>>> inList, List<string> shares)
          {
-             var outList = new List<dynamic>();
+            var outDict = new Dictionary<string, dynamic>(); 
+                //new List<dynamic>();
 
              foreach (var l in inList)
              {
                 if (l != null)
                     if (l.Item2.Count > 0)
-                        outList.Add(l.Item2.ElementAt(0).Value);
+                        outDict[l.Item1] = l.Item2.ElementAt(0).Value;
                     else
-                        outList.Add(l.Item1);
+                        outDict[l.Item1] = l.Item1;                        
              }
+
+            var outList = new List<dynamic>();
+            foreach (var item in shares)
+            {
+                outList.Add(outDict[item]);
+            }
+
              return outList;
          }
 

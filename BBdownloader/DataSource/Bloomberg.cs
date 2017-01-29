@@ -40,7 +40,8 @@ namespace BBdownloader.DataSource {
                 return shareNames;
 
             var bbIDs = this.DownloadData(IDs, new List<IField> { new Field() { FieldName = fieldName, requestType = "ReferenceDataRequest" } });
-            var listIDs = from ids in bbIDs.RemoveDates()
+
+            var listIDs = from ids in bbIDs.RemoveDates(IDs)
                           select (string)ids;
             
             foreach (var item in listIDs)
@@ -267,7 +268,7 @@ namespace BBdownloader.DataSource {
 
         private IEnumerable<Tuple<string,SortedList<DateTime, dynamic>>> ParseUniversal(Element securityDataArray, List<IField> fields)
         {
-            
+            Thread.Sleep(50);
             if (Console.KeyAvailable && Console.ReadKey(true).Key == ConsoleKey.P)
             {
                 Console.WriteLine("\nDownload Paused, press c to continue");

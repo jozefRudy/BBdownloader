@@ -94,7 +94,7 @@ namespace BBdownloader
                     }
                 }
 
-                shareNames = new HashSet<string>(shareNames.Where(item => item.Contains("BBG")));
+                shareNames = new HashSet<string>(shareNames.Where(item => item.Contains("BBG") & !item.Contains(" ")));
 
                 //roundtrip to tickers and back to bb_ids - as some bb_ids represent the same share
                 var ticker = dataSource.GetFields(shareNames.ToList(), "EQY_FUND_TICKER");
