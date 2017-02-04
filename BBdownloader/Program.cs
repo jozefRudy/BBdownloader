@@ -137,6 +137,7 @@ namespace BBdownloader
                 Trace.WriteLine("Time spent downloading from BB: " + stopwatch.Elapsed.ToString());
             }
 
+
             //upload data via SQL connection
             if (!options.NoUpload)
             {
@@ -162,11 +163,6 @@ namespace BBdownloader
 
 
                 {
-                    Console.WriteLine("Executing long job, please leave the program running - it is not taking local resources");
-                    LocalDisk disk = new LocalDisk();
-                    disk.SetPath(options.Dir);
-                    var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), disk);
-
                     //download script from sftp
                     string sqlScript = "";
                     using (var sftp = new SftpClient(config.GetValue("sftp-host"), config.GetValue("sftp-user"), config.GetValue("sftp-pass")))
@@ -175,6 +171,12 @@ namespace BBdownloader
                         sftp.ChangeDirectory(config.GetValue("sftp-dir"));
                         sqlScript = sftp.ReadAllText(config.GetValue("sftp-file"));
                     }
+
+                    //execute script
+                    Console.WriteLine("Executing long job, please leave the program running - it is not taking local resources");
+                    LocalDisk disk = new LocalDisk();
+                    disk.SetPath(options.Dir);
+                    var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), disk);
                     database.ExecuteQuery(sqlScript);
                 }
             }
