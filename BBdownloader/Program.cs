@@ -158,11 +158,10 @@ namespace BBdownloader
                     database.DoWorkFieldInfo();
                 }
                 stopwatch.Stop();
-                Trace.WriteLine("Time spent uploading: " + stopwatch.Elapsed.ToString());
-                logging.Close();
-
+                Trace.WriteLine("Time spent uploading: " + stopwatch.Elapsed.ToString());               
 
                 {
+                    stopwatch.Restart();
                     //download script from sftp
                     string sqlScript = "";
                     using (var sftp = new SftpClient(config.GetValue("sftp-host"), config.GetValue("sftp-user"), config.GetValue("sftp-pass")))
@@ -178,6 +177,10 @@ namespace BBdownloader
                     disk.SetPath(options.Dir);
                     var database = new MySQL(config.GetValue("sqlIP"), config.GetValue("sqlUser"), config.GetValue("sqlPass"), config.GetValue("sqlDB"), disk);
                     database.ExecuteQuery(sqlScript);
+
+                    stopwatch.Stop();
+                    Trace.WriteLine("Time spent running scripts: " + stopwatch.Elapsed.ToString());
+                    logging.Close();
                 }
             }
         }
