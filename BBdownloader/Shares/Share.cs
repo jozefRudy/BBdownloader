@@ -67,7 +67,7 @@ namespace BBdownloader.Shares
 
             if (wasAnyDownloaded)
                 return true;
-            else 
+            else
                 return false;
         }
 
@@ -75,7 +75,7 @@ namespace BBdownloader.Shares
         {
             var startDate = this.startDate;
 
-            if (loadedValues.ContainsKey(field.FieldNickName) && loadedValues[field.FieldNickName].Count>0)
+            if (loadedValues.ContainsKey(field.FieldNickName) && loadedValues[field.FieldNickName].Count > 0)
             {
                 var kvp = loadedValues[field.FieldNickName].Last();
                 startDate = kvp.Key;
@@ -111,7 +111,7 @@ namespace BBdownloader.Shares
             return true;
         }
 
-        
+
         private bool LoadFields()
         {
             foreach (var field in this.fields)
@@ -123,7 +123,7 @@ namespace BBdownloader.Shares
 
         private bool LoadField(IField field)
         {
-            string file = Path.Combine(this.name.StripOfIllegalCharacters(),field.FieldNickName + ".csv");
+            string file = Path.Combine(this.name.StripOfIllegalCharacters(), field.FieldNickName + ".csv");
 
             if (!fileAccess.FileExists(file))
                 return false;
@@ -144,10 +144,10 @@ namespace BBdownloader.Shares
             this.LoadField(field);
 
 
-            var outList = new SortedList<DateTime, dynamic>(); 
+            var outList = new SortedList<DateTime, dynamic>();
             this.loadedValues.TryGetValue(field.FieldNickName, out outList);
 
-            return outList.Last().Key;                
+            return outList.Last().Key;
         }
 
         private bool WriteFields()
@@ -171,12 +171,12 @@ namespace BBdownloader.Shares
 
         private bool WriteField(IField field)
         {
-            if (combinedValues.ContainsKey(field.FieldNickName) && combinedValues[field.FieldNickName]!=null)
+            if (combinedValues.ContainsKey(field.FieldNickName) && combinedValues[field.FieldNickName] != null)
             {
                 FileParser parser = new FileParser();
-                string content = parser.Write(combinedValues[field.FieldNickName],",");
+                string content = parser.Write(combinedValues[field.FieldNickName], ",");
 
-                if (!downloadedValues.ContainsKey(field.FieldNickName) || downloadedValues[field.FieldNickName]==null || downloadedValues[field.FieldNickName].Count == 0)
+                if (!downloadedValues.ContainsKey(field.FieldNickName) || downloadedValues[field.FieldNickName] == null || downloadedValues[field.FieldNickName].Count == 0)
                     return false;
 
                 if (!fileAccess.DirectoryExists(this.name.StripOfIllegalCharacters()))
@@ -228,7 +228,7 @@ namespace BBdownloader.Shares
             {
                 var field = file.Split('.')[0];
                 if (!fieldNickNames.Contains(field))
-                    DeleteField(field);                
+                    DeleteField(field);
             }
 
             return true;
@@ -249,34 +249,46 @@ namespace BBdownloader.Shares
             return true;
         }
 
-        public void InjectDownloaded(IField field, SortedList<DateTime,dynamic> data)
+        public void InjectDownloaded(IField field, SortedList<DateTime, dynamic> data)
         {
             downloadedValues[field.FieldNickName] = new SortedList<DateTime, dynamic>(data);
         }
 
         public bool DoWork()
-        {            
-            LoadFields();
-            if (DownloadFields())
+        {
+            try
             {
-                Console.ForegroundColor = ConsoleColor.White;
-                Trace.Write(this.name);
-                Console.ForegroundColor = ConsoleColor.Gray;
-                Trace.Write(", ");
+                LoadFields();
+                if (DownloadFields())
+                {
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Trace.Write(this.name);
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    Trace.Write(", ");
+                }
+                else
+                {
+                    Trace.Write("~" + this.name);
+                    Trace.Write(", ");
+                }
+                TransformFields();
+                CombineLoadedDownladedAll();
+                UnTransformFields();
+                WriteFields();
+                DeleteFields();
             }
-            else
+            catch (Exception e)
             {
-                Trace.Write("~" + this.name);
-                Trace.Write(", ");
+                Console.WriteLine($"Exception caught for share {this.name}: {e}");
+                var loaded_values = loadedValues.Select(kvp => kvp.Key + "- " + kvp.Value.Keys.Max().ToString() + ": " + kvp.Value.Values.LastOrDefault());
+                var downloaded_values = downloadedValues.Select(kvp => kvp.Key + "- " + kvp.Value.Keys.Max().ToString() + ": " + kvp.Value.Values.LastOrDefault());
+                Console.WriteLine("loaded values: +\n");
+                Console.WriteLine(string.Join(Environment.NewLine, loadedValues));
+                Console.WriteLine("downloaded values: +\n");
+                Console.WriteLine(string.Join(Environment.NewLine, downloaded_values));
             }
-            TransformFields();
-            CombineLoadedDownladedAll();
-            UnTransformFields();
-            WriteFields();
-            
-            DeleteFields();
-
             return true;
+
         }
 
         public bool DoWorkFieldInfo()
@@ -291,7 +303,7 @@ namespace BBdownloader.Shares
                     fieldDefinitions[f.FieldNickName] = content.ToString();
                 }
                 else
-                    toDownload.Add(f);                 
+                    toDownload.Add(f);
             }
 
             var outDict = dataSource.DownloadFieldInfo(this.name, toDownload);
@@ -304,7 +316,7 @@ namespace BBdownloader.Shares
                 if (!fieldDefinitions.ContainsKey(f.Key))
                 {
                     string file = Path.Combine(f.Key + ".csv");
-                    fileAccess.WriteFile(file, f.Value.ToString()); 
+                    fileAccess.WriteFile(file, f.Value.ToString());
                     fieldDefinitions.Add(f.Key, f.Value.ToString());
                 }
             }
@@ -373,20 +385,20 @@ namespace BBdownloader.Shares
                         if (loadedValues.ContainsKey(field.FieldNickName))
                         {
                             loadedValues[field.FieldNickName] = loadedValues[field.FieldNickName].price2ret();
-                            
+
                         }
                         if (downloadedValues.ContainsKey(field.FieldNickName) && downloadedValues[field.FieldNickName].Count() > 0)
                         {
                             lastPrice[field.FieldNickName] = downloadedValues[field.FieldNickName].Last().Value;
                             downloadedValues[field.FieldNickName] = downloadedValues[field.FieldNickName].price2ret();
                         }
-                        if (!lastPrice.ContainsKey(field.FieldNickName) && loadedValues.ContainsKey(field.FieldNickName) && loadedValues[field.FieldNickName].Count()>0)
+                        if (!lastPrice.ContainsKey(field.FieldNickName) && loadedValues.ContainsKey(field.FieldNickName) && loadedValues[field.FieldNickName].Count() > 0)
                             lastPrice[field.FieldNickName] = loadedValues[field.FieldNickName].Last().Value;
                         break;
                     case "ONLYRIGHT":
-                        
+
                         if (downloadedValues.ContainsKey(field.FieldNickName))
-                        {                            
+                        {
                             if (downloadedValues[field.FieldNickName] != null && downloadedValues[field.FieldNickName].Count > 0)
                             {
                                 SortedList<DateTime, dynamic> newOutput = new SortedList<DateTime, dynamic>();
@@ -417,7 +429,7 @@ namespace BBdownloader.Shares
                 switch (f)
                 {
                     case "TORETURNS":
-                        if (combinedValues.ContainsKey(field.FieldNickName) && combinedValues[field.FieldNickName]!=null && combinedValues[field.FieldNickName].Count > 1)
+                        if (combinedValues.ContainsKey(field.FieldNickName) && combinedValues[field.FieldNickName] != null && combinedValues[field.FieldNickName].Count > 1)
                             combinedValues[field.FieldNickName] = combinedValues[field.FieldNickName].ret2price(lastPrice[field.FieldNickName]);
                         break;
                     default:
