@@ -280,10 +280,11 @@ namespace BBdownloader.Shares
             catch (Exception e)
             {
                 Console.WriteLine($"Exception caught for share {this.name}: {e}");
-                var loaded_values = loadedValues.Select(kvp => kvp.Key + "- " + kvp.Value.Keys.Max().ToString() + ": " + kvp.Value.Values.LastOrDefault());
-                var downloaded_values = downloadedValues.Select(kvp => kvp.Key + "- " + kvp.Value.Keys.Max().ToString() + ": " + kvp.Value.Values.LastOrDefault());
+
+                var loaded_values = loadedValues.Select(kvp => kvp.Key + "- " + kvp.Value.Keys.LastOrDefault().ToString() + ": " + kvp.Value.Values.LastOrDefault());
+                var downloaded_values = downloadedValues.Select(kvp => kvp.Key + "- " + kvp.Value.Keys.LastOrDefault().ToString() + ": " + kvp.Value.Values.LastOrDefault());
                 Console.WriteLine("loaded values: +\n");
-                Console.WriteLine(string.Join(Environment.NewLine, loadedValues));
+                Console.WriteLine(string.Join(Environment.NewLine, loaded_values));
                 Console.WriteLine("downloaded values: +\n");
                 Console.WriteLine(string.Join(Environment.NewLine, downloaded_values));
             }
